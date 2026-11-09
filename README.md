@@ -1,2 +1,2 @@
-# HD-Contest-Project-
-HD Contest Project 이다.
+# chageun
+현대 플레오스 앱 공모전 레포지토리입니다.
