@@ -8,6 +8,7 @@ import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
 import android.widget.Button
 import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import kr.drivestep.tutor.R
 import kotlin.math.roundToInt
 
@@ -44,7 +45,7 @@ object PleosUi {
 
     fun icon(context: Context, key: String, sizeDp: Int = 32, tint: Int = TEXT): Drawable? {
         val id = icons[key] ?: return null
-        return context.getDrawable(id)?.mutate()?.apply {
+        return ContextCompat.getDrawable(context, id)?.mutate()?.apply {
             setTint(tint)
             val size = dp(context, sizeDp)
             setBounds(0, 0, size, size)
@@ -84,7 +85,7 @@ object PleosUi {
     }
 
     fun checkIcon(context: Context, checked: Boolean, sizeDp: Int = 32): Drawable =
-        context.getDrawable(if (checked) R.drawable.pleos_checkbox_on else R.drawable.pleos_checkbox_off)!!.mutate().apply {
+        ContextCompat.getDrawable(context, if (checked) R.drawable.pleos_checkbox_on else R.drawable.pleos_checkbox_off)!!.mutate().apply {
             val size = dp(context, sizeDp); setBounds(0, 0, size, size)
         }
 

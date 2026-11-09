@@ -29,7 +29,8 @@ import java.util.Locale
 
 /** SIMULATION-only signal workbench. It never imports, queries or controls a vehicle SDK. */
 // Created in code with required host/session arguments; never inflated from XML.
-@SuppressLint("ViewConstructor")
+// This automotive screen uses the platform Activity/theme, not AppCompat widgets.
+@SuppressLint("ViewConstructor", "UseSwitchCompatOrMaterialCode")
 class SituationCoachView(
     context: Context,
     private val onCue: (CoachCue) -> Unit,

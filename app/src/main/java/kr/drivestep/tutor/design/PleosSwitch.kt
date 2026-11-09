@@ -5,13 +5,14 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.CompoundButton
+import androidx.core.content.ContextCompat
 import kr.drivestep.tutor.R
 import kotlin.math.roundToInt
 
 /** Original Figma switch state art with native CompoundButton input and accessibility. */
 class PleosSwitch(context: Context) : CompoundButton(context) {
-    private val on = context.getDrawable(R.drawable.pleos_switch_on)!!
-    private val off = context.getDrawable(R.drawable.pleos_switch_off)!!
+    private val on = ContextCompat.getDrawable(context, R.drawable.pleos_switch_on)!!
+    private val off = ContextCompat.getDrawable(context, R.drawable.pleos_switch_off)!!
     private val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     init {
         buttonDrawable = null

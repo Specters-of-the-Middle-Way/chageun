@@ -31,7 +31,8 @@ import java.util.Locale
  * MainActivity owns the actual P/UX gate and must call setActive(false) on screen exit.
  */
 // Created in code with required host/session arguments; never inflated from XML.
-@SuppressLint("ViewConstructor")
+// This automotive screen uses the platform Activity/theme, not AppCompat widgets.
+@SuppressLint("ViewConstructor", "UseSwitchCompatOrMaterialCode")
 class DriveCoachView(
     context: Context,
     private val onCue: (CoachCue) -> Unit,

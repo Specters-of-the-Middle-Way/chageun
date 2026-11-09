@@ -336,10 +336,10 @@ class DriverJourneyView(
         parent.addView(list, LayoutParams(-1, 0, 1f))
         practiceRow(list, "driving", "차로 변경", "방향지시등 · 미러 확인 · 조향", "journey_start_drive") { launch(JourneyDestination.DRIVE) }
         practiceRow(list, "vehicle", "주차", "후진 주차 · 평행 주차", "journey_start_parking") { launch(JourneyDestination.PARKING) }
-        practiceRow(list, "info", "정차 중 교육", "전기차 조작 원리 · 차량 신호 실습", "journey_course_education") { state.enterEducation(); render() }
+        practiceRow(list, "sound", "함께하는 연수", "짧은 대화 · 다음 상황 준비 · 조작 복습", "journey_start_lesson") { launch(JourneyDestination.LESSON) }
         gap(parent, 16)
         val status = horizontal(parent, 64)
-        status.addView(label("내비 경로 연습은 제공 예정입니다.", 18, grey), LayoutParams(0, dp(64), 1f))
+        status.addView(button("정차 중 교육", "journey_course_education") { state.enterEducation(); render() }, LayoutParams(0, dp(64), 1f))
         status.addView(button("운전 환경 설정", "journey_adjust") { state.enterSetup(); render() }, LayoutParams(dp(210), dp(64)))
     }
 
@@ -373,6 +373,7 @@ class DriverJourneyView(
         educationTile(list, "핸들 조작", "P·정차 상태에서 조향 신호를 확인해요", "journey_sdk_steering") { requestVehicleLesson(JourneyDestination.STEERING) }
         educationTile(list, "기존 학습 자료", "교통상식·주차 순서를 다시 확인해요", "journey_legacy") { launch(JourneyDestination.LEGACY, requireReady = false) }
         educationTile(list, "상황 감지 변수", "개발용 가상 입력으로 반응 조건을 확인해요", "journey_context") { launch(JourneyDestination.CONTEXT, requireReady = false) }
+        educationTile(list, "함께하는 연수", "대화와 준비 안내를 연결하고 조작 기록을 복습해요", "journey_lesson") { launch(JourneyDestination.LESSON, requireReady = false) }
         gap(parent, 12)
         parent.addView(button(if (state.canPractice) "연습 선택으로" else "준비하던 단계로", "journey_education_back", selected = true) {
             if (state.canPractice) state.enterPractice() else state.enterPreflight(); render()

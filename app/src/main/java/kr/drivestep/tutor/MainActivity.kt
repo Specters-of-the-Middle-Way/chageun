@@ -22,6 +22,8 @@ import kr.drivestep.tutor.simulator.DrivingSimulatorView
 import kr.drivestep.tutor.parking.ParkingSimulatorView
 import kr.drivestep.tutor.journey.DriverJourneyView
 import kr.drivestep.tutor.journey.JourneyDestination
+import kr.drivestep.tutor.lessoncoach.LessonCoachView
+import kr.drivestep.tutor.lessoncoach.LessonInputCoordinator
 import kr.drivestep.tutor.coach.*
 import kr.drivestep.tutor.practice.*
 import kr.drivestep.tutor.tutor.*
@@ -33,7 +35,9 @@ import java.util.UUID
 import java.util.concurrent.Executors
 
 class MainActivity : Activity() {
-    private enum class Screen { COACH, SIMULATOR, PARK_SIM, SITUATION, RIDE, HOME, HOW_TO, PRACTICE, REVIEW, PARKING, STEERING_SETUP, STEERING, GROWTH }
+    private enum class Screen { COACH, LESSON, SIMULATOR, PARK_SIM, SITUATION, RIDE, HOME, HOW_TO, PRACTICE, REVIEW, PARKING, STEERING_SETUP, STEERING, GROWTH }
+    private lateinit var lesson: LessonCoachView
+    private lateinit var lessonInputs: LessonInputCoordinator
     private lateinit var growth: GrowthTutorView
     private lateinit var ride: DriveCoachView
     private lateinit var situation: SituationCoachView
@@ -129,6 +133,17 @@ class MainActivity : Activity() {
         parkingSimulator = ParkingSimulatorView(this, onCue = { offerCue(it) }, stopVoice = {
             voice.stop(); currentCue = null
         }, onExit = { returnFromPractice(JourneyDestination.PARKING) }, recordEnabled = { journey.recordEnabled })
+        lessonInputs = LessonInputCoordinator(this,
+            onVehicle = { if (::lesson.isInitialized) lesson.acceptVehicle(it) },
+            onNavigation = { if (::lesson.isInitialized) lesson.acceptNavigation(it) },
+            onStatus = { if (::lesson.isInitialized) lesson.setConnectionStatus(it) })
+        lesson = LessonCoachView(this, onExit = {
+            lessonInputs.stop(); screen = Screen.COACH; render()
+        }, recordEnabled = { journey.recordEnabled }, vehicleEnabled = { journey.vehicleDataEnabled },
+            onInputModeChanged = { live ->
+                if (live && !hasSpeedPermission()) requestPermissions(arrayOf("android.car.permission.CAR_SPEED"), 31)
+                syncLessonInputs()
+            })
         render()
         io.execute {
             try {
@@ -156,6 +171,8 @@ class MainActivity : Activity() {
             gateMessage = message
             voice.setActive(allowed && foreground && (screen !in setOf(Screen.SIMULATOR, Screen.PARK_SIM) || resumed))
             if (!allowed) {
+                lesson.setActive(false)
+                lessonInputs.stop()
                 interrupt("DRIVING_RESTRICTION")
                 steering.interrupt("DRIVING_RESTRICTION", speak = false)
                 emulatorControls.stop()
@@ -182,6 +199,8 @@ class MainActivity : Activity() {
 
     override fun onPause() {
         resumed = false
+        lesson.setActive(false)
+        lessonInputs.stop()
         simulator.setActive(false)
         parkingSimulator.setActive(false)
         journey.setActive(false)
@@ -193,6 +212,8 @@ class MainActivity : Activity() {
 
     override fun onStop() {
         foreground = false
+        lesson.setActive(false)
+        lessonInputs.stop()
         growth.setActive(false)
         ride.setActive(false)
         situation.setActive(false)
@@ -211,6 +232,8 @@ class MainActivity : Activity() {
     }
 
     override fun onDestroy() {
+        lessonInputs.close()
+        lesson.close()
         ride.close()
         situation.close()
         simulator.close()
@@ -232,6 +255,7 @@ class MainActivity : Activity() {
     @Deprecated("Legacy Activity back callback")
     override fun onBackPressed() {
         if (screen == Screen.COACH) { if (!journey.goBack()) super.onBackPressed() }
+        else if (screen == Screen.LESSON) { if (!lesson.goBack()) { screen = Screen.COACH; render() } }
         else if (screen == Screen.PARK_SIM) { if (!parkingSimulator.goBack()) returnFromPractice(JourneyDestination.PARKING) }
         else if (screen == Screen.SIMULATOR) { if (!simulator.goBack()) returnFromPractice(JourneyDestination.DRIVE) }
         else if (screen == Screen.SITUATION) { if (!situation.goBack()) { screen = Screen.COACH; render() } }
@@ -364,9 +388,23 @@ class MainActivity : Activity() {
         try { renderContent() } finally { rendering = false }
     }
 
+    private fun syncLessonInputs() {
+        if (!::lesson.isInitialized || !::lessonInputs.isInitialized) return
+        if (foreground && resumed && parked && screen == Screen.LESSON && lesson.wantsLiveInputs && journey.vehicleDataEnabled) {
+            if (hasSpeedPermission()) lessonInputs.start()
+            else {
+                lessonInputs.stop()
+                lesson.setConnectionStatus("차량 속도 읽기 권한이 필요해요. 차량 연결 모드를 다시 선택해 주세요.")
+            }
+        } else lessonInputs.stop()
+    }
+
     private fun renderContent() {
         if (isDestroyed) return
-        if (!::emulatorControls.isInitialized || !::steering.isInitialized || !::growth.isInitialized || !::ride.isInitialized || !::situation.isInitialized || !::simulator.isInitialized || !::parkingSimulator.isInitialized || !::journey.isInitialized) return
+        if (!::emulatorControls.isInitialized || !::steering.isInitialized || !::growth.isInitialized || !::ride.isInitialized || !::situation.isInitialized || !::simulator.isInitialized || !::parkingSimulator.isInitialized || !::journey.isInitialized || !::lesson.isInitialized) return
+        lesson.setSpeechEnabled(voiceEnabled)
+        lesson.setActive(foreground && resumed && parked && screen == Screen.LESSON)
+        syncLessonInputs()
         growth.setActive(foreground && parked && screen == Screen.GROWTH)
         ride.setActive(foreground && parked && screen == Screen.RIDE)
         situation.setActive(foreground && parked && screen == Screen.SITUATION)
@@ -377,6 +415,7 @@ class MainActivity : Activity() {
         // Replacing it would cancel a held pedal or restart its simulation ticker.
         if (foreground && parked && renderedScreen == screen &&
             ((screen == Screen.RIDE && ride.isAttachedToWindow) || (screen == Screen.SITUATION && situation.isAttachedToWindow) ||
+                (screen == Screen.LESSON && lesson.isAttachedToWindow) ||
                 (screen == Screen.SIMULATOR && simulator.isAttachedToWindow) ||
                 (screen == Screen.PARK_SIM && parkingSimulator.isAttachedToWindow) ||
                 (screen == Screen.COACH && journey.isAttachedToWindow))) {
@@ -386,7 +425,7 @@ class MainActivity : Activity() {
         }
         if (!foreground || !parked || screen !in setOf(Screen.HOW_TO, Screen.PRACTICE, Screen.STEERING_SETUP, Screen.STEERING) ||
             (screen == Screen.STEERING && (steeringReview != null || steering.snapshot?.isTerminal == true))) emulatorControls.stop()
-        if (parked && screen in setOf(Screen.COACH, Screen.SIMULATOR, Screen.PARK_SIM)) {
+        if (parked && screen in setOf(Screen.COACH, Screen.LESSON, Screen.SIMULATOR, Screen.PARK_SIM)) {
             renderSimulator()
             return
         }
@@ -417,7 +456,7 @@ class MainActivity : Activity() {
         gap(content, 12)
         when (screen) {
             Screen.COACH -> coachHome(content)
-            Screen.SIMULATOR, Screen.PARK_SIM -> Unit // Mounted without a ScrollView above.
+            Screen.LESSON, Screen.SIMULATOR, Screen.PARK_SIM -> Unit // Mounted without a ScrollView above.
             Screen.SITUATION -> {
                 (situation.parent as? android.view.ViewGroup)?.removeView(situation)
                 content.addView(situation)
@@ -538,6 +577,11 @@ class MainActivity : Activity() {
         bar.addView(text("IONIQ 3", 18, PleosUi.SECONDARY).apply {
             gravity = Gravity.CENTER
         }, LinearLayout.LayoutParams(dp(110), dp(64)))
+        if (screen == Screen.COACH) {
+            bar.addView(button("함께하는 연수", "coach_lesson", secondary = true) {
+                voice.stop(); currentCue = null; screen = Screen.LESSON; render()
+            }, LinearLayout.LayoutParams(dp(180), dp(64)).apply { marginEnd = dp(12) })
+        }
         val toggle = PleosSwitch(this).apply {
             text = "음성 안내  "
             textSize = 15f
@@ -558,11 +602,19 @@ class MainActivity : Activity() {
         PleosUi.decorate(repeat)
         PleosUi.prefix(repeat, "sound", 24)
         voiceRepeatButton = repeat
+        if (screen == Screen.LESSON) repeat.visibility = View.GONE
         bar.addView(repeat, LinearLayout.LayoutParams(dp(164), dp(64)))
         content.addView(bar)
-        val surface = when (screen) { Screen.COACH -> journey; Screen.PARK_SIM -> parkingSimulator; else -> simulator }
+        val surface = when (screen) { Screen.COACH -> journey; Screen.LESSON -> lesson; Screen.PARK_SIM -> parkingSimulator; else -> simulator }
         (surface.parent as? android.view.ViewGroup)?.removeView(surface)
-        content.addView(surface, LinearLayout.LayoutParams(-1, 0, 1f))
+        if (screen == Screen.LESSON) {
+            val scroll = ScrollView(this).apply {
+                isFillViewport = true
+                addView(surface, FrameLayout.LayoutParams(-1, -2))
+            }
+            rootScroll = scroll
+            content.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
+        } else content.addView(surface, LinearLayout.LayoutParams(-1, 0, 1f))
         setContentView(content)
     }
 
@@ -586,6 +638,7 @@ class MainActivity : Activity() {
         if (destination in setOf(JourneyDestination.DRIVE, JourneyDestination.PARKING) && !journey.canPractice) return
         voice.stop(); currentCue = null; returnToCoach = true
         screen = when (destination) {
+            JourneyDestination.LESSON -> Screen.LESSON
             JourneyDestination.DRIVE -> Screen.SIMULATOR
             JourneyDestination.PARKING -> Screen.PARK_SIM
             JourneyDestination.SIGNAL -> { connectSource(); Screen.HOW_TO }
@@ -850,6 +903,7 @@ class MainActivity : Activity() {
             if (hasSpeedPermission() && foreground && journey.vehicleDataEnabled) steering.connect()
             render()
         }
+        if (requestCode == 31) { syncLessonInputs(); render() }
     }
 
     private fun steeringSetup(parent: LinearLayout) {

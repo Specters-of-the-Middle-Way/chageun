@@ -1,5 +1,11 @@
 # Skill 05 — Local Storage Schemas, Voice Assets & Korean Copy Rules
 
+## v0.10 Additional Lesson History and Speech
+
+`lessoncoach/LessonCoachStore` adds an app-private AtomicFile `files/lesson-coach-history.json`, schema version 1, up to 20 sessions. The current session retains at most 160 recent events (the file decoder bounds at 200). Save only with current record consent. Keep driver reports, SDK observations, navigation events and simulation distinct; no raw audio is saved by the app. Platform/Speech SDK logs may still contain transcripts in a development image.
+
+Dynamic lesson replies use `TutorSpeechController` rather than the legacy `CoachCue` catalogue. They do not require a new WAV entry and must not pretend to have a bundled audio fallback. The existing 194-cue synchronization rule still applies to legacy CoachCue edits.
+
 ## 1. Six Local Storage Repositories (Zero Cloud Upload)
 
 All user records are stored strictly inside the current Android user's app-private storage (`allowBackup="false"`). Never mix SDK signal logs with simulated exercise logs.

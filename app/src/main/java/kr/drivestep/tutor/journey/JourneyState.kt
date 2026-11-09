@@ -2,7 +2,7 @@ package kr.drivestep.tutor.journey
 
 import kotlin.math.roundToInt
 
-enum class JourneyDestination { DRIVE, PARKING, SIGNAL, STEERING, LEGACY, CONTEXT }
+enum class JourneyDestination { DRIVE, PARKING, SIGNAL, STEERING, LEGACY, CONTEXT, LESSON }
 enum class JourneyStep { PROFILE, REVISIT, SETUP, PREFLIGHT, PRACTICE, EDUCATION, REVIEW }
 enum class CalibrationAxis { FORE_AFT, HEIGHT, BACKREST, STEERING }
 

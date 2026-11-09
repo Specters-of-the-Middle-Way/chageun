@@ -1,5 +1,12 @@
 # Skill 04 — Pleos Vehicle SDK 2.3.2 & 2-Tier Timeout Policy
 
+## Interactive Lesson (v0.10)
+
+- `lessoncoach/LessonInputCoordinator` reads existing Vehicle/AAOS sources plus NaviHelper 3.0.5 TBT events. It never controls the vehicle. Preserve per-channel timestamps and source labels; only a genuine turn-signal subscription event may acknowledge a new blinker operation. AAOS continuous speed uses its measurement timestamp when available.
+- `speech/TutorSpeechController` uses Pleos SpeechToText/TextToSpeech 3.3.1 in ON_DEVICE mode. Only final recognition results enter `LessonCoachSession`; listening is explicit, bounded, and cancelled on inactive state/audio-focus loss. Android TTS fallback must remain visibly labelled.
+- Actual emulator testing decoded a synthetic LEFT phrase as RIGHT. Every **voice-origin direction** must stay an uncommitted candidate until a separate affirmative reply; rejection, timeout, pause and source change must clear it. Never remove this confirmation based only on a successful SDK callback.
+- The new lesson remains parked-only. No camera, adjacent-object stream, automatic lane-clear judgement or live-road approval is implied by speech/navigation integration.
+
 ## 1. Hybrid Vehicle Signal Architecture (AAOS + Pleos SDK 2.3.2)
 
 Always follow the established API source priority in `kr.drivestep.tutor.vehicle`:
