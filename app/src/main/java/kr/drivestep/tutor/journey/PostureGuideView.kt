@@ -101,17 +101,7 @@ class PostureGuideView(context: Context) : View(context) {
         if (width <= 0 || height <= 0) return
 
         val pad = dp(8f)
-        val cardWidth = width - pad * 2
-        // Keep the illustration proportional when the surrounding column grows taller.
-        val preferredHeight = when (stepIndex) {
-            5 -> (cardWidth - dp(32f)) / 2.4f + dp(66f)
-            6, 7 -> (cardWidth - dp(32f)) / 1.8f + dp(66f)
-            8 -> cardWidth * 1.25f
-            else -> cardWidth * 1.1f
-        }
-        val cardHeight = preferredHeight.coerceAtMost(height - pad * 2)
-        val cardTop = (height - cardHeight) * 0.5f
-        cardRect.set(pad, cardTop, width - pad, cardTop + cardHeight)
+        cardRect.set(pad, pad, width - pad, height - pad)
         paint.style = Paint.Style.FILL
         paint.color = PleosUi.SURFACE
         canvas.drawRoundRect(cardRect, dp(14f), dp(14f), paint)
@@ -135,23 +125,27 @@ class PostureGuideView(context: Context) : View(context) {
         val left = cardRect.left + dp(14f)
         val right = cardRect.right - dp(14f)
         val top = cardRect.top + dp(12f)
-        val diagramBottom = cardRect.bottom - dp(58f)
+        val diagramBottom = cardRect.bottom - dp(76f)
         innerRect.set(left, top, right, diagramBottom)
 
         paint.style = Paint.Style.FILL
         paint.color = PleosUi.BACKGROUND
         canvas.drawRoundRect(innerRect, dp(10f), dp(10f), paint)
 
-        val cx = innerRect.centerX()
-        val floorY = innerRect.centerY() + dp(40f)
+        // Scale the whole scene uniformly, including calibration offsets and line widths.
+        val sceneScale = minOf(innerRect.width() / dp(200f), innerRect.height() / dp(128f))
+        val sceneSave = canvas.save()
+        canvas.translate(innerRect.centerX(), innerRect.centerY())
+        canvas.scale(sceneScale, sceneScale)
+        val floorY = dp(50f)
 
         // Floor reference line and brake pedal on the left
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = dp(2f)
         paint.color = PleosUi.LINE
-        canvas.drawLine(innerRect.left + dp(16f), floorY, innerRect.right - dp(16f), floorY, paint)
+        canvas.drawLine(-dp(92f), floorY, dp(92f), floorY, paint)
 
-        val pedalX = innerRect.left + dp(34f)
+        val pedalX = -dp(80f)
         paint.strokeWidth = dp(4f)
         paint.color = PleosUi.SELECTED
         canvas.drawLine(pedalX, floorY - dp(24f), pedalX + dp(10f), floorY - dp(4f), paint)
@@ -159,7 +153,7 @@ class PostureGuideView(context: Context) : View(context) {
         // Draw recommended silhouette (dashed teal) first, then current calibration (solid dark)
         drawSeatAndWheelSilhouette(
             canvas = canvas,
-            centerX = cx,
+            centerX = 0f,
             floorY = floorY,
             cal = recommended,
             color = guideTint,
@@ -167,12 +161,13 @@ class PostureGuideView(context: Context) : View(context) {
         )
         drawSeatAndWheelSilhouette(
             canvas = canvas,
-            centerX = cx,
+            centerX = 0f,
             floorY = floorY,
             cal = calibration,
             color = PleosUi.TEXT,
             dashed = false,
         )
+        canvas.restoreToCount(sceneSave)
 
         // Draw target gauge bar below diagram
         val barTop = diagramBottom + dp(10f)
@@ -242,11 +237,7 @@ class PostureGuideView(context: Context) : View(context) {
     }
 
     private fun drawRoomMirrorDiagram(canvas: Canvas) {
-        val left = cardRect.left + dp(16f)
-        val right = cardRect.right - dp(16f)
-        val top = cardRect.top + dp(16f)
-        val bottom = cardRect.bottom - dp(50f)
-        innerRect.set(left, top, right, bottom)
+        fitMirrorBounds(2.4f)
 
         paint.style = Paint.Style.FILL
         paint.color = skyTint
@@ -284,11 +275,7 @@ class PostureGuideView(context: Context) : View(context) {
     }
 
     private fun drawSideMirrorDiagram(canvas: Canvas, isLeft: Boolean) {
-        val left = cardRect.left + dp(16f)
-        val right = cardRect.right - dp(16f)
-        val top = cardRect.top + dp(16f)
-        val bottom = cardRect.bottom - dp(50f)
-        innerRect.set(left, top, right, bottom)
+        fitMirrorBounds(1.8f)
 
         // Sky (top 1/2) & road (bottom 1/2)
         paint.style = Paint.Style.FILL
@@ -328,7 +315,7 @@ class PostureGuideView(context: Context) : View(context) {
         // Labels inside mirror zones
         paint.style = Paint.Style.FILL
         paint.typeface = boldTypeface
-        paint.textSize = dp(11f)
+        paint.textSize = dp(18f)
         paint.color = PleosUi.TEXT
         paint.textAlign = Paint.Align.CENTER
         val bodyCenterX = bandRect.centerX()
@@ -337,25 +324,39 @@ class PostureGuideView(context: Context) : View(context) {
         } else {
             (bandRect.right + innerRect.right) * 0.5f
         }
-        canvas.drawText("1/4 차체", bodyCenterX, midY + dp(18f), paint)
-        canvas.drawText("3/4 옆 차로 시야", roadCenterX, midY + dp(18f), paint)
+        canvas.drawText("1/4 차체", bodyCenterX, midY + dp(28f), paint)
+        canvas.drawText("3/4 옆 차로 시야", roadCenterX, midY + dp(28f), paint)
+    }
+
+    private fun fitMirrorBounds(aspectRatio: Float) {
+        val availableWidth = cardRect.width() - dp(32f)
+        val availableHeight = cardRect.height() - dp(80f)
+        val mirrorWidth = minOf(availableWidth, availableHeight * aspectRatio)
+        val mirrorHeight = mirrorWidth / aspectRatio
+        val centerY = cardRect.top + dp(16f) + availableHeight * 0.5f
+        innerRect.set(cardRect.centerX() - mirrorWidth * 0.5f, centerY - mirrorHeight * 0.5f,
+            cardRect.centerX() + mirrorWidth * 0.5f, centerY + mirrorHeight * 0.5f)
     }
 
     private fun drawSeatbeltDiagram(canvas: Canvas) {
         val left = cardRect.left + dp(16f)
         val right = cardRect.right - dp(16f)
         val top = cardRect.top + dp(14f)
-        val bottom = cardRect.bottom - dp(50f)
+        val bottom = cardRect.bottom - dp(64f)
         innerRect.set(left, top, right, bottom)
 
         paint.style = Paint.Style.FILL
         paint.color = PleosUi.BACKGROUND
         canvas.drawRoundRect(innerRect, dp(12f), dp(12f), paint)
 
-        val cx = innerRect.centerX()
-        val headY = innerRect.top + dp(24f)
+        val sceneScale = minOf(innerRect.width() / dp(120f), innerRect.height() / dp(156f))
+        val sceneSave = canvas.save()
+        canvas.translate(innerRect.centerX(), innerRect.centerY())
+        canvas.scale(sceneScale, sceneScale)
+        val cx = 0f
+        val headY = -dp(60f)
         val torsoTopY = headY + dp(16f)
-        val pelvisY = innerRect.bottom - dp(18f)
+        val pelvisY = dp(50f)
 
         // Torso outline
         paint.style = Paint.Style.STROKE
@@ -371,6 +372,7 @@ class PostureGuideView(context: Context) : View(context) {
         paint.color = guideTint
         canvas.drawLine(cx - dp(22f), torsoTopY + dp(4f), cx + dp(22f), pelvisY - dp(8f), paint)
         canvas.drawLine(cx - dp(24f), pelvisY - dp(8f), cx + dp(22f), pelvisY - dp(8f), paint)
+        canvas.restoreToCount(sceneSave)
     }
 
     private fun drawFooterCaption(canvas: Canvas) {
@@ -380,14 +382,14 @@ class PostureGuideView(context: Context) : View(context) {
         val cx = cardRect.centerX()
 
         paint.typeface = boldTypeface
-        paint.textSize = dp(12.5f)
+        paint.textSize = dp(16f)
         paint.color = PleosUi.TEXT
-        canvas.drawText(captionText, cx, cardRect.bottom - dp(24f), paint)
+        canvas.drawText(captionText, cx, cardRect.bottom - dp(30f), paint)
 
         paint.typeface = regularTypeface
-        paint.textSize = dp(11.5f)
+        paint.textSize = dp(14f)
         paint.color = PleosUi.SECONDARY
-        canvas.drawText(rangeText, cx, cardRect.bottom - dp(8f), paint)
+        canvas.drawText(rangeText, cx, cardRect.bottom - dp(10f), paint)
     }
 
     private fun dp(value: Float): Float = value * resources.displayMetrics.density

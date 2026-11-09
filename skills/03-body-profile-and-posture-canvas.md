@@ -27,7 +27,7 @@ To help novice drivers understand how much to adjust their seat, steering wheel,
 
 ## 2. Interactive Canvas Specification (`PostureGuideView.kt`)
 
-`kr.drivestep.tutor.journey.PostureGuideView` renders a real-time visual diagram on the left card of `DriverJourneyView.setupPage()`:
+`kr.drivestep.tutor.journey.PostureGuideView` renders a real-time visual diagram in the main explanation column of `DriverJourneyView.setupPage()`, directly above the `설명 다시 확인` button. It fills the available space and scales posture/belt illustrations uniformly; mirror diagrams keep their aspect ratios, and captions remain readable at a fixed text size:
 
 - **Steps `0..4` (Seat & Steering Calibration)**:
   - Draws a side-profile silhouette of the floor, brake pedal, seat cushion, backrest, headrest, and steering wheel.

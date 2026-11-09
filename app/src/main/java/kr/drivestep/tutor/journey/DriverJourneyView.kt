@@ -254,7 +254,6 @@ class DriverJourneyView(
         reference.addView(label(step.first, 20, white, true).apply { gravity = Gravity.CENTER }, full(32))
         reference.addView(label("${state.profile.heightCm} cm · ${state.profile.weightKg} kg", 16, grey).apply { gravity = Gravity.CENTER }, full(26))
         val guideView = PostureGuideView(context).apply { update(index, state.profile, state.calibration) }
-        reference.addView(guideView, LayoutParams(-1, 0, 1f).apply { topMargin = dp(6) })
         val info = LinearLayout(context).apply { orientation = VERTICAL }
         row.addView(info, LayoutParams(0, -1, 1f))
         info.addView(label(step.second, 23, white), full(132))
@@ -274,7 +273,10 @@ class DriverJourneyView(
                 state.applyRecommendedPreset(); persist(); render()
             }, LayoutParams(dp(210), dp(56)))
         } else info.addView(label(if (index in 5..7) "직접 후방과 옆쪽 시야를 확인하세요.\n앱에서 미러의 각도나 시야를 측정하지 않습니다." else "차량의 조절 장치와 사용설명서를 확인하세요.\n앱에서 올바른 상태를 자동 판정하지 않습니다.", 18, grey), full(100))
-        info.addView(View(context), LayoutParams(1, 0, 1f))
+        info.addView(guideView, LayoutParams(-1, 0, 1f).apply {
+            topMargin = dp(12)
+            bottomMargin = dp(12)
+        })
         info.addView(button("설명 다시 확인", "journey_setup_skip_help") {
             state.leaveSetupUnresolved(); refreshChecks(); persist()
             showMessage(step.first, step.second + "\n\n확인하지 못한 항목은 완료로 바꾸지 않아요. 불편한 부분을 다시 조절한 뒤 확인하거나 정차 교육을 선택하세요.")
