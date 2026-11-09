@@ -1,0 +1,4 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="47.999996185302734dp" android:height="48dp" android:viewportWidth="47.999996185302734" android:viewportHeight="48">
+<!-- Original Pleos Connect 2.1.5 paths, source node 67:28966. Tint by app as a monochrome icon. -->
+    <path android:pathData="M32.41 8.59 C33.2 9.370000000000001 33.2 10.629999999999999 32.41 11.41 L19.83 24 L32.41 36.59 C33.2 37.370000000000005 33.2 38.629999999999995 32.41 39.41 C31.63 40.2 30.369999999999997 40.2 29.59 39.41 L15.59 25.41 C14.8 24.63 14.8 23.369999999999997 15.59 22.59 L29.59 8.59 C30.369999999999997 7.8 31.63 7.8 32.41 8.59 Z" android:fillColor="#131417" android:fillAlpha="1" android:fillType="evenOdd"/>
+</vector>

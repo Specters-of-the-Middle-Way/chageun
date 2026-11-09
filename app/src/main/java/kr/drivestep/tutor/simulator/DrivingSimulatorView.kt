@@ -1,5 +1,6 @@
 package kr.drivestep.tutor.simulator
 
+import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
@@ -16,6 +17,7 @@ import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
 import kr.drivestep.tutor.coach.CoachCue
+import kr.drivestep.tutor.design.PleosUi
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat
@@ -34,17 +36,18 @@ class DrivingSimulatorView(
     private val onCue: (CoachCue) -> Unit,
     private val stopVoice: () -> Unit,
     private val onExit: () -> Unit,
+    private val recordEnabled: () -> Boolean = { true },
 ) : LinearLayout(context) {
     private enum class Page { BRIEF, DRIVE, REFLECTION }
 
     private val main = Handler(Looper.getMainLooper())
     private val prefs = context.getSharedPreferences("drivestep_driving_simulator_v1", Context.MODE_PRIVATE)
-    private val ink = Color.rgb(28, 50, 53)
-    private val muted = Color.rgb(94, 115, 116)
-    private val teal = Color.rgb(7, 116, 104)
-    private val tealSoft = Color.rgb(222, 241, 233)
-    private val line = Color.rgb(211, 226, 219)
-    private val amber = Color.rgb(146, 99, 39)
+    private val ink = PleosUi.TEXT
+    private val muted = PleosUi.SECONDARY
+    private val teal = PleosUi.SELECTED
+    private val tealSoft = PleosUi.SURFACE
+    private val line = PleosUi.LINE
+    private val amber = Color.rgb(114, 77, 24)
     private var page = Page.BRIEF
     private var selected = runCatching {
         SimulationScenario.valueOf(prefs.getString("selected", SimulationScenario.LEFT_LANE.name)!!)
@@ -72,6 +75,7 @@ class DrivingSimulatorView(
     private var records = loadRecords()
     private var reviewRecord: JSONObject? = null
     private var reviewIndex = 0
+    private var deleteDialog: AlertDialog? = null
 
     private var road: CockpitRoadView? = null
     private var phaseLabel: TextView? = null
@@ -101,15 +105,29 @@ class DrivingSimulatorView(
 
     init {
         orientation = VERTICAL
-        setBackgroundColor(Color.rgb(243, 246, 245))
+        setBackgroundColor(PleosUi.BACKGROUND)
         setPadding(dp(8), dp(3), dp(8), dp(6))
         render()
     }
 
     fun setActive(value: Boolean) {
+        if (!value) dismissDeleteDialog()
         if (closed || active == value) return
         active = value
-        if (!value) pausePractice()
+        if (!value) pausePractice() else {
+            records = loadRecords()
+            if (page == Page.REFLECTION) {
+                val retained = reviewRecord
+                val index = records.indexOfFirst {
+                    it.optLong("at") == retained?.optLong("at") &&
+                        it.optString("scenario") == retained?.optString("scenario")
+                }
+                if (index < 0) {
+                    reviewRecord = null; reviewIndex = 0; saved = false; page = Page.BRIEF
+                } else { reviewIndex = index; reviewRecord = records[index] }
+            }
+            if (page != Page.DRIVE) render()
+        }
         updateEnabled()
     }
 
@@ -120,6 +138,7 @@ class DrivingSimulatorView(
     }
 
     fun close() {
+        dismissDeleteDialog()
         if (closed) return
         pausePractice()
         if (page == Page.DRIVE) snapshot?.let { saveRecord(it, "중간에 마침") }
@@ -128,6 +147,7 @@ class DrivingSimulatorView(
     }
 
     override fun onDetachedFromWindow() {
+        dismissDeleteDialog()
         pausePractice()
         super.onDetachedFromWindow()
     }
@@ -153,7 +173,7 @@ class DrivingSimulatorView(
 
     private fun briefPage() {
         val heading = horizontal(this, 52)
-        heading.addView(label("옆자리 코치와 가상 주행", 23, ink, true), weighted())
+        heading.addView(label("차로 변경 연습", 23, ink, true), weighted())
         heading.addView(badge(), LayoutParams(dp(240), dp(30)))
         heading.addView(button("나가기", "sim_exit", secondary = true) { exit() }, fixed(82, 48))
 
@@ -172,7 +192,7 @@ class DrivingSimulatorView(
         ).forEach { (scenario, title, key) ->
             val choice = button(title, key, secondary = selected != scenario) {
                 selected = scenario
-                prefs.edit().putString("selected", selected.name).apply()
+                if (recordEnabled()) prefs.edit().putString("selected", selected.name).apply()
                 render()
             }.apply { textSize = 16f }
             choices.addView(choice, weighted(62))
@@ -185,14 +205,45 @@ class DrivingSimulatorView(
             actions.addView(button("지난 회고 · ${records.size}회", "sim_history", secondary = true) {
                 reviewIndex = 0; reviewRecord = records.first(); page = Page.REFLECTION; render()
             }, weighted(48))
+            actions.addView(button("주행 기록 삭제", "sim_delete_history", secondary = true) {
+                confirmDeleteHistory()
+            }, fixed(132, 48))
         }
         val lastStatus = prefs.getString("last_status", "")
         val note = storageProblem ?: when {
             lastStatus == "running" || lastStatus == "paused" -> "이전 연습은 멈춘 상태예요. 시작을 누르면 새로 연습해요."
-            records.isNotEmpty() -> "최근 ${records.size}회 회고가 이 기기에 있어요. 점수 없이 조작 과정을 돌아봐요."
+            records.isNotEmpty() -> if (recordEnabled()) "최근 ${records.size}회 회고 · 실제 운전 점수와 구분해요." else "기록 저장 꺼짐 · 이번 회고는 앱을 종료하면 사라져요."
             else -> "도로와 조작은 모두 화면 속 시뮬레이션이에요. 실제 차는 P·정차를 유지해요."
         }
         addView(label(note, 13, muted), full(25))
+    }
+
+    private fun confirmDeleteHistory() {
+        if (!active || closed || deleteDialog != null) return
+        val dialog = AlertDialog.Builder(context)
+            .setTitle("주행 연습 기록을 삭제할까요?")
+            .setMessage("이 기기에 저장된 주행 시뮬레이션 기록을 모두 삭제합니다. 삭제한 기록은 복원할 수 없어요.")
+            .setNegativeButton("취소", null)
+            .setPositiveButton("삭제") { _, _ ->
+                if (active && !closed) {
+                    val ok = runCatching {
+                        prefs.edit().remove("records").remove("last_status").commit()
+                    }.getOrDefault(false)
+                    if (ok) {
+                        records = emptyList(); reviewRecord = null; reviewIndex = 0; saved = false
+                    }
+                    storageProblem = if (ok) "주행 연습 기록을 삭제했어요." else "기록을 삭제하지 못했어요. 다시 시도해 주세요."
+                    Log.i("DrivingSim", "history_deleted success=$ok")
+                    render()
+                }
+            }.create()
+        deleteDialog = dialog
+        dialog.setOnDismissListener { if (deleteDialog === dialog) deleteDialog = null }
+        dialog.show()
+    }
+
+    private fun dismissDeleteDialog() {
+        deleteDialog?.dismiss(); deleteDialog = null
     }
 
     private fun drivingPage() {
@@ -220,7 +271,7 @@ class DrivingSimulatorView(
             background = background(tealSoft, 12)
             setPadding(dp(12), 0, dp(8), 0)
         }
-        coaching.addView(label("옆자리\n코치", 13, teal, true), fixed(55, 48))
+        coaching.addView(label("안내", 13, teal, true), fixed(55, 48))
         cueLabel = label("", 19, ink, true).apply { maxLines = 2 }.also {
             coaching.addView(it, weighted(LayoutParams.MATCH_PARENT))
         }
@@ -321,7 +372,7 @@ class DrivingSimulatorView(
             addView(notesColumn, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f))
             for (i in 0 until minOf(notes.length(), 5)) {
                 val note = horizontal(notesColumn, 64).apply {
-                    background = background(if (i % 2 == 0) Color.WHITE else tealSoft, 12)
+                    background = background(if (i % 2 == 0) PleosUi.SURFACE else tealSoft, 12)
                     setPadding(dp(15), 0, dp(15), 0)
                 }
                 note.addView(label(String.format(Locale.ROOT, "%02d", i + 1), 18, teal, true), fixed(42, 50))
@@ -361,7 +412,7 @@ class DrivingSimulatorView(
         lastLoggedSpeed = Double.NaN; lastLoggedLane = Double.NaN
         phaseEvents = JSONArray(); reviewRecord = null; reviewIndex = 0
         page = Page.DRIVE; running = true
-        prefs.edit().putString("selected", selected.name).putString("last_status", "running").apply()
+        if (recordEnabled()) prefs.edit().putString("selected", selected.name).putString("last_status", "running").apply()
         render()
         consume(snapshot!!)
         lastTickMillis = SystemClock.elapsedRealtime()
@@ -421,7 +472,7 @@ class DrivingSimulatorView(
         session?.pause()?.let { snapshot = it; updateScene(it) }
         stopVoice()
         if (page == Page.DRIVE) {
-            prefs.edit().putString("last_status", "paused").apply()
+            if (recordEnabled()) prefs.edit().putString("last_status", "paused").apply()
             Log.i("DrivingSim", "paused scenario=$selected phase=${snapshot?.phase}")
         }
         updateEnabled()
@@ -433,7 +484,7 @@ class DrivingSimulatorView(
         releaseHeldInputs()
         running = true
         consume(current.resume())
-        prefs.edit().putString("last_status", "running").apply()
+        if (recordEnabled()) prefs.edit().putString("last_status", "running").apply()
         lastTickMillis = SystemClock.elapsedRealtime()
         main.removeCallbacks(ticker); main.postDelayed(ticker, 33)
         Log.i("DrivingSim", "resumed scenario=$selected phase=${snapshot?.phase}")
@@ -556,15 +607,15 @@ class DrivingSimulatorView(
             .put("speedKmh", value.speedKmh).put("lanePosition", value.lanePosition)
             .put("reflections", JSONArray(notes)).put("interventions", interventions)
             .put("phaseEvents", phaseEvents)
-        records = (listOf(record) + records).take(20)
-        val persisted = runCatching {
+        records = (listOf(record) + if (recordEnabled()) loadRecords() else records).take(20)
+        val persisted = !recordEnabled() || runCatching {
             prefs.edit().putString("records", JSONArray(records).toString())
                 .putString("last_status", if (value.completed) "completed" else "finished")
                 .putString("selected", selected.name).commit()
         }.getOrDefault(false)
         if (!persisted) storageProblem = "이번 회고를 기기에 저장하지 못했어요. 이 화면에서는 확인할 수 있어요."
         saved = true
-        Log.i("DrivingSim", "saved scenario=${value.scenario} outcome=$outcome phase=${value.phase} events=${phaseEvents.length()}")
+        Log.i("DrivingSim", "record consent=${recordEnabled()} scenario=${value.scenario} outcome=$outcome phase=${value.phase} events=${phaseEvents.length()}")
     }
 
     private fun loadRecords(): List<JSONObject> = runCatching {
@@ -593,7 +644,7 @@ class DrivingSimulatorView(
 
     private fun badge() = label("실제 차 P·정차  |  화면 속 가상 주행", 12, amber, true).apply {
         gravity = Gravity.CENTER
-        background = background(Color.rgb(248, 240, 221), 9)
+        background = background(PleosUi.RAISED, 9)
     }
 
     private fun label(text: String, size: Int, color: Int, bold: Boolean = false) = TextView(context).apply {
@@ -603,7 +654,7 @@ class DrivingSimulatorView(
     }
 
     private fun button(title: String, key: String, secondary: Boolean = false, action: () -> Unit) = Button(context).apply {
-        text = title; textSize = 14f; isAllCaps = false
+        text = title; textSize = 17f; isAllCaps = false
         minWidth = 0; minimumWidth = 0; minHeight = 0; minimumHeight = 0
         setPadding(dp(7), 0, dp(7), 0); gravity = Gravity.CENTER
         contentDescription = key; tag = key
@@ -613,10 +664,7 @@ class DrivingSimulatorView(
     }
 
     private fun styleButton(button: Button, selected: Boolean) {
-        if (button.isSelected == selected && button.background is GradientDrawable) return
-        button.isSelected = selected
-        button.setTextColor(if (selected) Color.WHITE else ink)
-        button.background = background(if (selected) teal else Color.WHITE, 10, if (selected) teal else line)
+        PleosUi.decorate(button, selected)
     }
 
     private fun background(fill: Int, radius: Int, stroke: Int? = null) = GradientDrawable().apply {

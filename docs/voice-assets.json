@@ -1014,6 +1014,102 @@
     "sha256": "d52a31ab062921b33d0d826bbe28a7ca6f5424122b7806c3119a16e4911c55d3"
   },
   {
+    "id": "parking_sim_start_reverse",
+    "text": "가상 후진 주차예요. 브레이크를 누른 채 R을 선택해요.",
+    "seconds": 4.429,
+    "sha256": "d7fa8639bf9b0cf10ac63801cc2b4e971ab3a232f6b05ebb82d0adbf42ab4ef8"
+  },
+  {
+    "id": "parking_sim_start_parallel",
+    "text": "가상 평행 주차예요. 브레이크를 누른 채 R을 선택해요.",
+    "seconds": 4.475,
+    "sha256": "6cb8fab21d6d419927d5dfdcff536a0b11879a32a278544c9ceca0bc4188b160"
+  },
+  {
+    "id": "parking_sim_brake",
+    "text": "기어를 바꾸기 전에 브레이크부터 눌러요.",
+    "seconds": 2.989,
+    "sha256": "82fbe0aa71afa5d42e9c41d7c4fec58d9eb386a0a9bb2fa98ee7780311534206"
+  },
+  {
+    "id": "parking_sim_stop",
+    "text": "아직 움직이고 있어요. 완전히 멈춘 뒤 기어를 바꿔요.",
+    "seconds": 4.226,
+    "sha256": "a67e6ecf106eaf9584674d60202101d70c72e2905e402cda731457d83b12bc08"
+  },
+  {
+    "id": "parking_sim_select",
+    "text": "지금은 P예요. 브레이크를 누르고 기어를 선택해요.",
+    "seconds": 4.088,
+    "sha256": "124457be087bd33aeadea9683219e9328e544f2e6616abf938d035310113d2b4"
+  },
+  {
+    "id": "parking_sim_reverse",
+    "text": "화면 속 R이 선택됐어요. 브레이크를 놓고 조금씩 후진해요.",
+    "seconds": 5.0,
+    "sha256": "1040f43ff0e3b65c29d697e9cc492793e289c2f92a69f442b2b58c2c3e15eec1"
+  },
+  {
+    "id": "parking_sim_parallel",
+    "text": "화면의 궤적을 보며 오른쪽으로 돌려 후진해요. 공간 안에서 반대로 풀어봐요.",
+    "seconds": 6.08,
+    "sha256": "22683800ddd42876182f0d8a0587cd105a00de33fcc94cad7f8f965890e363f8"
+  },
+  {
+    "id": "parking_sim_forward",
+    "text": "D가 선택됐어요. 위치를 고칠 때 조금씩 전진해요.",
+    "seconds": 4.834,
+    "sha256": "e640ff7c8a78701b2932bc959637244efd38dc62cfee5821366acbe8db0971f4"
+  },
+  {
+    "id": "parking_sim_forward_first",
+    "text": "이번 연습은 후진부터 시작해요. 멈춘 뒤 R을 선택해봐요.",
+    "seconds": 4.667,
+    "sha256": "3ed051f1d56e2537c520d6bcecc14240ea88be9cb53de0c6c6a1dc3502e18913"
+  },
+  {
+    "id": "parking_sim_near",
+    "text": "가상 차체가 가까워졌어요. 멈추고 화면의 공간을 다시 살펴요.",
+    "seconds": 5.206,
+    "sha256": "bf0b798ee4b9826da59f9b6886940755bd2b713d0971e38f9088e8fd272fe4e9"
+  },
+  {
+    "id": "parking_sim_aligned",
+    "text": "가상 주차 구역 안이에요. 멈추고 P로 바꾼 뒤 완료를 눌러요.",
+    "seconds": 4.754,
+    "sha256": "8d802ae493d80f22dd0120795aef8887e6d2e897281bb76bdb8841743eda92a6"
+  },
+  {
+    "id": "parking_sim_park",
+    "text": "완료하기 전에 브레이크로 멈추고 P를 선택해요.",
+    "seconds": 3.599,
+    "sha256": "d87ca11ef8249b9b79784f7c7e8d357a746d5b1a897ff315c13dc8d5a1fa4b6b"
+  },
+  {
+    "id": "parking_sim_adjust",
+    "text": "가상 차체의 위치나 방향을 조금 더 맞춰봐요.",
+    "seconds": 3.651,
+    "sha256": "4593d776dcf0845ea0eaa4b78c56e0c9b5c062dbfdd5e362d42a36be3dc52f16"
+  },
+  {
+    "id": "parking_sim_complete",
+    "text": "가상 주차를 마쳤어요. 직접 조작한 과정을 돌아봐요.",
+    "seconds": 4.498,
+    "sha256": "78542ebac55b1d260cc5f27ce8988edafba381239f3dcab6deafb0827550f7d2"
+  },
+  {
+    "id": "parking_sim_collision",
+    "text": "가상 차량이 겹쳐 연습을 멈췄어요. 다시 시도해봐요.",
+    "seconds": 4.719,
+    "sha256": "ef1d4075ea74ad630c0504f1aeb3fdf6c88ed0e5e121e380af9b5282bbb60954"
+  },
+  {
+    "id": "parking_sim_edge",
+    "text": "가상 연습장을 벗어나 멈췄어요. 다시 시작해요.",
+    "seconds": 4.15,
+    "sha256": "0a8cba73f881b7bfa90d0eb73bec06962419c0193d3434060e5b367c1fc4c5ba"
+  },
+  {
     "id": "signal_how_to",
     "text": "정차한 상태에서 방향지시등 조작부를 찾아볼까요? 레버형 차량의 예시에서는 아래로 움직이면 왼쪽, 위로 움직이면 오른쪽이에요. 내 차의 표시와 사용설명서를 먼저 확인해 주세요.",
     "seconds": 13.376,

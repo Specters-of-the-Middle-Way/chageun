@@ -17,7 +17,9 @@ ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('s', Path(__file__).with_name('verify-steering.py'))
 s = importlib.util.module_from_spec(spec); spec.loader.exec_module(s)
 m = s.m
-CLIENT = 'drivestep-simulator-v07'
+CLIENT = 'drivestep-simulator-v08'
+jspec = importlib.util.spec_from_file_location('journey', Path(__file__).with_name('journey-test-support.py'))
+j = importlib.util.module_from_spec(jspec); jspec.loader.exec_module(j)
 
 
 def records():
@@ -91,7 +93,7 @@ def main():
     try:
         m.request('/vehicle/gear?gear=Park', 'PUT')
         m.request('/vehicle/controls?speed=0&accelerator=0&brake=0&steering=0', 'PUT')
-        m.set_signal('Off'); m.restart(); s.tap('coach_simulator')
+        m.set_signal('Off'); m.restart(); j.revisit('drive') if j.has('journey_revisit') else j.prepare('drive')
         s.tap('sim_start_left'); m.screenshot('50-simulator-courses.png')
         s.audible(lambda: s.tap('sim_begin'), 'simulation_start_left')
         c = controls()
@@ -127,24 +129,25 @@ def main():
         s.tap('sim_resume')
         m.adb('shell', 'am', 'start', '-W', '--user', 'current', '-a', 'android.settings.SETTINGS')
         assert any(n.get('package') == 'com.android.car.settings' for n in m.ui().iter('node'))
-        s.voice.assert_silent(); m.launch()
+        s.voice.assert_silent(); m.launch(); j.revisit('drive')
         assert any(n.get('content-desc') == 'sim_resume' for n in m.ui().iter('node'))
         s.tap('sim_resume')
         m.request('/vehicle/gear?gear=Drive', 'PUT'); time.sleep(1)
         s.voice.assert_silent()
         assert not any(n.get('content-desc') == 'sim_gas' and n.get('enabled') == 'true' for n in m.ui().iter('node'))
         m.request('/vehicle/gear?gear=Park', 'PUT'); m.launch()
+        if j.has('journey_revisit'): j.revisit('drive')
         assert any(n.get('content-desc') == 'sim_resume' for n in m.ui().iter('node'))
         print('PASS: pause, background, real driving restriction stop inputs and speech', flush=True)
         s.tap('sim_finish')
         assert any(x['kind'] == 'SPEED_RISE' for x in records()[0]['interventions'])
-        saved = records(); m.restart(); s.tap('coach_simulator')
+        saved = records(); m.restart(); j.revisit('drive') if j.has('journey_revisit') else j.prepare('drive')
         assert records() == saved
         assert any(n.get('content-desc') == 'sim_begin' for n in m.ui().iter('node'))
         actual = m.request('/vehicle/state')
         assert actual['gear']['actual']['value'] == 'Park' and actual['controls']['speed_kph'] == 0
         print('PASS: saved history survives restart; real gear/speed unaffected by simulation', flush=True)
-        print('PASS: v0.7 driver-view simulator integration', flush=True)
+        print('PASS: v0.8 driver-view simulator integration', flush=True)
     finally:
         m.request('/vehicle/controls?speed=0&accelerator=0&brake=0', 'PUT')
         m.request('/vehicle/gear?gear=Park', 'PUT'); m.set_signal('Off')

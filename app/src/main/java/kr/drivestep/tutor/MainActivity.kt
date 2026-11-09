@@ -12,11 +12,16 @@ import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.widget.*
+import kr.drivestep.tutor.design.PleosUi
+import kr.drivestep.tutor.design.PleosSwitch
 import kr.drivestep.tutor.data.PracticeRepository
 import kr.drivestep.tutor.growth.GrowthTutorView
 import kr.drivestep.tutor.ride.DriveCoachView
 import kr.drivestep.tutor.contextcoach.SituationCoachView
 import kr.drivestep.tutor.simulator.DrivingSimulatorView
+import kr.drivestep.tutor.parking.ParkingSimulatorView
+import kr.drivestep.tutor.journey.DriverJourneyView
+import kr.drivestep.tutor.journey.JourneyDestination
 import kr.drivestep.tutor.coach.*
 import kr.drivestep.tutor.practice.*
 import kr.drivestep.tutor.tutor.*
@@ -28,11 +33,13 @@ import java.util.UUID
 import java.util.concurrent.Executors
 
 class MainActivity : Activity() {
-    private enum class Screen { COACH, SIMULATOR, SITUATION, RIDE, HOME, HOW_TO, PRACTICE, REVIEW, PARKING, STEERING_SETUP, STEERING, GROWTH }
+    private enum class Screen { COACH, SIMULATOR, PARK_SIM, SITUATION, RIDE, HOME, HOW_TO, PRACTICE, REVIEW, PARKING, STEERING_SETUP, STEERING, GROWTH }
     private lateinit var growth: GrowthTutorView
     private lateinit var ride: DriveCoachView
     private lateinit var situation: SituationCoachView
     private lateinit var simulator: DrivingSimulatorView
+    private lateinit var parkingSimulator: ParkingSimulatorView
+    private lateinit var journey: DriverJourneyView
     private var returnToCoach = true
     private var voiceStatusView: TextView? = null
     private var voiceRepeatButton: Button? = null
@@ -63,14 +70,15 @@ class MainActivity : Activity() {
     private var latestSaveRevision = 0L
     private var foreground = false
     private var resumed = false
+    private var revisitPending = false
     private var rootScroll: ScrollView? = null
     private var renderedScreen: Screen? = null
     private var rendering = false
-    private val ink = Color.rgb(24, 45, 50)
-    private val muted = Color.rgb(89, 111, 113)
-    private val teal = Color.rgb(8, 127, 113)
-    private val canvas = Color.rgb(243, 246, 245)
-    private val soft = Color.rgb(225, 242, 235)
+    private val ink = PleosUi.TEXT
+    private val muted = PleosUi.SECONDARY
+    private val teal = PleosUi.SELECTED
+    private val canvas = PleosUi.BACKGROUND
+    private val soft = PleosUi.RAISED
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,9 +111,24 @@ class MainActivity : Activity() {
         situation = SituationCoachView(this, onCue = { offerCue(it) }, stopVoice = {
             voice.stop(); currentCue = null
         }, onExit = { voice.stop(); currentCue = null; screen = Screen.COACH; render() })
+        journey = DriverJourneyView(this, onDestination = { destination -> openDestination(destination) },
+            onSettingsChanged = {
+                if (::journey.isInitialized) {
+                    if (journey.vehicleDataEnabled) {
+                        if (foreground) { connectSource(); if (hasSpeedPermission() && journey.vehicleDataEnabled) steering.connect() }
+                    } else {
+                        source.stop(); reading = null; steering.stop("CONSENT_WITHDRAWN")
+                        sourceStatus = SourceStatus(SourceState.STOPPED, "차량 조작 신호는 선택 동의 후 연결해요.")
+                    }
+                    render()
+                }
+            })
         simulator = DrivingSimulatorView(this, onCue = { offerCue(it) }, stopVoice = {
             voice.stop(); currentCue = null
-        }, onExit = { voice.stop(); currentCue = null; screen = Screen.COACH; render() })
+        }, onExit = { returnFromPractice(JourneyDestination.DRIVE) }, recordEnabled = { journey.recordEnabled })
+        parkingSimulator = ParkingSimulatorView(this, onCue = { offerCue(it) }, stopVoice = {
+            voice.stop(); currentCue = null
+        }, onExit = { returnFromPractice(JourneyDestination.PARKING) }, recordEnabled = { journey.recordEnabled })
         render()
         io.execute {
             try {
@@ -123,10 +146,15 @@ class MainActivity : Activity() {
     override fun onStart() {
         super.onStart()
         foreground = true
+        if (revisitPending) {
+            revisitPending = false
+            journey.beginVisit()
+            if (screen in setOf(Screen.COACH, Screen.SIMULATOR, Screen.PARK_SIM)) screen = Screen.COACH
+        }
         parkedGate.start { allowed, message ->
             parked = allowed
             gateMessage = message
-            voice.setActive(allowed && foreground && (screen != Screen.SIMULATOR || resumed))
+            voice.setActive(allowed && foreground && (screen !in setOf(Screen.SIMULATOR, Screen.PARK_SIM) || resumed))
             if (!allowed) {
                 interrupt("DRIVING_RESTRICTION")
                 steering.interrupt("DRIVING_RESTRICTION", speak = false)
@@ -135,12 +163,14 @@ class MainActivity : Activity() {
                 ride.setActive(false)
                 situation.setActive(false)
                 simulator.setActive(false)
+                parkingSimulator.setActive(false)
+                journey.setActive(false)
                 currentCue = null
             }
             render()
         }
         connectSource()
-        if (hasSpeedPermission()) steering.connect()
+        if (hasSpeedPermission() && journey.vehicleDataEnabled) steering.connect()
     }
 
     override fun onResume() {
@@ -153,9 +183,11 @@ class MainActivity : Activity() {
     override fun onPause() {
         resumed = false
         simulator.setActive(false)
+        parkingSimulator.setActive(false)
+        journey.setActive(false)
         // EVS side-camera overlays also pause the Activity during SDK signal practice.
         // Only this interactive road simulation requires silence on a partial pause.
-        if (screen == Screen.SIMULATOR) voice.setActive(false)
+        if (screen in setOf(Screen.SIMULATOR, Screen.PARK_SIM)) voice.setActive(false)
         super.onPause()
     }
 
@@ -165,6 +197,8 @@ class MainActivity : Activity() {
         ride.setActive(false)
         situation.setActive(false)
         simulator.setActive(false)
+        parkingSimulator.setActive(false)
+        journey.setActive(false)
         voice.setActive(false)
         interrupt("SCREEN_LEFT")
         steering.stop("SCREEN_LEFT")
@@ -172,6 +206,7 @@ class MainActivity : Activity() {
         source.stop()
         parkedGate.stop()
         parked = false
+        revisitPending = true
         super.onStop()
     }
 
@@ -179,6 +214,8 @@ class MainActivity : Activity() {
         ride.close()
         situation.close()
         simulator.close()
+        parkingSimulator.close()
+        journey.close()
         emulatorControls.close()
         steering.close()
         voice.close()
@@ -194,8 +231,9 @@ class MainActivity : Activity() {
 
     @Deprecated("Legacy Activity back callback")
     override fun onBackPressed() {
-        if (screen == Screen.COACH) super.onBackPressed()
-        else if (screen == Screen.SIMULATOR) { if (!simulator.goBack()) { screen = Screen.COACH; render() } }
+        if (screen == Screen.COACH) { if (!journey.goBack()) super.onBackPressed() }
+        else if (screen == Screen.PARK_SIM) { if (!parkingSimulator.goBack()) returnFromPractice(JourneyDestination.PARKING) }
+        else if (screen == Screen.SIMULATOR) { if (!simulator.goBack()) returnFromPractice(JourneyDestination.DRIVE) }
         else if (screen == Screen.SITUATION) { if (!situation.goBack()) { screen = Screen.COACH; render() } }
         else if (screen == Screen.RIDE) { if (!ride.goBack()) { screen = Screen.COACH; render() } }
         else if (screen == Screen.GROWTH) {
@@ -209,6 +247,7 @@ class MainActivity : Activity() {
     }
 
     private fun connectSource() {
+        if (!::journey.isInitialized || !journey.vehicleDataEnabled) return
         reading = null
         source.start(
             onState = { value ->
@@ -283,6 +322,7 @@ class MainActivity : Activity() {
     }
 
     private fun persist(snapshot: PracticeSnapshot) {
+        if (!journey.recordEnabled) { saveMessage = "저장 동의가 꺼져 있어 이번 조작 기록을 저장하지 않아요."; return }
         val revision = ++latestSaveRevision
         if (!lastWriteError) saveMessage = "기록을 저장하고 있어요…"
         io.execute {
@@ -326,23 +366,27 @@ class MainActivity : Activity() {
 
     private fun renderContent() {
         if (isDestroyed) return
-        if (!::emulatorControls.isInitialized || !::steering.isInitialized || !::growth.isInitialized || !::ride.isInitialized || !::situation.isInitialized || !::simulator.isInitialized) return
+        if (!::emulatorControls.isInitialized || !::steering.isInitialized || !::growth.isInitialized || !::ride.isInitialized || !::situation.isInitialized || !::simulator.isInitialized || !::parkingSimulator.isInitialized || !::journey.isInitialized) return
         growth.setActive(foreground && parked && screen == Screen.GROWTH)
         ride.setActive(foreground && parked && screen == Screen.RIDE)
         situation.setActive(foreground && parked && screen == Screen.SITUATION)
         simulator.setActive(foreground && resumed && parked && screen == Screen.SIMULATOR)
+        parkingSimulator.setActive(foreground && resumed && parked && screen == Screen.PARK_SIM)
+        journey.setActive(foreground && resumed && parked && screen == Screen.COACH)
         // Keep the direct-manipulation surface mounted during speech/sensor updates.
         // Replacing it would cancel a held pedal or restart its simulation ticker.
         if (foreground && parked && renderedScreen == screen &&
             ((screen == Screen.RIDE && ride.isAttachedToWindow) || (screen == Screen.SITUATION && situation.isAttachedToWindow) ||
-                (screen == Screen.SIMULATOR && simulator.isAttachedToWindow))) {
+                (screen == Screen.SIMULATOR && simulator.isAttachedToWindow) ||
+                (screen == Screen.PARK_SIM && parkingSimulator.isAttachedToWindow) ||
+                (screen == Screen.COACH && journey.isAttachedToWindow))) {
             voiceStatusView?.text = voiceStatus
             voiceRepeatButton?.isEnabled = voiceEnabled && currentCue != null
             return
         }
         if (!foreground || !parked || screen !in setOf(Screen.HOW_TO, Screen.PRACTICE, Screen.STEERING_SETUP, Screen.STEERING) ||
             (screen == Screen.STEERING && (steeringReview != null || steering.snapshot?.isTerminal == true))) emulatorControls.stop()
-        if (parked && screen == Screen.SIMULATOR) {
+        if (parked && screen in setOf(Screen.COACH, Screen.SIMULATOR, Screen.PARK_SIM)) {
             renderSimulator()
             return
         }
@@ -373,7 +417,7 @@ class MainActivity : Activity() {
         gap(content, 12)
         when (screen) {
             Screen.COACH -> coachHome(content)
-            Screen.SIMULATOR -> Unit // Mounted without a ScrollView above.
+            Screen.SIMULATOR, Screen.PARK_SIM -> Unit // Mounted without a ScrollView above.
             Screen.SITUATION -> {
                 (situation.parent as? android.view.ViewGroup)?.removeView(situation)
                 content.addView(situation)
@@ -397,7 +441,7 @@ class MainActivity : Activity() {
         gap(content, 16)
         val footer = when (screen) {
             Screen.COACH -> "현대자동차 기본 탑재를 제안하는 개발 프로토타입입니다. 현재 공식 기본 앱은 아닙니다."
-            Screen.SIMULATOR -> "가상 주행 연습"
+            Screen.SIMULATOR, Screen.PARK_SIM -> "정차 중 가상 연습"
             Screen.SITUATION -> "상황 감지 검증용 가상 입력 · 실제 주행 중 화면 실행과 주변 인식은 구현되지 않았습니다."
             Screen.RIDE -> "정차 중 가상 주행 체험 · 실제 도로 인식이나 차량 제어를 하지 않습니다."
             Screen.GROWTH -> "완료한 가상 연습만 학습 점수로 저장해요. 실제 SDK 실습 기록과 구분됩니다."
@@ -438,7 +482,7 @@ class MainActivity : Activity() {
         })
         a.addView(button("핸들 · 코치와 시작", "coach_steering", secondary = true) {
             returnToCoach = true; voice.stop(); currentCue = null; steeringReview = null
-            screen = Screen.STEERING_SETUP; if (hasSpeedPermission()) steering.connect(); render()
+            screen = Screen.STEERING_SETUP; if (hasSpeedPermission() && journey.vehicleDataEnabled) steering.connect(); render()
         })
         a.addView(button("처음이라면 · 시트와 미러 맞추기", "coach_setup", secondary = true) {
             voice.stop(); currentCue = null; screen = Screen.GROWTH; render(); growth.openSetup()
@@ -475,15 +519,22 @@ class MainActivity : Activity() {
         voiceStatusView = null
         val content = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(Color.rgb(13, 26, 36))
+            setBackgroundColor(PleosUi.BACKGROUND)
             setPadding(dp(12), dp(4), dp(12), dp(8))
         }
         val bar = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
-        bar.addView(text("DRIVESTEP  /  옆자리 주행 코치", 17, Color.WHITE, true), LinearLayout.LayoutParams(0, dp(48), 1f))
-        val toggle = Switch(this).apply {
+        val back = ImageButton(this).apply {
+            setImageDrawable(PleosUi.icon(this@MainActivity, "back", 32))
+            background = null; contentDescription = "app_back"
+            setOnClickListener { onBackPressed() }
+        }
+        bar.addView(back, LinearLayout.LayoutParams(dp(64), dp(64)))
+        bar.addView(text("드라이브스텝", 24, PleosUi.TEXT, true), LinearLayout.LayoutParams(0, dp(64), 1f))
+        bar.addView(text("IONIQ 3", 18, PleosUi.SECONDARY), LinearLayout.LayoutParams(dp(110), dp(64)))
+        val toggle = PleosSwitch(this).apply {
             text = "음성 안내  "
             textSize = 15f
-            setTextColor(Color.WHITE)
+            setTextColor(PleosUi.TEXT)
             contentDescription = "voice_toggle"
             isChecked = voiceEnabled
             setOnCheckedChangeListener { _, checked ->
@@ -493,16 +544,49 @@ class MainActivity : Activity() {
                 render()
             }
         }
-        bar.addView(toggle, LinearLayout.LayoutParams(dp(160), dp(48)))
+        bar.addView(toggle, LinearLayout.LayoutParams(dp(196), dp(64)))
         val repeat = button("다시 듣기", "replay_voice", voiceEnabled && currentCue != null, secondary = true) {
             voice.stop(); currentCue?.let(voice::speak)
         }
+        PleosUi.decorate(repeat)
+        PleosUi.prefix(repeat, "sound", 24)
         voiceRepeatButton = repeat
-        bar.addView(repeat, LinearLayout.LayoutParams(dp(135), dp(48)))
+        bar.addView(repeat, LinearLayout.LayoutParams(dp(164), dp(64)))
         content.addView(bar)
-        (simulator.parent as? android.view.ViewGroup)?.removeView(simulator)
-        content.addView(simulator, LinearLayout.LayoutParams(-1, 0, 1f))
+        val surface = when (screen) { Screen.COACH -> journey; Screen.PARK_SIM -> parkingSimulator; else -> simulator }
+        (surface.parent as? android.view.ViewGroup)?.removeView(surface)
+        content.addView(surface, LinearLayout.LayoutParams(-1, 0, 1f))
         setContentView(content)
+    }
+
+    private fun returnFromPractice(destination: JourneyDestination) {
+        voice.stop(); currentCue = null
+        journey.onReturnFromPractice(destination)
+        screen = Screen.COACH
+        render()
+    }
+
+    private fun openDestination(destination: JourneyDestination) {
+        if (!parked) return
+        val sdk = destination in setOf(JourneyDestination.SIGNAL, JourneyDestination.STEERING)
+        if ((sdk && (!journey.vehicleDataEnabled || !journey.recordEnabled)) ||
+            (destination in setOf(JourneyDestination.LEGACY, JourneyDestination.CONTEXT) && !journey.recordEnabled)) {
+            AlertDialog.Builder(this).setTitle("설정 확인")
+                .setMessage("기존 SDK 실습은 조작 신호와 실습 기록 동의가 필요해요. 프로필에서 설정하거나 화면 속 가상 연습을 이용해 주세요.")
+                .setPositiveButton("확인", null).show()
+            return
+        }
+        if (destination in setOf(JourneyDestination.DRIVE, JourneyDestination.PARKING) && !journey.canPractice) return
+        voice.stop(); currentCue = null; returnToCoach = true
+        screen = when (destination) {
+            JourneyDestination.DRIVE -> Screen.SIMULATOR
+            JourneyDestination.PARKING -> Screen.PARK_SIM
+            JourneyDestination.SIGNAL -> { connectSource(); Screen.HOW_TO }
+            JourneyDestination.STEERING -> { steeringReview = null; if (hasSpeedPermission()) steering.connect(); Screen.STEERING_SETUP }
+            JourneyDestination.CONTEXT -> Screen.SITUATION
+            JourneyDestination.LEGACY -> { growth.openLibrary(); Screen.GROWTH }
+        }
+        render()
     }
 
     private fun home(parent: LinearLayout) {
@@ -543,7 +627,7 @@ class MainActivity : Activity() {
         parkingCard.addView(button("기어·조향 조작 확인", "steering_setup") {
             voice.stop(); currentCue = null; steeringReview = null
             screen = Screen.STEERING_SETUP
-            if (hasSpeedPermission()) steering.connect()
+            if (hasSpeedPermission() && journey.vehicleDataEnabled) steering.connect()
             render()
         })
         parkingCard.addView(button("주차 순서 배우기", "parking_lesson", secondary = true) {
@@ -638,7 +722,7 @@ class MainActivity : Activity() {
         if (completed && returnToCoach) {
             panel.addView(button("이어서 핸들 익히기", "coach_continue_steering") {
                 voice.stop(); currentCue = null; steeringReview = null; screen = Screen.STEERING_SETUP
-                if (hasSpeedPermission()) steering.connect(); render()
+                if (hasSpeedPermission() && journey.vehicleDataEnabled) steering.connect(); render()
             })
         }
         if (!completed) {
@@ -699,7 +783,7 @@ class MainActivity : Activity() {
 
     private fun voiceControls(parent: LinearLayout) {
         val row = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
-        val toggle = Switch(this).apply {
+        val toggle = PleosSwitch(this).apply {
             text = "음성 안내"
             textSize = 17f
             setTextColor(ink)
@@ -756,7 +840,7 @@ class MainActivity : Activity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 30) {
-            if (hasSpeedPermission() && foreground) steering.connect()
+            if (hasSpeedPermission() && foreground && journey.vehicleDataEnabled) steering.connect()
             render()
         }
     }
@@ -867,15 +951,14 @@ class MainActivity : Activity() {
 
     private fun text(value: String, size: Int, color: Int = ink, bold: Boolean = false) = TextView(this).apply {
         text = value; textSize = size.toFloat(); setTextColor(color)
-        if (bold) typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+        if (bold) setTypeface(typeface, Typeface.BOLD)
         setLineSpacing(dp(3).toFloat(), 1.03f)
     }
 
     private fun button(label: String, key: String, enabled: Boolean = true, secondary: Boolean = false, action: () -> Unit) = Button(this).apply {
         text = label; textSize = 18f; isAllCaps = false; isEnabled = enabled
         contentDescription = key
-        setTextColor(if (secondary) teal else Color.WHITE)
-        background = rounded(if (!enabled) Color.rgb(162, 181, 177) else if (secondary) soft else teal, 14)
+        PleosUi.decorate(this, !secondary)
         minHeight = dp(56)
         setPadding(dp(20), dp(10), dp(20), dp(10))
         layoutParams = LinearLayout.LayoutParams(-1, dp(56)).apply { topMargin = dp(6) }

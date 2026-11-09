@@ -1,0 +1,7496 @@
+[
+  {
+    "id": "1:34",
+    "name": "Gray/50",
+    "values": {
+      "Light": "#F7F8FA",
+      "Dark": "#1D1E21"
+    },
+    "android": null
+  },
+  {
+    "id": "1:35",
+    "name": "GrayAlpha/100",
+    "values": {
+      "Light": "#1314171A",
+      "Dark": "#FFFFFF1A"
+    },
+    "android": null
+  },
+  {
+    "id": "1:80",
+    "name": "Static/white-primary",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "1:4751",
+    "name": "Color/Base/Black",
+    "values": {
+      "Value": "#000000"
+    },
+    "android": null
+  },
+  {
+    "id": "1:4752",
+    "name": "Color/Base/White",
+    "values": {
+      "Value": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "1:4754",
+    "name": "Text/text-primary",
+    "values": {
+      "Light": "#000000",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "1:4755",
+    "name": "Spacing/spacing-07",
+    "values": {
+      "Value": 32
+    },
+    "android": null
+  },
+  {
+    "id": "1:4756",
+    "name": "Spacing/spacing-03",
+    "values": {
+      "Value": 8
+    },
+    "android": null
+  },
+  {
+    "id": "1:4757",
+    "name": "Icon/icon-primary",
+    "values": {
+      "Light": "#000000",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "1:4765",
+    "name": "Spacing/spacing-04",
+    "values": {
+      "Value": 12
+    },
+    "android": null
+  },
+  {
+    "id": "1:4766",
+    "name": "Color/Cool Gray/200",
+    "values": {
+      "Value": "#C3C9D1"
+    },
+    "android": null
+  },
+  {
+    "id": "1:4767",
+    "name": "Color/Cool Gray/700",
+    "values": {
+      "Value": "#343B45"
+    },
+    "android": null
+  },
+  {
+    "id": "1:4768",
+    "name": "Border/border-primary",
+    "values": {
+      "Light": "#C3C9D1",
+      "Dark": "#343B45"
+    },
+    "android": null
+  },
+  {
+    "id": "1:4769",
+    "name": "Color/Cool Gray/500",
+    "values": {
+      "Value": "#626D7C"
+    },
+    "android": null
+  },
+  {
+    "id": "1:4770",
+    "name": "Icon/icon-secondary",
+    "values": {
+      "Light": "#626D7C",
+      "Dark": "#626D7C"
+    },
+    "android": null
+  },
+  {
+    "id": "1:4772",
+    "name": "Text/text-secondary",
+    "values": {
+      "Light": "#626D7C",
+      "Dark": "#626D7C"
+    },
+    "android": null
+  },
+  {
+    "id": "1:4813",
+    "name": "Color/Cool Gray/300",
+    "values": {
+      "Value": "#A2ABB8"
+    },
+    "android": null
+  },
+  {
+    "id": "1:4814",
+    "name": "Text/text-primary-muted",
+    "values": {
+      "Light": "#A2ABB8",
+      "Dark": "#343B45"
+    },
+    "android": null
+  },
+  {
+    "id": "1:4815",
+    "name": "Color/Cool Gray/100",
+    "values": {
+      "Value": "#E2E5EB"
+    },
+    "android": null
+  },
+  {
+    "id": "1:4816",
+    "name": "Color/Cool Gray/800",
+    "values": {
+      "Value": "#22262E"
+    },
+    "android": null
+  },
+  {
+    "id": "1:4817",
+    "name": "Border/border-primary-muted",
+    "values": {
+      "Light": "#E2E5EB",
+      "Dark": "#22262E"
+    },
+    "android": null
+  },
+  {
+    "id": "1:5957",
+    "name": "Gray/900",
+    "values": {
+      "Light": "#131417",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "1:5958",
+    "name": "Icon/gray-primary",
+    "values": {
+      "Light": "#131417",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "1:6088",
+    "name": "Regulation/blue",
+    "values": {
+      "Light": "#0064FF",
+      "Dark": "#0082FF"
+    },
+    "android": null
+  },
+  {
+    "id": "1:6089",
+    "name": "Regulation/red",
+    "values": {
+      "Light": "#F62E24",
+      "Dark": "#FF4339"
+    },
+    "android": null
+  },
+  {
+    "id": "1:6090",
+    "name": "Regulation/orange",
+    "values": {
+      "Light": "#FF8A00",
+      "Dark": "#FF8A00"
+    },
+    "android": null
+  },
+  {
+    "id": "1:6091",
+    "name": "Gray/900",
+    "values": {
+      "Light": "#131417",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "1:6092",
+    "name": "Icon/gray-primary",
+    "values": {
+      "Light": "#131417",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "1:6093",
+    "name": "Regulation/green",
+    "values": {
+      "Light": "#00BA13",
+      "Dark": "#55F165"
+    },
+    "android": null
+  },
+  {
+    "id": "1:6094",
+    "name": "_Feature/Driving/Normal/Alert",
+    "values": {
+      "Light": "#FF8A00",
+      "Dark": "#FF8A00"
+    },
+    "android": null
+  },
+  {
+    "id": "1:6096",
+    "name": "_Feature/Driving/Normal/Warning",
+    "values": {
+      "Light": "#FFA133",
+      "Dark": "#FFA133"
+    },
+    "android": null
+  },
+  {
+    "id": "1:6097",
+    "name": "Gray/00",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#131417"
+    },
+    "android": null
+  },
+  {
+    "id": "1:6098",
+    "name": "Icon/white-primary",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#131417"
+    },
+    "android": null
+  },
+  {
+    "id": "1:6099",
+    "name": "_Feature/Driving/Normal/Positive",
+    "values": {
+      "Light": "#00BA13",
+      "Dark": "#00BA13"
+    },
+    "android": null
+  },
+  {
+    "id": "1:6100",
+    "name": "_Legacy/Scale/White/White",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#000000"
+    },
+    "android": null
+  },
+  {
+    "id": "1:6102",
+    "name": "Informative/autonomous driving",
+    "values": {
+      "Light": "#5A46FA",
+      "Dark": "#6A57FF"
+    },
+    "android": null
+  },
+  {
+    "id": "1:6103",
+    "name": "System/Grayscale/Opaque/White",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "1:6104",
+    "name": "System/Grayscale/Opaque/Black",
+    "values": {
+      "Light": "#000000",
+      "Dark": "#000000"
+    },
+    "android": null
+  },
+  {
+    "id": "1:6105",
+    "name": "_Feature/Driving/Normal/Danger",
+    "values": {
+      "Light": "#FF2E00",
+      "Dark": "#FF2E00"
+    },
+    "android": null
+  },
+  {
+    "id": "1:6455",
+    "name": "color/basic/00",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#131417"
+    },
+    "android": null
+  },
+  {
+    "id": "1:6456",
+    "name": "color/basic/900",
+    "values": {
+      "Light": "#131417",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "2:9523",
+    "name": "New group/ivi_radio",
+    "values": {
+      "Eng": {
+        "textValue": "Radio"
+      },
+      "Kor": {
+        "textValue": "라디오"
+      }
+    },
+    "android": null
+  },
+  {
+    "id": "2:15158",
+    "name": "static/dark/100",
+    "values": {
+      "Light": "#131417",
+      "Dark": "#131417"
+    },
+    "android": null
+  },
+  {
+    "id": "2:15159",
+    "name": "static/light/100",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "2:15160",
+    "name": "icon/dark/primary",
+    "values": {
+      "Light": "#131417",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4943",
+    "name": "basic/00",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#131417"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4944",
+    "name": "alpha/dark/50",
+    "values": {
+      "Light": "#1314170D",
+      "Dark": "#FFFFFF0D"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4945",
+    "name": "divider/primary",
+    "values": {
+      "Light": "#1314170D",
+      "Dark": "#FFFFFF0D"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4971",
+    "name": "basic/50",
+    "values": {
+      "Light": "#F7F8FA",
+      "Dark": "#1D1E21"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4972",
+    "name": "basic/100",
+    "values": {
+      "Light": "#EDEEF2",
+      "Dark": "#313236"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4973",
+    "name": "basic/200",
+    "values": {
+      "Light": "#E0E1E6",
+      "Dark": "#44464E"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4974",
+    "name": "basic/300",
+    "values": {
+      "Light": "#C7C9CE",
+      "Dark": "#686A72"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4975",
+    "name": "basic/400",
+    "values": {
+      "Light": "#A4A8AE",
+      "Dark": "#A4A8AE"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4976",
+    "name": "basic/500",
+    "values": {
+      "Light": "#686A72",
+      "Dark": "#C7C9CE"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4977",
+    "name": "basic/600",
+    "values": {
+      "Light": "#44464E",
+      "Dark": "#E0E1E6"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4978",
+    "name": "basic/700",
+    "values": {
+      "Light": "#313236",
+      "Dark": "#EDEEF2"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4979",
+    "name": "basic/800",
+    "values": {
+      "Light": "#1D1E21",
+      "Dark": "#F7F8FA"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4980",
+    "name": "basic/900",
+    "values": {
+      "Light": "#131417",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4981",
+    "name": "alpha/light/50",
+    "values": {
+      "Light": "#FFFFFF0D",
+      "Dark": "#1314170D"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4982",
+    "name": "alpha/light/200",
+    "values": {
+      "Light": "#FFFFFF33",
+      "Dark": "#13141733"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4983",
+    "name": "alpha/light/100",
+    "values": {
+      "Light": "#FFFFFF1A",
+      "Dark": "#1314171A"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4984",
+    "name": "alpha/light/300",
+    "values": {
+      "Light": "#FFFFFF4D",
+      "Dark": "#1314174D"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4985",
+    "name": "alpha/light/400",
+    "values": {
+      "Light": "#FFFFFF66",
+      "Dark": "#13141766"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4986",
+    "name": "alpha/light/500",
+    "values": {
+      "Light": "#FFFFFF80",
+      "Dark": "#13141780"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4987",
+    "name": "alpha/dark/100",
+    "values": {
+      "Light": "#1314171A",
+      "Dark": "#FFFFFF1A"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4988",
+    "name": "alpha/dark/200",
+    "values": {
+      "Light": "#13141733",
+      "Dark": "#FFFFFF33"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4989",
+    "name": "alpha/dark/300",
+    "values": {
+      "Light": "#1314174D",
+      "Dark": "#FFFFFF4D"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4990",
+    "name": "alpha/dark/400",
+    "values": {
+      "Light": "#13141766",
+      "Dark": "#FFFFFF66"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4991",
+    "name": "alpha/dark/500",
+    "values": {
+      "Light": "#13141780",
+      "Dark": "#FFFFFF80"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4992",
+    "name": "static/light/200",
+    "values": {
+      "Light": "#FFFFFFD6",
+      "Dark": "#FFFFFFD6"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4993",
+    "name": "static/light/300",
+    "values": {
+      "Light": "#FFFFFFA3",
+      "Dark": "#FFFFFFA3"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4994",
+    "name": "static/light/400",
+    "values": {
+      "Light": "#FFFFFF52",
+      "Dark": "#FFFFFF52"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4995",
+    "name": "static/dark/200",
+    "values": {
+      "Light": "#131417D6",
+      "Dark": "#131417D6"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4996",
+    "name": "static/dark/300",
+    "values": {
+      "Light": "#131417A3",
+      "Dark": "#131417A3"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4997",
+    "name": "static/dark/400",
+    "values": {
+      "Light": "#13141752",
+      "Dark": "#13141752"
+    },
+    "android": null
+  },
+  {
+    "id": "67:4999",
+    "name": "app_market/header/title/height",
+    "values": {
+      "connect-s": 80,
+      "connect-l": 70,
+      "connect-w": 66,
+      "\bconnect-waterfall": 85
+    },
+    "android": null
+  },
+  {
+    "id": "67:5000",
+    "name": "informative/autonomous_driving",
+    "values": {
+      "Light": "#5A46FA",
+      "Dark": "#6A57FF"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5014",
+    "name": "background/popup",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#313236"
+    },
+    "android": "color_surface_popup"
+  },
+  {
+    "id": "67:5015",
+    "name": "background/primary",
+    "values": {
+      "Light": "#F7F8FA",
+      "Dark": "#1D1E21"
+    },
+    "android": "color_surface_background_primary"
+  },
+  {
+    "id": "67:5016",
+    "name": "background/secondary",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#131417"
+    },
+    "android": "color_surface_background_secondary"
+  },
+  {
+    "id": "67:5017",
+    "name": "dim/dark/primary",
+    "values": {
+      "Light": "#1314170D",
+      "Dark": "#FFFFFF0D"
+    },
+    "android": "color_surface_dim_gray_primary"
+  },
+  {
+    "id": "67:5018",
+    "name": "dim/dark/secondary",
+    "values": {
+      "Light": "#1314171A",
+      "Dark": "#FFFFFF1A"
+    },
+    "android": "color_surface_dim_gray_secondary"
+  },
+  {
+    "id": "67:5019",
+    "name": "dim/dark/tertiary",
+    "values": {
+      "Light": "#13141733",
+      "Dark": "#FFFFFF33"
+    },
+    "android": "color_surface_dim_gray_tertiary"
+  },
+  {
+    "id": "67:5020",
+    "name": "dim/light/primary",
+    "values": {
+      "Light": "#FFFFFF80",
+      "Dark": "#13141780"
+    },
+    "android": "color_surface_dim_white_primary"
+  },
+  {
+    "id": "67:5021",
+    "name": "dim/light/secondary",
+    "values": {
+      "Light": "#FFFFFF66",
+      "Dark": "#13141766"
+    },
+    "android": "color_surface_dim_white_secondary"
+  },
+  {
+    "id": "67:5022",
+    "name": "dim/light/tertiary",
+    "values": {
+      "Light": "#FFFFFF4D",
+      "Dark": "#1314174D"
+    },
+    "android": "color_surface_dim_white_tertiary"
+  },
+  {
+    "id": "67:5023",
+    "name": "divider/secondary",
+    "values": {
+      "Light": "#1314171A",
+      "Dark": "#FFFFFF1A"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5024",
+    "name": "divider/tertiary",
+    "values": {
+      "Light": "#13141733",
+      "Dark": "#FFFFFF33"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5026",
+    "name": "Miscellaneous/Charging/normal",
+    "values": {
+      "Light": "#00DB25",
+      "Dark": "#00DB25"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5027",
+    "name": "Miscellaneous/Charging/deep",
+    "values": {
+      "Light": "#00B975",
+      "Dark": "#00B975"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5028",
+    "name": "driving_view/gradient_start",
+    "values": {
+      "Light": "#FFFFFF00",
+      "Dark": "#13141700"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5029",
+    "name": "Gray/00",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#131417"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5030",
+    "name": "Miscellaneous/Textfields/background",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#131417"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5031",
+    "name": "text/dark/primary",
+    "values": {
+      "Light": "#131417",
+      "Dark": "#FFFFFF"
+    },
+    "android": "color_label_gray_primary"
+  },
+  {
+    "id": "67:5032",
+    "name": "text/dark/secondary",
+    "values": {
+      "Light": "#131417D6",
+      "Dark": "#FFFFFFD6"
+    },
+    "android": "color_label_gray_secondary"
+  },
+  {
+    "id": "67:5033",
+    "name": "icon/dark/secondary",
+    "values": {
+      "Light": "#131417D6",
+      "Dark": "#FFFFFFD6"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5034",
+    "name": "text/dark/tertiary",
+    "values": {
+      "Light": "#131417A3",
+      "Dark": "#FFFFFFA3"
+    },
+    "android": "color_label_gray_tertiary"
+  },
+  {
+    "id": "67:5035",
+    "name": "icon/dark/tertiary",
+    "values": {
+      "Light": "#131417A3",
+      "Dark": "#FFFFFFA3"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5036",
+    "name": "text/dark/quaternary",
+    "values": {
+      "Light": "#13141752",
+      "Dark": "#FFFFFF52"
+    },
+    "android": "color_label_gray_quaternary"
+  },
+  {
+    "id": "67:5037",
+    "name": "icon/dark/quaternary",
+    "values": {
+      "Light": "#13141752",
+      "Dark": "#FFFFFF52"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5038",
+    "name": "text/light/primary",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#131417"
+    },
+    "android": "color_label_white_primary"
+  },
+  {
+    "id": "67:5039",
+    "name": "icon/light/primary",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#131417"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5040",
+    "name": "text/light/secondary",
+    "values": {
+      "Light": "#FFFFFFD6",
+      "Dark": "#131417D6"
+    },
+    "android": "color_label_white_secondary"
+  },
+  {
+    "id": "67:5041",
+    "name": "icon/light/secondary",
+    "values": {
+      "Light": "#FFFFFFD6",
+      "Dark": "#131417D6"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5042",
+    "name": "text/light/tertiary",
+    "values": {
+      "Light": "#FFFFFFA3",
+      "Dark": "#131417A3"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5043",
+    "name": "icon/light/tertiary",
+    "values": {
+      "Light": "#FFFFFFA3",
+      "Dark": "#131417A3"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5044",
+    "name": "text/light/quaternary",
+    "values": {
+      "Light": "#FFFFFF52",
+      "Dark": "#13141752"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5045",
+    "name": "icon/light/quaternary",
+    "values": {
+      "Light": "#FFFFFF52",
+      "Dark": "#13141752"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5046",
+    "name": "keyboard/normal/primary_normal",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#686A72"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5047",
+    "name": "keyboard/normal/primary_pressed",
+    "values": {
+      "Light": "#EDEEF2",
+      "Dark": "#44464E"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5048",
+    "name": "keyboard/normal/secondary_normal",
+    "values": {
+      "Light": "#C7C9CE",
+      "Dark": "#44464E"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5049",
+    "name": "keyboard/normal/secondary_pressed",
+    "values": {
+      "Light": "#A4A8AE",
+      "Dark": "#686A72"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5050",
+    "name": "keyboard/normal/active_normal",
+    "values": {
+      "Light": "#44464E",
+      "Dark": "#686A72"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5051",
+    "name": "keyboard/normal/active_pressed",
+    "values": {
+      "Light": "#313236",
+      "Dark": "#44464E"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5052",
+    "name": "keyboard/normal/accents_normal",
+    "values": {
+      "Light": "#44464E",
+      "Dark": "#C7C9CE"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5053",
+    "name": "keyboard/normal/accents_pressed",
+    "values": {
+      "Light": "#313236",
+      "Dark": "#A4A8AE"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5054",
+    "name": "keyboard/normal/background",
+    "values": {
+      "Light": "#E0E1E6",
+      "Dark": "#313236"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5055",
+    "name": "keyboard/static/primary_normal",
+    "values": {
+      "Light": "#686A72",
+      "Dark": "#686A72"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5056",
+    "name": "keyboard/static/primary_pressed",
+    "values": {
+      "Light": "#44464E",
+      "Dark": "#44464E"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5057",
+    "name": "keyboard/static/secondary_normal",
+    "values": {
+      "Light": "#44464E",
+      "Dark": "#44464E"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5058",
+    "name": "keyboard/static/secondary_pressed",
+    "values": {
+      "Light": "#686A72",
+      "Dark": "#686A72"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5059",
+    "name": "keyboard/static/active_normal",
+    "values": {
+      "Light": "#686A72",
+      "Dark": "#686A72"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5060",
+    "name": "keyboard/static/active_pressed",
+    "values": {
+      "Light": "#313236",
+      "Dark": "#44464E"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5061",
+    "name": "keyboard/static/accents_normal",
+    "values": {
+      "Light": "#C7C9CE",
+      "Dark": "#C7C9CE"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5062",
+    "name": "keyboard/static/accents_pressed",
+    "values": {
+      "Light": "#A4A8AE",
+      "Dark": "#A4A8AE"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5063",
+    "name": "keyboard/static/background",
+    "values": {
+      "Light": "#131417",
+      "Dark": "#131417"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5064",
+    "name": "keyboard/static/icon_light",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5065",
+    "name": "keyboard/static/icon_dark",
+    "values": {
+      "Light": "#131417",
+      "Dark": "#131417"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5066",
+    "name": "keyboard/static/icon_disabled",
+    "values": {
+      "Light": "#FFFFFF1A",
+      "Dark": "#FFFFFF1A"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5067",
+    "name": "keyboard/static/text",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5068",
+    "name": "Feature/Media/radio-primary",
+    "values": {
+      "Light": "#C911E7",
+      "Dark": "#C911E7"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5069",
+    "name": "Feature/Media/music-primary",
+    "values": {
+      "Light": "#4781FF",
+      "Dark": "#4781FF"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5070",
+    "name": "media/radio_gradient_start",
+    "values": {
+      "Light": "#FFFFFF00",
+      "Dark": "#1D1E2100"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5071",
+    "name": "media/radio_gradient_end",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#1D1E21"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5072",
+    "name": "overlay/default",
+    "values": {
+      "Light": "#13141733",
+      "Dark": "#13141780"
+    },
+    "android": "overlay_basic(updated)"
+  },
+  {
+    "id": "67:5073",
+    "name": "Button/Call/accept-normal",
+    "values": {
+      "Light": "#32B957",
+      "Dark": "#3BD665"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5074",
+    "name": "Button/Call/accept-pressed",
+    "values": {
+      "Light": "#279E47",
+      "Dark": "#2DB752"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5075",
+    "name": "Button/Call/end-normal",
+    "values": {
+      "Light": "#FE3D16",
+      "Dark": "#FF4C28"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5076",
+    "name": "Button/Call/end-pressed",
+    "values": {
+      "Light": "#E73612",
+      "Dark": "#DF4323"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5078",
+    "name": "Surface/container",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#1D1E21"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5079",
+    "name": "Informative/active",
+    "values": {
+      "Light": "#02C265",
+      "Dark": "#00E074"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5080",
+    "name": "Miscellaneous/Switch/background-on",
+    "values": {
+      "Light": "#02C265",
+      "Dark": "#00E074"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5081",
+    "name": "switch/off",
+    "values": {
+      "Light": "#1314174D",
+      "Dark": "#FFFFFF1A"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5082",
+    "name": "switch/disabled",
+    "values": {
+      "Light": "#1314171A",
+      "Dark": "#FFFFFF1A"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5083",
+    "name": "Gray/900",
+    "values": {
+      "Light": "#131417",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5084",
+    "name": "Miscellaneous/Switch/button-on",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5085",
+    "name": "Gray/400",
+    "values": {
+      "Light": "#A4A8AE",
+      "Dark": "#A4A8AE"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5086",
+    "name": "Miscellaneous/Switch/button-off",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#A4A8AE"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5087",
+    "name": "GrayAlpha/200",
+    "values": {
+      "Light": "#13141733",
+      "Dark": "#FFFFFF33"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5088",
+    "name": "Miscellaneous/Switch/button-disabled",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#FFFFFF33"
+    },
+    "android": null
+  },
+  {
+    "id": "67:5089",
+    "name": "regulation/blue",
+    "values": {
+      "Light": "#0064FF",
+      "Dark": "#0082FF"
+    },
+    "android": "color_regulation_blue"
+  },
+  {
+    "id": "67:5091",
+    "name": "regulation/red",
+    "values": {
+      "Light": "#F62E24",
+      "Dark": "#FF4339"
+    },
+    "android": "color_regulation_red"
+  },
+  {
+    "id": "67:7554",
+    "name": "Spacing/spacing-05",
+    "values": {
+      "Value": 16
+    },
+    "android": null
+  },
+  {
+    "id": "67:7556",
+    "name": "size_sp/level18",
+    "values": {
+      "connect-s": 60,
+      "connect-l": 53,
+      "connect-w": 50,
+      "connect-waterfall": 64
+    },
+    "android": null
+  },
+  {
+    "id": "67:7557",
+    "name": "line_height_sp/level19",
+    "values": {
+      "connect-s": 80,
+      "connect-l": 65,
+      "connect-w": 66,
+      "connect-waterfall": 84
+    },
+    "android": null
+  },
+  {
+    "id": "67:7559",
+    "name": "size_sp/level17",
+    "values": {
+      "connect-s": 56,
+      "connect-l": 49,
+      "connect-w": 46,
+      "connect-waterfall": 59
+    },
+    "android": null
+  },
+  {
+    "id": "67:7560",
+    "name": "line_height_sp/level17",
+    "values": {
+      "connect-s": 72,
+      "connect-l": 65,
+      "connect-w": 60,
+      "connect-waterfall": 77
+    },
+    "android": null
+  },
+  {
+    "id": "67:7562",
+    "name": "size_sp/level15",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "connect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:7563",
+    "name": "size_sp/level19",
+    "values": {
+      "connect-s": 64,
+      "connect-l": 56,
+      "connect-w": 53,
+      "connect-waterfall": 68
+    },
+    "android": null
+  },
+  {
+    "id": "67:7565",
+    "name": "size_sp/level13",
+    "values": {
+      "connect-s": 40,
+      "connect-l": 35,
+      "connect-w": 33,
+      "connect-waterfall": 42
+    },
+    "android": null
+  },
+  {
+    "id": "67:7566",
+    "name": "size_sp/level16",
+    "values": {
+      "connect-s": 52,
+      "connect-l": 46,
+      "connect-w": 43,
+      "connect-waterfall": 55
+    },
+    "android": null
+  },
+  {
+    "id": "67:7568",
+    "name": "size_sp/level11",
+    "values": {
+      "connect-s": 36,
+      "connect-l": 32,
+      "connect-w": 30,
+      "connect-waterfall": 38
+    },
+    "android": null
+  },
+  {
+    "id": "67:7569",
+    "name": "size_sp/level14",
+    "values": {
+      "connect-s": 44,
+      "connect-l": 39,
+      "connect-w": 37,
+      "connect-waterfall": 47
+    },
+    "android": null
+  },
+  {
+    "id": "67:7571",
+    "name": "size_sp/level9",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "connect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:7572",
+    "name": "line_height_sp/level9",
+    "values": {
+      "connect-s": 40,
+      "connect-l": 35,
+      "connect-w": 33,
+      "connect-waterfall": 42
+    },
+    "android": null
+  },
+  {
+    "id": "67:7574",
+    "name": "size_sp/level8",
+    "values": {
+      "connect-s": 30,
+      "connect-l": 26,
+      "connect-w": 25,
+      "connect-waterfall": 34
+    },
+    "android": null
+  },
+  {
+    "id": "67:7575",
+    "name": "line_height_sp/level8",
+    "values": {
+      "connect-s": 38,
+      "connect-l": 33,
+      "connect-w": 32,
+      "connect-waterfall": 41
+    },
+    "android": null
+  },
+  {
+    "id": "67:7577",
+    "name": "size_sp/level7",
+    "values": {
+      "connect-s": 28,
+      "connect-l": 25,
+      "connect-w": 23,
+      "connect-waterfall": 29
+    },
+    "android": null
+  },
+  {
+    "id": "67:7578",
+    "name": "line_height_sp/level7",
+    "values": {
+      "connect-s": 36,
+      "connect-l": 32,
+      "connect-w": 30,
+      "connect-waterfall": 38
+    },
+    "android": null
+  },
+  {
+    "id": "67:7580",
+    "name": "size_sp/level6",
+    "values": {
+      "connect-s": 26,
+      "connect-l": 23,
+      "connect-w": 22,
+      "connect-waterfall": 28
+    },
+    "android": null
+  },
+  {
+    "id": "67:7581",
+    "name": "line_height_sp/level6",
+    "values": {
+      "connect-s": 34,
+      "connect-l": 28,
+      "connect-w": 28,
+      "connect-waterfall": 36
+    },
+    "android": null
+  },
+  {
+    "id": "67:7583",
+    "name": "size_sp/level5",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "connect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:7584",
+    "name": "line_height_sp/level3",
+    "values": {
+      "connect-s": 28,
+      "connect-l": 25,
+      "connect-w": 23,
+      "connect-waterfall": 29
+    },
+    "android": null
+  },
+  {
+    "id": "67:7586",
+    "name": "size_sp/level3",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 17,
+      "connect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:7587",
+    "name": "line_height_sp/level1",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "connect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:7589",
+    "name": "size_sp/level20",
+    "values": {
+      "connect-s": 112,
+      "connect-l": 99,
+      "connect-w": 130,
+      "connect-waterfall": 119
+    },
+    "android": null
+  },
+  {
+    "id": "67:7590",
+    "name": "line_height_sp/level20",
+    "values": {
+      "connect-s": 134,
+      "connect-l": 118,
+      "connect-w": 156,
+      "connect-waterfall": 142
+    },
+    "android": null
+  },
+  {
+    "id": "67:7592",
+    "name": "line_height_sp/level11",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "connect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:14533",
+    "name": "_Legacy/Scale/Black/Black",
+    "values": {
+      "Light": "#000000",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "67:14534",
+    "name": "Button/Call/end-normal",
+    "values": {
+      "Light": "#FE3D16",
+      "Dark": "#FF4C28"
+    },
+    "android": null
+  },
+  {
+    "id": "67:14535",
+    "name": "_Legacy/Solid/Cool/900",
+    "values": {
+      "Light": "#1B1D21",
+      "Dark": "#F0F1F5"
+    },
+    "android": null
+  },
+  {
+    "id": "67:14536",
+    "name": "Button/Call/accept-normal",
+    "values": {
+      "Light": "#32B957",
+      "Dark": "#3BD665"
+    },
+    "android": null
+  },
+  {
+    "id": "67:14537",
+    "name": "Icon/gray-tertiary",
+    "values": {
+      "Light": "#131417A3",
+      "Dark": "#FFFFFFA3"
+    },
+    "android": null
+  },
+  {
+    "id": "67:14580",
+    "name": "Icon/gray-quaternary",
+    "values": {
+      "Light": "#13141752",
+      "Dark": "#FFFFFF52"
+    },
+    "android": null
+  },
+  {
+    "id": "67:15008",
+    "name": "static/light/100",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "67:15009",
+    "name": "static/dark/100",
+    "values": {
+      "Light": "#131417",
+      "Dark": "#131417"
+    },
+    "android": null
+  },
+  {
+    "id": "67:15010",
+    "name": "icon/light/primary",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#131417"
+    },
+    "android": null
+  },
+  {
+    "id": "67:15012",
+    "name": "_System/Brand/Primary/Normal",
+    "values": {
+      "Light": "#5A46FA",
+      "Dark": "#6A57FF"
+    },
+    "android": null
+  },
+  {
+    "id": "67:15062",
+    "name": "_Legacy/Scale/Black/Black",
+    "values": {
+      "Light": "#000000",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "67:15071",
+    "name": "_Legacy/Scale/White/White",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#000000"
+    },
+    "android": null
+  },
+  {
+    "id": "67:15072",
+    "name": "_Legacy/Solid/Warm/300",
+    "values": {
+      "Light": "#C8C8C8",
+      "Dark": "#353535"
+    },
+    "android": null
+  },
+  {
+    "id": "67:15074",
+    "name": "gleo_blue",
+    "values": {
+      "Mode 1": "#596BFF"
+    },
+    "android": null
+  },
+  {
+    "id": "67:21952",
+    "name": "buttons/basic/large/gap_horizontal",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 14,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:21953",
+    "name": "buttons/basic/large/padding_horizontal",
+    "values": {
+      "connect-s": 40,
+      "connect-l": 35,
+      "connect-w": 34,
+      "\bconnect-waterfall": 42
+    },
+    "android": null
+  },
+  {
+    "id": "67:21954",
+    "name": "buttons/basic/large/padding_vertical",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 14,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:21955",
+    "name": "buttons/basic/large/height",
+    "values": {
+      "connect-s": 100,
+      "connect-l": 88,
+      "connect-w": 84,
+      "\bconnect-waterfall": 106
+    },
+    "android": null
+  },
+  {
+    "id": "67:21956",
+    "name": "buttons/basic/large/radius_top_left",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:21957",
+    "name": "buttons/basic/large/min_width",
+    "values": {
+      "connect-s": 140,
+      "connect-l": 123,
+      "connect-w": 116,
+      "\bconnect-waterfall": 148
+    },
+    "android": null
+  },
+  {
+    "id": "67:21958",
+    "name": "buttons/text/medium/gap",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 8,
+      "\bconnect-waterfall": 9
+    },
+    "android": null
+  },
+  {
+    "id": "67:21959",
+    "name": "informative/active",
+    "values": {
+      "Light": "#02C265",
+      "Dark": "#00E074"
+    },
+    "android": null
+  },
+  {
+    "id": "67:21973",
+    "name": "buttons/icon/medium/width",
+    "values": {
+      "connect-s": 80,
+      "connect-l": 70,
+      "connect-w": 66,
+      "\bconnect-waterfall": 84
+    },
+    "android": null
+  },
+  {
+    "id": "67:21974",
+    "name": "buttons/icon/medium/rounded_radius_top_left",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:21975",
+    "name": "buttons/icon/medium/rounded_radius_top_right",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:21976",
+    "name": "buttons/icon/medium/rounded_radius_bottom_left",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:21977",
+    "name": "buttons/icon/medium/rounded_radius_bottom_right",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:22034",
+    "name": "buttons/icon/circle_radius_top_left",
+    "values": {
+      "connect-s": 999,
+      "connect-l": 999,
+      "connect-w": 999,
+      "\bconnect-waterfall": 999
+    },
+    "android": null
+  },
+  {
+    "id": "67:22035",
+    "name": "buttons/icon/circle_radius_top_right",
+    "values": {
+      "connect-s": 999,
+      "connect-l": 999,
+      "connect-w": 999,
+      "\bconnect-waterfall": 999
+    },
+    "android": null
+  },
+  {
+    "id": "67:22036",
+    "name": "buttons/icon/circle_radius_bottom_left",
+    "values": {
+      "connect-s": 999,
+      "connect-l": 999,
+      "connect-w": 999,
+      "\bconnect-waterfall": 999
+    },
+    "android": null
+  },
+  {
+    "id": "67:22037",
+    "name": "buttons/icon/circle_radius_bottom_right",
+    "values": {
+      "connect-s": 999,
+      "connect-l": 999,
+      "connect-w": 999,
+      "\bconnect-waterfall": 999
+    },
+    "android": null
+  },
+  {
+    "id": "67:22038",
+    "name": "button/basic/enabled",
+    "values": {
+      "Light": "#1314170D",
+      "Dark": "#FFFFFF0D"
+    },
+    "android": "color_button_basic_enabled"
+  },
+  {
+    "id": "67:22094",
+    "name": "buttons/basic/large/icon_sqaure",
+    "values": {
+      "connect-s": 52,
+      "connect-l": 46,
+      "connect-w": 43,
+      "\bconnect-waterfall": 55
+    },
+    "android": null
+  },
+  {
+    "id": "67:22108",
+    "name": "button/basic/pressed",
+    "values": {
+      "Light": "#1314171A",
+      "Dark": "#FFFFFF1A"
+    },
+    "android": "color_button_basic_pressed"
+  },
+  {
+    "id": "67:22109",
+    "name": "buttons/basic/disabled_border",
+    "values": {
+      "connect-s": 2,
+      "connect-l": 2,
+      "connect-w": 2,
+      "\bconnect-waterfall": 3
+    },
+    "android": null
+  },
+  {
+    "id": "67:22110",
+    "name": "button/basic/disabled",
+    "values": {
+      "Light": "#FFFFFF33",
+      "Dark": "#13141733"
+    },
+    "android": "color_button_basic_disabled"
+  },
+  {
+    "id": "67:22111",
+    "name": "buttons/basic/medium/gap_horizontal",
+    "values": {
+      "connect-s": 14,
+      "connect-l": 12,
+      "connect-w": 12,
+      "\bconnect-waterfall": 15
+    },
+    "android": null
+  },
+  {
+    "id": "67:22112",
+    "name": "buttons/basic/medium/padding_horizontal",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:22113",
+    "name": "buttons/basic/medium/padding_vertical",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 14,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:22114",
+    "name": "buttons/basic/medium/height",
+    "values": {
+      "connect-s": 80,
+      "connect-l": 70,
+      "connect-w": 66,
+      "\bconnect-waterfall": 84
+    },
+    "android": null
+  },
+  {
+    "id": "67:22115",
+    "name": "buttons/basic/medium/radius_top_left_medium",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:22116",
+    "name": "buttons/basic/medium/min_width",
+    "values": {
+      "connect-s": 120,
+      "connect-l": 106,
+      "connect-w": 100,
+      "\bconnect-waterfall": 128
+    },
+    "android": null
+  },
+  {
+    "id": "67:22117",
+    "name": "buttons/basic/medium/icon_sqaure",
+    "values": {
+      "connect-s": 40,
+      "connect-l": 35,
+      "connect-w": 33,
+      "\bconnect-waterfall": 42
+    },
+    "android": null
+  },
+  {
+    "id": "67:22118",
+    "name": "buttons/basic/small/gap_horizontal",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:22119",
+    "name": "buttons/basic/small/padding_horizontal",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:22120",
+    "name": "buttons/basic/small/padding_vertical",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 8,
+      "\bconnect-waterfall": 10
+    },
+    "android": null
+  },
+  {
+    "id": "67:22121",
+    "name": "buttons/basic/small/height",
+    "values": {
+      "connect-s": 64,
+      "connect-l": 56,
+      "connect-w": 54,
+      "\bconnect-waterfall": 68
+    },
+    "android": null
+  },
+  {
+    "id": "67:22122",
+    "name": "buttons/basic/small/radius_bottom_right",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:22123",
+    "name": "buttons/basic/small/min_width",
+    "values": {
+      "connect-s": 100,
+      "connect-l": 88,
+      "connect-w": 84,
+      "\bconnect-waterfall": 106
+    },
+    "android": null
+  },
+  {
+    "id": "67:22124",
+    "name": "buttons/basic/small/icon_sqaure",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:22125",
+    "name": "button/filled/enabled",
+    "values": {
+      "Light": "#44464E",
+      "Dark": "#E0E1E6"
+    },
+    "android": "color_button_filled_enabled"
+  },
+  {
+    "id": "67:22126",
+    "name": "button/filled/pressed",
+    "values": {
+      "Light": "#313236",
+      "Dark": "#C7C9CE"
+    },
+    "android": "color_button_filled_pressed"
+  },
+  {
+    "id": "67:22127",
+    "name": "button/filled/disabled",
+    "values": {
+      "Light": "#1314170D",
+      "Dark": "#FFFFFF0D"
+    },
+    "android": "color_button_filled_disabled"
+  },
+  {
+    "id": "67:22128",
+    "name": "buttons/toggle/large/gap_horizontal",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 14,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:22129",
+    "name": "buttons/toggle/large/padding_horizontal",
+    "values": {
+      "connect-s": 40,
+      "connect-l": 35,
+      "connect-w": 34,
+      "\bconnect-waterfall": 42
+    },
+    "android": null
+  },
+  {
+    "id": "67:22130",
+    "name": "buttons/toggle/large/padding_vertical",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 14,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:22131",
+    "name": "buttons/toggle/large/height",
+    "values": {
+      "connect-s": 100,
+      "connect-l": 88,
+      "connect-w": 84,
+      "\bconnect-waterfall": 106
+    },
+    "android": null
+  },
+  {
+    "id": "67:22132",
+    "name": "buttons/toggle/large/radius_top_left",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:22133",
+    "name": "buttons/toggle/large/radius_top_right",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:22134",
+    "name": "buttons/toggle/large/radius_bottom_left",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:22135",
+    "name": "buttons/toggle/large/radius_bottom_right",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:22136",
+    "name": "buttons/toggle/large/min_width",
+    "values": {
+      "connect-s": 140,
+      "connect-l": 123,
+      "connect-w": 116,
+      "\bconnect-waterfall": 148
+    },
+    "android": null
+  },
+  {
+    "id": "67:22137",
+    "name": "buttons/toggle/large/icon_sqaure",
+    "values": {
+      "connect-s": 52,
+      "connect-l": 46,
+      "connect-w": 43,
+      "\bconnect-waterfall": 55
+    },
+    "android": null
+  },
+  {
+    "id": "67:22138",
+    "name": "buttons/toggle/disabled_border",
+    "values": {
+      "connect-s": 2,
+      "connect-l": 2,
+      "connect-w": 2,
+      "\bconnect-waterfall": 3
+    },
+    "android": null
+  },
+  {
+    "id": "67:22139",
+    "name": "buttons/toggle/medium/gap_horizontal",
+    "values": {
+      "connect-s": 14,
+      "connect-l": 12,
+      "connect-w": 12,
+      "\bconnect-waterfall": 15
+    },
+    "android": null
+  },
+  {
+    "id": "67:22140",
+    "name": "buttons/toggle/medium/padding_horizontal",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 28,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:22141",
+    "name": "buttons/toggle/medium/padding_vertical",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 14,
+      "\bconnect-waterfall": 16
+    },
+    "android": null
+  },
+  {
+    "id": "67:22142",
+    "name": "buttons/toggle/medium/height",
+    "values": {
+      "connect-s": 80,
+      "connect-l": 70,
+      "connect-w": 66,
+      "\bconnect-waterfall": 84
+    },
+    "android": null
+  },
+  {
+    "id": "67:22143",
+    "name": "buttons/toggle/medium/radius_top_left",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:22144",
+    "name": "buttons/toggle/medium/radius_top_right",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:22145",
+    "name": "buttons/toggle/medium/radius_bottom_left",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:22146",
+    "name": "buttons/toggle/medium/radius_bottom_right",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:22147",
+    "name": "buttons/toggle/medium/min_width",
+    "values": {
+      "connect-s": 120,
+      "connect-l": 106,
+      "connect-w": 100,
+      "\bconnect-waterfall": 128
+    },
+    "android": null
+  },
+  {
+    "id": "67:22148",
+    "name": "buttons/toggle/medium/icon_square",
+    "values": {
+      "connect-s": 40,
+      "connect-l": 35,
+      "connect-w": 33,
+      "\bconnect-waterfall": 42
+    },
+    "android": null
+  },
+  {
+    "id": "67:22149",
+    "name": "buttons/toggle/small/gap_horizontal",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 12
+    },
+    "android": null
+  },
+  {
+    "id": "67:22150",
+    "name": "buttons/toggle/small/padding_horizontal",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:22151",
+    "name": "buttons/toggle/small/padding_vertical",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 8,
+      "\bconnect-waterfall": 10
+    },
+    "android": null
+  },
+  {
+    "id": "67:22152",
+    "name": "buttons/toggle/small/height",
+    "values": {
+      "connect-s": 64,
+      "connect-l": 56,
+      "connect-w": 54,
+      "\bconnect-waterfall": 68
+    },
+    "android": null
+  },
+  {
+    "id": "67:22153",
+    "name": "buttons/toggle/small/radius_top_left",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:22154",
+    "name": "buttons/toggle/small/radius_top_right",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:22155",
+    "name": "buttons/toggle/small/radius_bottom_left",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:22156",
+    "name": "buttons/toggle/small/radius_bottom_right",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:22157",
+    "name": "buttons/toggle/small/min_width",
+    "values": {
+      "connect-s": 100,
+      "connect-l": 88,
+      "connect-w": 84,
+      "\bconnect-waterfall": 106
+    },
+    "android": null
+  },
+  {
+    "id": "67:22158",
+    "name": "buttons/toggle/small/icon_sqaure",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:22159",
+    "name": "shadow/level2/blur1",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "connect-waterfall": 32
+    },
+    "android": null
+  },
+  {
+    "id": "67:22160",
+    "name": "shadow/level2/y1",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 7,
+      "connect-waterfall": 9
+    },
+    "android": null
+  },
+  {
+    "id": "67:22161",
+    "name": "shadow/level2/blur2",
+    "values": {
+      "connect-s": 2,
+      "connect-l": 2,
+      "connect-w": 2,
+      "connect-waterfall": 3
+    },
+    "android": null
+  },
+  {
+    "id": "67:22162",
+    "name": "shadow/level2/y2",
+    "values": {
+      "connect-s": 2,
+      "connect-l": 2,
+      "connect-w": 2,
+      "connect-waterfall": 3
+    },
+    "android": null
+  },
+  {
+    "id": "67:22164",
+    "name": "button/switch/enabled",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#FFFFFF33"
+    },
+    "android": null
+  },
+  {
+    "id": "67:22165",
+    "name": "button/switch/pressed",
+    "values": {
+      "Light": "#FFFFFF80",
+      "Dark": "#FFFFFF1A"
+    },
+    "android": null
+  },
+  {
+    "id": "67:22166",
+    "name": "button/switch/disabled",
+    "values": {
+      "Light": "#FFFFFF4D",
+      "Dark": "#1314174D"
+    },
+    "android": "color/button/active(updated)/toggle_disabled"
+  },
+  {
+    "id": "67:22169",
+    "name": "buttons/text/medium/icon",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:22170",
+    "name": "informative/positive",
+    "values": {
+      "Light": "#0064FF",
+      "Dark": "#0082FF"
+    },
+    "android": null
+  },
+  {
+    "id": "67:22171",
+    "name": "buttons/text/small/gap",
+    "values": {
+      "connect-s": 4,
+      "connect-l": 4,
+      "connect-w": 4,
+      "\bconnect-waterfall": 4
+    },
+    "android": null
+  },
+  {
+    "id": "67:22172",
+    "name": "buttons/text/small/icon",
+    "values": {
+      "connect-s": 28,
+      "connect-l": 25,
+      "connect-w": 23,
+      "\bconnect-waterfall": 29
+    },
+    "android": null
+  },
+  {
+    "id": "67:22173",
+    "name": "buttons/icon/medium/height",
+    "values": {
+      "connect-s": 80,
+      "connect-l": 70,
+      "connect-w": 66,
+      "\bconnect-waterfall": 84
+    },
+    "android": null
+  },
+  {
+    "id": "67:22179",
+    "name": "buttons/icon/medium/content",
+    "values": {
+      "connect-s": 56,
+      "connect-l": 49,
+      "connect-w": 46,
+      "\bconnect-waterfall": 59
+    },
+    "android": null
+  },
+  {
+    "id": "67:22180",
+    "name": "buttons/icon/small/width",
+    "values": {
+      "connect-s": 64,
+      "connect-l": 56,
+      "connect-w": 54,
+      "\bconnect-waterfall": 68
+    },
+    "android": null
+  },
+  {
+    "id": "67:22181",
+    "name": "buttons/icon/small/height",
+    "values": {
+      "connect-s": 64,
+      "connect-l": 56,
+      "connect-w": 54,
+      "\bconnect-waterfall": 68
+    },
+    "android": null
+  },
+  {
+    "id": "67:22182",
+    "name": "buttons/icon/small/rounded_radius_top_left",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:22183",
+    "name": "buttons/icon/small/rounded_radius_top_right",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:22184",
+    "name": "buttons/icon/small/rounded_radius_bottom_left",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:22185",
+    "name": "buttons/icon/small/rounded_radius_bottom_right",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 1613,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:22186",
+    "name": "buttons/icon/small/content",
+    "values": {
+      "connect-s": 44,
+      "connect-l": 39,
+      "connect-w": 37,
+      "\bconnect-waterfall": 49
+    },
+    "android": null
+  },
+  {
+    "id": "67:22187",
+    "name": "surface/accent",
+    "values": {
+      "Light": "#E0E1E6",
+      "Dark": "#44464E"
+    },
+    "android": "color_surface_accent"
+  },
+  {
+    "id": "67:22189",
+    "name": "phone/accept_normal",
+    "values": {
+      "Light": "#32B957",
+      "Dark": "#3BD665"
+    },
+    "android": "color_button_call_accept_normal"
+  },
+  {
+    "id": "67:22190",
+    "name": "phone/end_normal",
+    "values": {
+      "Light": "#FE3D16",
+      "Dark": "#FF4C28"
+    },
+    "android": "color_button_call_end_normal"
+  },
+  {
+    "id": "67:22191",
+    "name": "_Legacy/Solid/Cool/900",
+    "values": {
+      "Light": "#1B1D21",
+      "Dark": "#F0F1F5"
+    },
+    "android": null
+  },
+  {
+    "id": "67:22192",
+    "name": "icon/dark/primary",
+    "values": {
+      "Light": "#131417",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "67:22333",
+    "name": "Spacing/0",
+    "values": {
+      "Mode 1": 0
+    },
+    "android": null
+  },
+  {
+    "id": "67:22407",
+    "name": "buttons/keypad/height",
+    "values": {
+      "connect-s": 108,
+      "connect-l": 95,
+      "connect-w": 80,
+      "\bconnect-waterfall": 116
+    },
+    "android": null
+  },
+  {
+    "id": "67:22408",
+    "name": "buttons/keypad/radius_top_left",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:22409",
+    "name": "buttons/keypad/radius_top_right",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:22410",
+    "name": "buttons/keypad/radius_bottom_left",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:22411",
+    "name": "buttons/keypad/radius_bottom_right",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:22412",
+    "name": "buttons/keypad/border",
+    "values": {
+      "connect-s": 4,
+      "connect-l": 4,
+      "connect-w": 3,
+      "\bconnect-waterfall": 4
+    },
+    "android": null
+  },
+  {
+    "id": "67:22413",
+    "name": "buttons/keypad/min_width",
+    "values": {
+      "connect-s": 200,
+      "connect-l": 176,
+      "connect-w": 166,
+      "\bconnect-waterfall": 212
+    },
+    "android": null
+  },
+  {
+    "id": "67:22434",
+    "name": "buttons/keypad/icon",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "\bconnect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:22435",
+    "name": "keyboard/keyword/normal_width",
+    "values": {
+      "connect-s": 100,
+      "connect-l": 88,
+      "connect-w": 96,
+      "\bconnect-waterfall": 106
+    },
+    "android": null
+  },
+  {
+    "id": "67:22436",
+    "name": "keyboard/keyword/height",
+    "values": {
+      "connect-s": 80,
+      "connect-l": 70,
+      "connect-w": 90,
+      "\bconnect-waterfall": 102
+    },
+    "android": null
+  },
+  {
+    "id": "67:22437",
+    "name": "keyboard/keyword/radius_top_left",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:22438",
+    "name": "keyboard/keyword/radius_top_right",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:22439",
+    "name": "keyboard/keyword/radius_bottom_left",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:22440",
+    "name": "keyboard/keyword/radius_bottom_right",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:22442",
+    "name": "Common/20",
+    "values": {
+      "Mode 1": 20
+    },
+    "android": null
+  },
+  {
+    "id": "67:22443",
+    "name": "keyboard/keyword/special_width",
+    "values": {
+      "connect-s": 120,
+      "connect-l": 106,
+      "connect-w": 100,
+      "\bconnect-waterfall": 128
+    },
+    "android": null
+  },
+  {
+    "id": "67:22475",
+    "name": "keyboard/keyword/icon_square",
+    "values": {
+      "connect-s": 44,
+      "connect-l": 39,
+      "connect-w": 37,
+      "\bconnect-waterfall": 49
+    },
+    "android": null
+  },
+  {
+    "id": "67:22476",
+    "name": "keyboard/keyword/shift_width",
+    "values": {
+      "connect-s": 165,
+      "connect-l": 145,
+      "connect-w": 136,
+      "\bconnect-waterfall": 174
+    },
+    "android": null
+  },
+  {
+    "id": "67:22478",
+    "name": "keyboard/keyword/enter_width",
+    "values": {
+      "connect-s": 200,
+      "connect-l": 176,
+      "connect-w": 166,
+      "\bconnect-waterfall": 212
+    },
+    "android": null
+  },
+  {
+    "id": "67:24317",
+    "name": "controller/slider/gap_horizontal_large",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 14,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:24318",
+    "name": "controller/slider/padding_horizontal_medium",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 18,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:24319",
+    "name": "controller/slider/padding_vertical_medium",
+    "values": {
+      "connect-s": 10,
+      "connect-l": 9,
+      "connect-w": 8,
+      "\bconnect-waterfall": 10
+    },
+    "android": null
+  },
+  {
+    "id": "67:24320",
+    "name": "controller/slider/height_large",
+    "values": {
+      "connect-s": 100,
+      "connect-l": 88,
+      "connect-w": 84,
+      "\bconnect-waterfall": 106
+    },
+    "android": null
+  },
+  {
+    "id": "67:24321",
+    "name": "controller/slider/continuous/medium/radius_top_left",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:24322",
+    "name": "controller/slider/continuous/medium/radius_top_right",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:24323",
+    "name": "controller/slider/continuous/medium/radius_bottom_left",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:24324",
+    "name": "controller/slider/continuous/medium/radius_bottom_right",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:24325",
+    "name": "controller/slider/padding_horizontal_small",
+    "values": {
+      "connect-s": 10,
+      "connect-l": 9,
+      "connect-w": 8,
+      "\bconnect-waterfall": 10
+    },
+    "android": null
+  },
+  {
+    "id": "67:24326",
+    "name": "controller/slider/radius_top_left",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:24327",
+    "name": "controller/slider/radius_top_right",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:24328",
+    "name": "controller/slider/radius_bottom_left",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:24329",
+    "name": "controller/slider/radius_bottom_right",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:24330",
+    "name": "controller/slider/border_medium",
+    "values": {
+      "connect-s": 3,
+      "connect-l": 3,
+      "connect-w": 3,
+      "\bconnect-waterfall": 3
+    },
+    "android": null
+  },
+  {
+    "id": "67:24331",
+    "name": "climate/slider_background",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#313236"
+    },
+    "android": null
+  },
+  {
+    "id": "67:24332",
+    "name": "climate/button_border_enabled",
+    "values": {
+      "Light": "#13141733",
+      "Dark": "#FFFFFF1A"
+    },
+    "android": null
+  },
+  {
+    "id": "67:24370",
+    "name": "controller/slider/centered/track/min_width",
+    "values": {
+      "connect-s": 320,
+      "connect-l": 282,
+      "connect-w": 266,
+      "\bconnect-waterfall": 340
+    },
+    "android": null
+  },
+  {
+    "id": "67:24371",
+    "name": "controller/slider/centered/track/height",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 8,
+      "\bconnect-waterfall": 9
+    },
+    "android": null
+  },
+  {
+    "id": "67:24372",
+    "name": "controller/slider/centered/track/radius_top_left",
+    "values": {
+      "connect-s": 999,
+      "connect-l": 999,
+      "connect-w": 999,
+      "\bconnect-waterfall": 999
+    },
+    "android": null
+  },
+  {
+    "id": "67:24373",
+    "name": "controller/slider/centered/track/radius_top_right",
+    "values": {
+      "connect-s": 999,
+      "connect-l": 999,
+      "connect-w": 999,
+      "\bconnect-waterfall": 999
+    },
+    "android": null
+  },
+  {
+    "id": "67:24374",
+    "name": "controller/slider/centered/track/radius_bottom_left",
+    "values": {
+      "connect-s": 999,
+      "connect-l": 999,
+      "connect-w": 999,
+      "\bconnect-waterfall": 999
+    },
+    "android": null
+  },
+  {
+    "id": "67:24375",
+    "name": "controller/slider/centered/track/radius_bottom_right",
+    "values": {
+      "connect-s": 999,
+      "connect-l": 999,
+      "connect-w": 999,
+      "\bconnect-waterfall": 999
+    },
+    "android": null
+  },
+  {
+    "id": "67:24376",
+    "name": "shadow/level1/blur",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "connect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:24377",
+    "name": "shadow/level1/y",
+    "values": {
+      "connect-s": 6,
+      "connect-l": 5,
+      "connect-w": 5,
+      "connect-waterfall": 6
+    },
+    "android": null
+  },
+  {
+    "id": "67:24379",
+    "name": "controller/slider/padding_horizontal_large",
+    "values": {
+      "connect-s": 40,
+      "connect-l": 35,
+      "connect-w": 34,
+      "\bconnect-waterfall": 42
+    },
+    "android": null
+  },
+  {
+    "id": "67:24380",
+    "name": "controller/slider/padding_vertical_large",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:24381",
+    "name": "line_height_sp/level16",
+    "values": {
+      "connect-s": 68,
+      "connect-l": 60,
+      "connect-w": 56,
+      "connect-waterfall": 72
+    },
+    "android": null
+  },
+  {
+    "id": "67:24383",
+    "name": "gnb/temperature/number_width",
+    "values": {
+      "connect-s": 75,
+      "connect-l": 69,
+      "connect-w": 58,
+      "\bconnect-waterfall": 76
+    },
+    "android": null
+  },
+  {
+    "id": "67:24384",
+    "name": "gnb/temperature/decimal_places_witdh",
+    "values": {
+      "connect-s": 38,
+      "connect-l": 33,
+      "connect-w": 32,
+      "\bconnect-waterfall": 36
+    },
+    "android": null
+  },
+  {
+    "id": "67:24385",
+    "name": "line_height_sp/level15",
+    "values": {
+      "connect-s": 64,
+      "connect-l": 55,
+      "connect-w": 53,
+      "connect-waterfall": 68
+    },
+    "android": null
+  },
+  {
+    "id": "67:24387",
+    "name": "controller/slider/centered/temporature/text_height",
+    "values": {
+      "connect-s": 62,
+      "connect-l": 55,
+      "connect-w": 52,
+      "\bconnect-waterfall": 64
+    },
+    "android": null
+  },
+  {
+    "id": "67:24388",
+    "name": "controller/slider/centered/knob/enabled_circle",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "\bconnect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:24389",
+    "name": "controller/slider/border_large",
+    "values": {
+      "connect-s": 4,
+      "connect-l": 4,
+      "connect-w": 3,
+      "\bconnect-waterfall": 4
+    },
+    "android": null
+  },
+  {
+    "id": "67:24390",
+    "name": "controller/slider/centered/knob/pressed_circle",
+    "values": {
+      "connect-s": 56,
+      "connect-l": 49,
+      "connect-w": 46,
+      "\bconnect-waterfall": 59
+    },
+    "android": null
+  },
+  {
+    "id": "67:24391",
+    "name": "controller/slider/continuous/medium/label_width",
+    "values": {
+      "connect-s": 180,
+      "connect-l": 158,
+      "connect-w": 180,
+      "\bconnect-waterfall": 180
+    },
+    "android": null
+  },
+  {
+    "id": "67:24392",
+    "name": "controller/slider/continuous/track/medium/item_padding",
+    "values": {
+      "connect-s": 4,
+      "connect-l": 4,
+      "connect-w": 4,
+      "\bconnect-waterfall": 4
+    },
+    "android": null
+  },
+  {
+    "id": "67:24393",
+    "name": "controller/slider/continuous/track/medium/radius_top_left",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:24394",
+    "name": "controller/slider/continuous/track/medium/radius_top_right",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:24395",
+    "name": "controller/slider/continuous/track/medium/radius_bottom_left",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:24396",
+    "name": "controller/slider/continuous/track/medium/radius_bottom_right",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:24397",
+    "name": "controller/slider/normal",
+    "values": {
+      "Light": "#13141733",
+      "Dark": "#FFFFFF1A"
+    },
+    "android": null
+  },
+  {
+    "id": "67:24398",
+    "name": "controller/slider/border_small",
+    "values": {
+      "connect-s": 2,
+      "connect-l": 2,
+      "connect-w": 2,
+      "\bconnect-waterfall": 3
+    },
+    "android": null
+  },
+  {
+    "id": "67:24399",
+    "name": "controller/slider/gap_horizontal_small",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:24400",
+    "name": "controller/slider/padding_vertical_small",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 8,
+      "\bconnect-waterfall": 9
+    },
+    "android": null
+  },
+  {
+    "id": "67:24401",
+    "name": "controller/slider/height_medium",
+    "values": {
+      "connect-s": 80,
+      "connect-l": 70,
+      "connect-w": 66,
+      "\bconnect-waterfall": 84
+    },
+    "android": null
+  },
+  {
+    "id": "67:24402",
+    "name": "controller/slider/continuous/small/radius_top_left",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:24403",
+    "name": "controller/slider/continuous/small/radius_top_right",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:24404",
+    "name": "controller/slider/continuous/small/radius_bottom_left",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:24405",
+    "name": "controller/slider/continuous/small/radius_bottom_right",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:24406",
+    "name": "controller/slider/continuous/track/small/item_padding",
+    "values": {
+      "connect-s": 4,
+      "connect-l": 4,
+      "connect-w": 4,
+      "\bconnect-waterfall": 4
+    },
+    "android": null
+  },
+  {
+    "id": "67:24407",
+    "name": "controller/slider/continuous/track/small/radius_top_left",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:24408",
+    "name": "controller/slider/continuous/track/small/radius_top_right",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:24409",
+    "name": "controller/slider/continuous/track/small/radius_bottom_left",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:24410",
+    "name": "controller/slider/continuous/track/small/radius_bottom_right",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:24411",
+    "name": "controller/slider/continuous/medium/knob/radius_top_left",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:24412",
+    "name": "controller/slider/continuous/medium/knob/radius_top_right",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 20,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:24413",
+    "name": "controller/slider/continuous/medium/knob/radius_bottom_left",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 20,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:24414",
+    "name": "controller/slider/continuous/medium/knob/radius_bottom_right",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 20,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:24415",
+    "name": "controller/slider/knop",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#FFFFFF4D"
+    },
+    "android": null
+  },
+  {
+    "id": "67:24416",
+    "name": "Brand/Teritary/Black",
+    "values": {
+      "Light": "#000000",
+      "Dark": "#000000"
+    },
+    "android": null
+  },
+  {
+    "id": "67:24465",
+    "name": "controller/slider/continuous/track/medium/icon",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "\bconnect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:24466",
+    "name": "controller/slider/height_small",
+    "values": {
+      "connect-s": 72,
+      "connect-l": 67,
+      "connect-w": 64,
+      "\bconnect-waterfall": 81
+    },
+    "android": null
+  },
+  {
+    "id": "67:24467",
+    "name": "controller/slider/continuous/small/knob/radius_top_left",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:24468",
+    "name": "controller/slider/continuous/small/knob/radius_top_right",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:24469",
+    "name": "controller/slider/continuous/small/knob/radius_bottom_left",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:24470",
+    "name": "controller/slider/continuous/small/knob/radius_bottom_right",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:24471",
+    "name": "controller/slider/continuous/track/small/icon",
+    "values": {
+      "connect-s": 40,
+      "connect-l": 35,
+      "connect-w": 33,
+      "\bconnect-waterfall": 42
+    },
+    "android": null
+  },
+  {
+    "id": "67:24472",
+    "name": "controller/slider/pressed",
+    "values": {
+      "Light": "#1314174D",
+      "Dark": "#FFFFFF33"
+    },
+    "android": null
+  },
+  {
+    "id": "67:24473",
+    "name": "controller/slider/continuous/medium/button_medium",
+    "values": {
+      "connect-s": 80,
+      "connect-l": 70,
+      "connect-w": 66,
+      "\bconnect-waterfall": 84
+    },
+    "android": null
+  },
+  {
+    "id": "67:24474",
+    "name": "controller/slider/continuous/medium/icon_medium",
+    "values": {
+      "connect-s": 56,
+      "connect-l": 49,
+      "connect-w": 46,
+      "\bconnect-waterfall": 59
+    },
+    "android": null
+  },
+  {
+    "id": "67:24475",
+    "name": "controller/slider/continuous/small/button_small",
+    "values": {
+      "connect-s": 72,
+      "connect-l": 63,
+      "connect-w": 60,
+      "\bconnect-waterfall": 77
+    },
+    "android": null
+  },
+  {
+    "id": "67:24476",
+    "name": "controller/slider/continuous/small/icon_small",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "\bconnect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:25139",
+    "name": "controller/stepper/gap_horizontal",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:25140",
+    "name": "controller/stepper/padding_horizontal",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:25141",
+    "name": "controller/stepper/padding_vertical",
+    "values": {
+      "connect-s": 18,
+      "connect-l": 16,
+      "connect-w": 15,
+      "\bconnect-waterfall": 19
+    },
+    "android": null
+  },
+  {
+    "id": "67:25142",
+    "name": "controller/stepper/width",
+    "values": {
+      "connect-s": 420,
+      "connect-l": 352,
+      "connect-w": 340,
+      "\bconnect-waterfall": 426
+    },
+    "android": null
+  },
+  {
+    "id": "67:25143",
+    "name": "controller/stepper/height",
+    "values": {
+      "connect-s": 100,
+      "connect-l": 88,
+      "connect-w": 84,
+      "\bconnect-waterfall": 106
+    },
+    "android": null
+  },
+  {
+    "id": "67:25144",
+    "name": "controller/stepper/radius_top_left",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:25145",
+    "name": "controller/stepper/radius_top_right",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:25146",
+    "name": "controller/stepper/radius_bottom_left",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:25147",
+    "name": "controller/stepper/radius_bottom_right",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:25148",
+    "name": "controller/stepper/border",
+    "values": {
+      "connect-s": 2,
+      "connect-l": 2,
+      "connect-w": 2,
+      "\bconnect-waterfall": 3
+    },
+    "android": null
+  },
+  {
+    "id": "67:25149",
+    "name": "controller/stepper_background",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#FFFFFF1A"
+    },
+    "android": null
+  },
+  {
+    "id": "67:25153",
+    "name": "controller/stepper/divider",
+    "values": {
+      "connect-s": 2,
+      "connect-l": 2,
+      "connect-w": 2,
+      "\bconnect-waterfall": 3
+    },
+    "android": null
+  },
+  {
+    "id": "67:25493",
+    "name": "dropdown/gap_vertical_small",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 8,
+      "\bconnect-waterfall": 9
+    },
+    "android": null
+  },
+  {
+    "id": "67:25494",
+    "name": "dropdown/suffix/icon_square",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "\bconnect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:25495",
+    "name": "dropdown/medium/prefix/padding_horizontal",
+    "values": {
+      "connect-s": 4,
+      "connect-l": 4,
+      "connect-w": 4,
+      "\bconnect-waterfall": 4
+    },
+    "android": null
+  },
+  {
+    "id": "67:25513",
+    "name": "dropdown/padding_large",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 18,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:25514",
+    "name": "dropdown/medium/height",
+    "values": {
+      "connect-s": 100,
+      "connect-l": 88,
+      "connect-w": 84,
+      "\bconnect-waterfall": 106
+    },
+    "android": null
+  },
+  {
+    "id": "67:25515",
+    "name": "dropdown/medium/radius_top_left",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:25516",
+    "name": "dropdown/medium/radius_top_right",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:25517",
+    "name": "dropdown/medium/radius_bottom_left",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:25518",
+    "name": "dropdown/medium/radius_bottom_right",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:25519",
+    "name": "dropdown/border",
+    "values": {
+      "connect-s": 2,
+      "connect-l": 2,
+      "connect-w": 2,
+      "\bconnect-waterfall": 3
+    },
+    "android": null
+  },
+  {
+    "id": "67:25520",
+    "name": "dropdown/normal",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#FFFFFF1A"
+    },
+    "android": null
+  },
+  {
+    "id": "67:25521",
+    "name": "dropdown/gap_vertical_medium",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 14,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:25522",
+    "name": "dropdown/padding_medium",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 14,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:25523",
+    "name": "surface/basic",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#1D1E21"
+    },
+    "android": "color_surface_container"
+  },
+  {
+    "id": "67:25524",
+    "name": "dropdown/small/height",
+    "values": {
+      "connect-s": 80,
+      "connect-l": 70,
+      "connect-w": 66,
+      "\bconnect-waterfall": 84
+    },
+    "android": null
+  },
+  {
+    "id": "67:25525",
+    "name": "dropdown/small/radius_top_left",
+    "values": {
+      "connect-s": 28,
+      "connect-l": 25,
+      "connect-w": 23,
+      "\bconnect-waterfall": 29
+    },
+    "android": null
+  },
+  {
+    "id": "67:25526",
+    "name": "dropdown/small/radius_top_right",
+    "values": {
+      "connect-s": 28,
+      "connect-l": 25,
+      "connect-w": 23,
+      "\bconnect-waterfall": 29
+    },
+    "android": null
+  },
+  {
+    "id": "67:25527",
+    "name": "dropdown/small/radius_bottom_left",
+    "values": {
+      "connect-s": 28,
+      "connect-l": 25,
+      "connect-w": 23,
+      "\bconnect-waterfall": 29
+    },
+    "android": null
+  },
+  {
+    "id": "67:25528",
+    "name": "dropdown/small/radius_bottom_right",
+    "values": {
+      "connect-s": 28,
+      "connect-l": 25,
+      "connect-w": 23,
+      "\bconnect-waterfall": 29
+    },
+    "android": null
+  },
+  {
+    "id": "67:25529",
+    "name": "radius/top_left/level5",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "connect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:25530",
+    "name": "radius/top_right/level5",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "connect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:25531",
+    "name": "radius/bottom_left/level5",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "connect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:25532",
+    "name": "radius/bottom_right/level5",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "connect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:25533",
+    "name": "line/level1",
+    "values": {
+      "connect-s": 1,
+      "connect-l": 1,
+      "connect-w": 1,
+      "connect-waterfall": 1
+    },
+    "android": null
+  },
+  {
+    "id": "67:25564",
+    "name": "dropdown/prefix/container_square",
+    "values": {
+      "connect-s": 56,
+      "connect-l": 49,
+      "connect-w": 46,
+      "\bconnect-waterfall": 59
+    },
+    "android": null
+  },
+  {
+    "id": "67:25565",
+    "name": "dropdown/prefix/app_radius_top_left",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:25566",
+    "name": "dropdown/prefix/app_radius_top_right",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:25567",
+    "name": "dropdown/prefix/app_radius_bottom_left",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:25568",
+    "name": "dropdown/prefix/app_radius_bottom_right",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:25569",
+    "name": "dropdown/container/prefix_app_icon_border",
+    "values": {
+      "connect-s": 1,
+      "connect-l": 1,
+      "connect-w": 1,
+      "\bconnect-waterfall": 1
+    },
+    "android": null
+  },
+  {
+    "id": "67:25570",
+    "name": "dropdown/padding_small",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:25571",
+    "name": "_Feature/Driving/Normal/Positive",
+    "values": {
+      "Light": "#00BA13",
+      "Dark": "#00BA13"
+    },
+    "android": null
+  },
+  {
+    "id": "67:25572",
+    "name": "System/Grayscale/Opaque/White",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "67:25614",
+    "name": "square/level8",
+    "values": {
+      "connect-s": 40,
+      "connect-l": 35,
+      "connect-w": 33,
+      "connect-waterfall": 42
+    },
+    "android": null
+  },
+  {
+    "id": "67:25615",
+    "name": "dropdown/medium/prefix/icon_square",
+    "values": {
+      "connect-s": 40,
+      "connect-l": 35,
+      "connect-w": 40,
+      "\bconnect-waterfall": 40
+    },
+    "android": null
+  },
+  {
+    "id": "67:25616",
+    "name": "dropdown/pressed",
+    "values": {
+      "Light": "#EDEEF2",
+      "Dark": "#FFFFFF4D"
+    },
+    "android": null
+  },
+  {
+    "id": "67:25634",
+    "name": "selections/switch/medium/padding",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 8,
+      "\bconnect-waterfall": 9
+    },
+    "android": null
+  },
+  {
+    "id": "67:25635",
+    "name": "selections/switch/medium/width",
+    "values": {
+      "connect-s": 80,
+      "connect-l": 70,
+      "connect-w": 70,
+      "\bconnect-waterfall": 84
+    },
+    "android": null
+  },
+  {
+    "id": "67:25636",
+    "name": "selections/switch/medium/radius_top_left",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:25637",
+    "name": "selections/switch/medium/radius_top_right",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:25638",
+    "name": "selections/switch/medium/radius_bottom_left",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:25639",
+    "name": "selections/switch/medium/radius_bottom_right",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:25640",
+    "name": "switch/on",
+    "values": {
+      "Light": "#02C265",
+      "Dark": "#00E074"
+    },
+    "android": null
+  },
+  {
+    "id": "67:25641",
+    "name": "selections/switch/medium/knob_square",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:25642",
+    "name": "selections/switch/medium/knob_radius_top_left",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 7,
+      "\bconnect-waterfall": 9
+    },
+    "android": null
+  },
+  {
+    "id": "67:25643",
+    "name": "selections/switch/medium/knob_radius_top_right",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 7,
+      "\bconnect-waterfall": 9
+    },
+    "android": null
+  },
+  {
+    "id": "67:25644",
+    "name": "selections/switch/medium/knob_radius_bottom_left",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 7,
+      "\bconnect-waterfall": 9
+    },
+    "android": null
+  },
+  {
+    "id": "67:25645",
+    "name": "selections/switch/medium/knob_radius_bottom_right",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 7,
+      "\bconnect-waterfall": 9
+    },
+    "android": null
+  },
+  {
+    "id": "67:25646",
+    "name": "switch/knob_on",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "67:25647",
+    "name": "switch/knob_off",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#A4A8AE"
+    },
+    "android": null
+  },
+  {
+    "id": "67:25648",
+    "name": "switch/knob_disabled",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#FFFFFF33"
+    },
+    "android": null
+  },
+  {
+    "id": "67:25649",
+    "name": "selections/switch/small/padding",
+    "values": {
+      "connect-s": 6,
+      "connect-l": 5,
+      "connect-w": 6,
+      "\bconnect-waterfall": 6
+    },
+    "android": null
+  },
+  {
+    "id": "67:25650",
+    "name": "selections/switch/small/width",
+    "values": {
+      "connect-s": 64,
+      "connect-l": 56,
+      "connect-w": 56,
+      "\bconnect-waterfall": 68
+    },
+    "android": null
+  },
+  {
+    "id": "67:25651",
+    "name": "selections/switch/small/radius_top_left",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:25652",
+    "name": "selections/switch/small/radius_top_right",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:25653",
+    "name": "selections/switch/small/radius_bottom_left",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:25654",
+    "name": "selections/switch/small/radius_bottom_right",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:25655",
+    "name": "selections/switch/small/knob_square",
+    "values": {
+      "connect-s": 28,
+      "connect-l": 25,
+      "connect-w": 23,
+      "\bconnect-waterfall": 29
+    },
+    "android": null
+  },
+  {
+    "id": "67:25656",
+    "name": "selections/switch/small/knob_radius_bottom_left",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 7,
+      "\bconnect-waterfall": 9
+    },
+    "android": null
+  },
+  {
+    "id": "67:25657",
+    "name": "selections/switch/small/knob_radius_bottom_right",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 7,
+      "\bconnect-waterfall": 9
+    },
+    "android": null
+  },
+  {
+    "id": "67:25658",
+    "name": "selections/switch/small/knob_radius_top_left",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 7,
+      "\bconnect-waterfall": 9
+    },
+    "android": null
+  },
+  {
+    "id": "67:25659",
+    "name": "selections/switch/small/knob_radius_top_right",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 7,
+      "\bconnect-waterfall": 9
+    },
+    "android": null
+  },
+  {
+    "id": "67:25685",
+    "name": "dropdown/suffix/dot_icon_square",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:25686",
+    "name": "dropdown/medium/prefix/padding_vertical",
+    "values": {
+      "connect-s": 4,
+      "connect-l": 4,
+      "connect-w": 4,
+      "\bconnect-waterfall": 4
+    },
+    "android": null
+  },
+  {
+    "id": "67:25687",
+    "name": "radius/top_left/level4",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "connect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:25688",
+    "name": "dropdown/prefix/medium/app_icon_radius_top_left",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 12,
+      "\bconnect-waterfall": 12
+    },
+    "android": null
+  },
+  {
+    "id": "67:25689",
+    "name": "radius/top_right/level4",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "connect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:25690",
+    "name": "dropdown/prefix/medium/app_icon_radius_top_right",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 12,
+      "\bconnect-waterfall": 12
+    },
+    "android": null
+  },
+  {
+    "id": "67:25691",
+    "name": "radius/bottom_left/level4",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "connect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:25692",
+    "name": "dropdown/prefix/medium/app_icon_radius_bottom_left",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 12,
+      "\bconnect-waterfall": 12
+    },
+    "android": null
+  },
+  {
+    "id": "67:25693",
+    "name": "radius/bottom_right/level4",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "connect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:25694",
+    "name": "dropdown/prefix/medium/app_icon_radius_bottom_right",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 12,
+      "\bconnect-waterfall": 12
+    },
+    "android": null
+  },
+  {
+    "id": "67:26968",
+    "name": "fields/text/medium/help_text_gap_vertical",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 14,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:26973",
+    "name": "fields/text/small/help_text_gap_vertical",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:26974",
+    "name": "fields/text/small/gap_horizontal",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:26975",
+    "name": "fields/text/small/padding_horizontal",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:26976",
+    "name": "fields/text/small/height",
+    "values": {
+      "connect-s": 80,
+      "connect-l": 70,
+      "connect-w": 66,
+      "\bconnect-waterfall": 84
+    },
+    "android": null
+  },
+  {
+    "id": "67:26977",
+    "name": "fields/text/medium/radius_top_left",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:26978",
+    "name": "fields/text/medium/radius_top_right",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:26979",
+    "name": "fields/text/medium/radius_bottom_left",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:26980",
+    "name": "fields/text/medium/radius_bottom_right",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:26981",
+    "name": "fields/text/small/border",
+    "values": {
+      "connect-s": 2,
+      "connect-l": 2,
+      "connect-w": 2,
+      "\bconnect-waterfall": 3
+    },
+    "android": null
+  },
+  {
+    "id": "67:26982",
+    "name": "field/background",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#131417"
+    },
+    "android": null
+  },
+  {
+    "id": "67:26983",
+    "name": "fields/text/small/suffix_icon_square",
+    "values": {
+      "connect-s": 40,
+      "connect-l": 35,
+      "connect-w": 33,
+      "\bconnect-waterfall": 42
+    },
+    "android": null
+  },
+  {
+    "id": "67:26995",
+    "name": "fields/text/medium/gap_horizontal",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 14,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:26996",
+    "name": "fields/text/medium/padding_horizontal",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 28,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:26997",
+    "name": "fields/text/medium/height",
+    "values": {
+      "connect-s": 100,
+      "connect-l": 88,
+      "connect-w": 84,
+      "\bconnect-waterfall": 106
+    },
+    "android": null
+  },
+  {
+    "id": "67:26998",
+    "name": "fields/text/medium/suffix_icon_square",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "\bconnect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:26999",
+    "name": "fields/text/medium/border",
+    "values": {
+      "connect-s": 3,
+      "connect-l": 3,
+      "connect-w": 3,
+      "\bconnect-waterfall": 3
+    },
+    "android": null
+  },
+  {
+    "id": "67:27000",
+    "name": "field/focused",
+    "values": {
+      "Light": "#313236",
+      "Dark": "#EDEEF2"
+    },
+    "android": null
+  },
+  {
+    "id": "67:27001",
+    "name": "surface/high",
+    "values": {
+      "Light": "#EDEEF2",
+      "Dark": "#313236"
+    },
+    "android": "color_surface_container_high"
+  },
+  {
+    "id": "67:27002",
+    "name": "fields/number/large_width",
+    "values": {
+      "connect-s": 140,
+      "connect-l": 123,
+      "connect-w": 116,
+      "\bconnect-waterfall": 148
+    },
+    "android": null
+  },
+  {
+    "id": "67:27003",
+    "name": "fields/number/large_height",
+    "values": {
+      "connect-s": 180,
+      "connect-l": 158,
+      "connect-w": 150,
+      "\bconnect-waterfall": 190
+    },
+    "android": null
+  },
+  {
+    "id": "67:27004",
+    "name": "fields/number/input_radius_top_left",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 20,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:27005",
+    "name": "fields/number/input_radius_top_right",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 20,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:27006",
+    "name": "fields/number/input_radius_bottom_left",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 20,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:27007",
+    "name": "fields/number/input_radius_bottom_right",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 20,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:27008",
+    "name": "fields/number/border",
+    "values": {
+      "connect-s": 4,
+      "connect-l": 4,
+      "connect-w": 3,
+      "\bconnect-waterfall": 4
+    },
+    "android": null
+  },
+  {
+    "id": "67:27009",
+    "name": "fields/number/medium_square",
+    "values": {
+      "connect-s": 128,
+      "connect-l": 113,
+      "connect-w": 80,
+      "\bconnect-waterfall": 136
+    },
+    "android": null
+  },
+  {
+    "id": "67:27010",
+    "name": "fields/number/cursor_width",
+    "values": {
+      "connect-s": 4,
+      "connect-l": 4,
+      "connect-w": 4,
+      "\bconnect-waterfall": 4
+    },
+    "android": null
+  },
+  {
+    "id": "67:27011",
+    "name": "fields/number/cursor_height",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "\bconnect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:27334",
+    "name": "page_navigation/gap_large",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:27335",
+    "name": "page_navigation/padding_extralarge",
+    "values": {
+      "connect-s": 40,
+      "connect-l": 35,
+      "connect-w": 32,
+      "\bconnect-waterfall": 42
+    },
+    "android": null
+  },
+  {
+    "id": "67:27336",
+    "name": "page_navigation/padding_large",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 22,
+      "\bconnect-waterfall": 20
+    },
+    "android": null
+  },
+  {
+    "id": "67:27337",
+    "name": "page_navigation/container_height",
+    "values": {
+      "connect-s": 80,
+      "connect-l": 70,
+      "connect-w": 66,
+      "\bconnect-waterfall": 84
+    },
+    "android": null
+  },
+  {
+    "id": "67:27338",
+    "name": "page_navigation/border_bottom",
+    "values": {
+      "connect-s": 1,
+      "connect-l": 1,
+      "connect-w": 1,
+      "\bconnect-waterfall": 1
+    },
+    "android": null
+  },
+  {
+    "id": "67:27339",
+    "name": "page_navigation/gap_samll",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:27340",
+    "name": "tabs/line/gap_horizontal",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 12,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:27341",
+    "name": "tabs/line/padding_horizontal",
+    "values": {
+      "connect-s": 28,
+      "connect-l": 25,
+      "connect-w": 24,
+      "\bconnect-waterfall": 29
+    },
+    "android": null
+  },
+  {
+    "id": "67:27342",
+    "name": "tabs/line/border_bottom",
+    "values": {
+      "connect-s": 1,
+      "connect-l": 1,
+      "connect-w": 1,
+      "\bconnect-waterfall": 1
+    },
+    "android": null
+  },
+  {
+    "id": "67:27343",
+    "name": "tabs/line/button/wrap_padding_vertical",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:27344",
+    "name": "tabs/line/button/gap_horizontal",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 8,
+      "\bconnect-waterfall": 9
+    },
+    "android": null
+  },
+  {
+    "id": "67:27345",
+    "name": "tabs/line/button/padding_horizontal",
+    "values": {
+      "connect-s": 14,
+      "connect-l": 12,
+      "connect-w": 12,
+      "\bconnect-waterfall": 15
+    },
+    "android": null
+  },
+  {
+    "id": "67:27346",
+    "name": "tabs/line/button/padding_vertical",
+    "values": {
+      "connect-s": 18,
+      "connect-l": 16,
+      "connect-w": 16,
+      "\bconnect-waterfall": 19
+    },
+    "android": null
+  },
+  {
+    "id": "67:27347",
+    "name": "tabs/line/button/pressed_radius_top_left",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:27348",
+    "name": "tabs/line/button/pressed_radius_top_right",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:27349",
+    "name": "tabs/line/button/pressed_radius_bottom_left",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:27350",
+    "name": "tabs/line/button/pressed_radius_bottom_right",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:27351",
+    "name": "tabs/line/button/prefix_square",
+    "values": {
+      "connect-s": 40,
+      "connect-l": 35,
+      "connect-w": 33,
+      "\bconnect-waterfall": 42
+    },
+    "android": null
+  },
+  {
+    "id": "67:27352",
+    "name": "Radius/xs",
+    "values": {
+      "Mode 1": 0
+    },
+    "android": null
+  },
+  {
+    "id": "67:27353",
+    "name": "tabs/line/selected_border_bottom",
+    "values": {
+      "connect-s": 4,
+      "connect-l": 4,
+      "connect-w": 3,
+      "\bconnect-waterfall": 4
+    },
+    "android": null
+  },
+  {
+    "id": "67:27354",
+    "name": "tabs/line/button/wrap_padding_vertical_large",
+    "values": {
+      "connect-s": 26,
+      "connect-l": 22,
+      "connect-w": 22,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:27401",
+    "name": "bars/app_control/padding_top",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 14,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:27402",
+    "name": "bars/app_control/container_width",
+    "values": {
+      "connect-s": 320,
+      "connect-l": 282,
+      "connect-w": 266,
+      "\bconnect-waterfall": 340
+    },
+    "android": null
+  },
+  {
+    "id": "67:27403",
+    "name": "bars/app_control/container_height",
+    "values": {
+      "connect-s": 60,
+      "connect-l": 53,
+      "connect-w": 100,
+      "\bconnect-waterfall": 128
+    },
+    "android": null
+  },
+  {
+    "id": "67:27404",
+    "name": "bars/app_control/handle_width_normal",
+    "values": {
+      "connect-s": 140,
+      "connect-l": 123,
+      "connect-w": 116,
+      "\bconnect-waterfall": 148
+    },
+    "android": null
+  },
+  {
+    "id": "67:27405",
+    "name": "bars/app_control/handle_height",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 8,
+      "\bconnect-waterfall": 9
+    },
+    "android": null
+  },
+  {
+    "id": "67:27406",
+    "name": "bars/radius_top_left",
+    "values": {
+      "connect-s": 999,
+      "connect-l": 999,
+      "connect-w": 999,
+      "\bconnect-waterfall": 999
+    },
+    "android": null
+  },
+  {
+    "id": "67:27407",
+    "name": "bars/radius_top_right",
+    "values": {
+      "connect-s": 999,
+      "connect-l": 999,
+      "connect-w": 999,
+      "\bconnect-waterfall": 999
+    },
+    "android": null
+  },
+  {
+    "id": "67:27408",
+    "name": "bars/radius_bottom_left",
+    "values": {
+      "connect-s": 999,
+      "connect-l": 999,
+      "connect-w": 999,
+      "\bconnect-waterfall": 999
+    },
+    "android": null
+  },
+  {
+    "id": "67:27409",
+    "name": "bars/radius_bottom_right",
+    "values": {
+      "connect-s": 999,
+      "connect-l": 999,
+      "connect-w": 999,
+      "\bconnect-waterfall": 999
+    },
+    "android": null
+  },
+  {
+    "id": "67:27417",
+    "name": "page_navigation/title/group_gap_horizontal",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 32,
+      "\bconnect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:27418",
+    "name": "page_navigation/gap_medium",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 14,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:27419",
+    "name": "page_navigation/title/app_icon/container_square",
+    "values": {
+      "connect-s": 80,
+      "connect-l": 70,
+      "connect-w": 66,
+      "\bconnect-waterfall": 84
+    },
+    "android": null
+  },
+  {
+    "id": "67:27420",
+    "name": "page_navigation/title/app_icon/radius_top_left",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:27421",
+    "name": "page_navigation/title/app_icon/radius_top_right",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:27422",
+    "name": "page_navigation/title/app_icon/radius_botttom_left",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:27423",
+    "name": "page_navigation/title/app_icon/radius_botttom_right",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:27424",
+    "name": "page_navigation/sub_title_gap_vertical",
+    "values": {
+      "connect-s": 4,
+      "connect-l": 4,
+      "connect-w": 4,
+      "\bconnect-waterfall": 4
+    },
+    "android": null
+  },
+  {
+    "id": "67:27425",
+    "name": "page_navigation/padding_medium",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 14,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:27426",
+    "name": "page_navigation/padding_small",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 8,
+      "\bconnect-waterfall": 9
+    },
+    "android": null
+  },
+  {
+    "id": "67:27427",
+    "name": "page_navigation/title/dropdown_menu_pressed/radius_top_left",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:27428",
+    "name": "page_navigation/title/dropdown_menu_pressed/radius_top_right",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:27429",
+    "name": "page_navigation/title/dropdown_menu_pressed/radius_botttom_left",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:27430",
+    "name": "page_navigation/title/dropdown_menu_pressed/radius_botttom_right",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:27431",
+    "name": "page_navigation/gap_extrasmall",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 8,
+      "\bconnect-waterfall": 9
+    },
+    "android": null
+  },
+  {
+    "id": "67:27439",
+    "name": "page_navigation/title/dropdown_icon_square",
+    "values": {
+      "connect-s": 28,
+      "connect-l": 25,
+      "connect-w": 23,
+      "\bconnect-waterfall": 29
+    },
+    "android": null
+  },
+  {
+    "id": "67:27440",
+    "name": "page_navigation/divider_width",
+    "values": {
+      "connect-s": 2,
+      "connect-l": 2,
+      "connect-w": 2,
+      "\bconnect-waterfall": 3
+    },
+    "android": null
+  },
+  {
+    "id": "67:27441",
+    "name": "page_navigation/divider_height",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 28,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:27442",
+    "name": "page_navigation/title/depth_gap_horizontal",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:27443",
+    "name": "page_navigation/title/depth_icon_square",
+    "values": {
+      "connect-s": 56,
+      "connect-l": 49,
+      "connect-w": 46,
+      "\bconnect-waterfall": 59
+    },
+    "android": null
+  },
+  {
+    "id": "67:28784",
+    "name": "popup/system/gap_extralarge",
+    "values": {
+      "connect-s": 40,
+      "connect-l": 35,
+      "connect-w": 33,
+      "\bconnect-waterfall": 42
+    },
+    "android": null
+  },
+  {
+    "id": "67:28785",
+    "name": "popup/system/padding_large",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 35,
+      "connect-w": 40,
+      "\bconnect-waterfall": 40
+    },
+    "android": null
+  },
+  {
+    "id": "67:28786",
+    "name": "popup/system/medium_width",
+    "values": {
+      "connect-s": 808,
+      "connect-l": 614,
+      "connect-w": 720,
+      "\bconnect-waterfall": 860
+    },
+    "android": null
+  },
+  {
+    "id": "67:28787",
+    "name": "popup/system/radius_top_left",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "\bconnect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:28788",
+    "name": "popup/system/radius_top_right",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "\bconnect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:28789",
+    "name": "popup/system/radius_bottom_left",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "\bconnect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:28790",
+    "name": "popup/system/radius_bottom_right",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "\bconnect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:28791",
+    "name": "popup/system/border",
+    "values": {
+      "connect-s": 2,
+      "connect-l": 2,
+      "connect-w": 2,
+      "\bconnect-waterfall": 3
+    },
+    "android": null
+  },
+  {
+    "id": "67:28792",
+    "name": "popup/system/max_height",
+    "values": {
+      "connect-s": 1152,
+      "connect-l": 827,
+      "connect-w": 770,
+      "\bconnect-waterfall": 810
+    },
+    "android": null
+  },
+  {
+    "id": "67:28793",
+    "name": "popup/system/padding_small",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 12,
+      "\bconnect-waterfall": 12
+    },
+    "android": null
+  },
+  {
+    "id": "67:28794",
+    "name": "popup/system/gap_large",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 24,
+      "\bconnect-waterfall": 24
+    },
+    "android": null
+  },
+  {
+    "id": "67:28795",
+    "name": "popup/system/large_width",
+    "values": {
+      "connect-s": 1200,
+      "connect-l": 1056,
+      "connect-w": 1000,
+      "\bconnect-waterfall": 1275
+    },
+    "android": null
+  },
+  {
+    "id": "67:28796",
+    "name": "popup/system/max_height_extended",
+    "values": {
+      "connect-s": 0,
+      "connect-l": 0,
+      "connect-w": 1240,
+      "\bconnect-waterfall": 1240
+    },
+    "android": null
+  },
+  {
+    "id": "67:28797",
+    "name": "popup/system/close_icon_square",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "\bconnect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:28798",
+    "name": "popup/system/icon_square",
+    "values": {
+      "connect-s": 80,
+      "connect-l": 70,
+      "connect-w": 66,
+      "\bconnect-waterfall": 84
+    },
+    "android": null
+  },
+  {
+    "id": "67:28799",
+    "name": "popup/system/header_padding_horizontal",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:28873",
+    "name": "vehicle_settings/list/padding_horizontal",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 20,
+      "\bconnect-waterfall": 20
+    },
+    "android": null
+  },
+  {
+    "id": "67:28874",
+    "name": "vehicle_settings/list/padding_vertical",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 24,
+      "\bconnect-waterfall": 24
+    },
+    "android": null
+  },
+  {
+    "id": "67:28875",
+    "name": "vehicle_settings/list/radius_top_left",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:28876",
+    "name": "vehicle_settings/list/radius_top_right",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:28877",
+    "name": "vehicle_settings/list/radius_bottom_left",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:28878",
+    "name": "vehicle_settings/list/radius_bottom_right",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:28879",
+    "name": "vehicle_settings/list/item/container/padding_horizontal",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:28880",
+    "name": "vehicle_settings/list/item/container/padding_vertical",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:28881",
+    "name": "vehicle_settings/list/item/height",
+    "values": {
+      "connect-s": 112,
+      "connect-l": 99,
+      "connect-w": 93,
+      "\bconnect-waterfall": 119
+    },
+    "android": null
+  },
+  {
+    "id": "67:28882",
+    "name": "vehicle_settings/list/item/container/radius_top_left",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:28883",
+    "name": "vehicle_settings/list/item/container/radius_top_right",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:28884",
+    "name": "vehicle_settings/list/item/container/radius_bottom_left",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:28885",
+    "name": "vehicle_settings/list/item/container/radius_bottom_right",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:28886",
+    "name": "imagery/profile/radius_top_left",
+    "values": {
+      "connect-s": 999,
+      "connect-l": 999,
+      "connect-w": 999,
+      "\bconnect-waterfall": 999
+    },
+    "android": null
+  },
+  {
+    "id": "67:28887",
+    "name": "imagery/profile/radius_top_right",
+    "values": {
+      "connect-s": 999,
+      "connect-l": 999,
+      "connect-w": 999,
+      "\bconnect-waterfall": 999
+    },
+    "android": null
+  },
+  {
+    "id": "67:28888",
+    "name": "imagery/profile/radius_bottom_left",
+    "values": {
+      "connect-s": 999,
+      "connect-l": 999,
+      "connect-w": 999,
+      "\bconnect-waterfall": 999
+    },
+    "android": null
+  },
+  {
+    "id": "67:28889",
+    "name": "imagery/profile/radius_bottom_right",
+    "values": {
+      "connect-s": 999,
+      "connect-l": 999,
+      "connect-w": 999,
+      "\bconnect-waterfall": 999
+    },
+    "android": null
+  },
+  {
+    "id": "67:28890",
+    "name": "square/level18",
+    "values": {
+      "connect-s": 80,
+      "connect-l": 70,
+      "connect-w": 66,
+      "connect-waterfall": 84
+    },
+    "android": null
+  },
+  {
+    "id": "67:28891",
+    "name": "imagery/profile/circle",
+    "values": {
+      "connect-s": 80,
+      "connect-l": 70.4000015258789,
+      "connect-w": 80,
+      "\bconnect-waterfall": 80
+    },
+    "android": null
+  },
+  {
+    "id": "67:28907",
+    "name": "popup/system/list/item/icon_square",
+    "values": {
+      "connect-s": 80,
+      "connect-l": 80,
+      "connect-w": 80,
+      "\bconnect-waterfall": 80
+    },
+    "android": null
+  },
+  {
+    "id": "67:28920",
+    "name": "vehicle_settings/list/item/icon_container_square",
+    "values": {
+      "connect-s": 80,
+      "connect-l": 70,
+      "connect-w": 66,
+      "\bconnect-waterfall": 84
+    },
+    "android": null
+  },
+  {
+    "id": "67:28921",
+    "name": "popup/system/gap_extrasmall",
+    "values": {
+      "connect-s": 4,
+      "connect-l": 4,
+      "connect-w": 3,
+      "\bconnect-waterfall": 4
+    },
+    "android": null
+  },
+  {
+    "id": "67:28954",
+    "name": "vehicle_settings/list/scroll_type_max_height",
+    "values": {
+      "connect-s": 528,
+      "connect-l": 465,
+      "connect-w": 324,
+      "\bconnect-waterfall": 560
+    },
+    "android": null
+  },
+  {
+    "id": "67:28955",
+    "name": "bars/page_scroll/width",
+    "values": {
+      "connect-s": 6,
+      "connect-l": 5,
+      "connect-w": 6,
+      "\bconnect-waterfall": 6
+    },
+    "android": null
+  },
+  {
+    "id": "67:28956",
+    "name": "bars/page_scroll/min_height",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "\bconnect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:28957",
+    "name": "scroll/padding_left",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:28958",
+    "name": "scroll/padding_vertical",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:28959",
+    "name": "scroll/padding_right",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 17,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:28960",
+    "name": "scroll/gap",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:28961",
+    "name": "_Legacy/Scale/Black/Black",
+    "values": {
+      "Light": "#000000",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "67:28962",
+    "name": "static/dark/100",
+    "values": {
+      "Light": "#131417",
+      "Dark": "#131417"
+    },
+    "android": null
+  },
+  {
+    "id": "67:28963",
+    "name": "static/light/100",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "67:28964",
+    "name": "icon/dark/primary",
+    "values": {
+      "Light": "#131417",
+      "Dark": "#FFFFFF"
+    },
+    "android": null
+  },
+  {
+    "id": "67:29006",
+    "name": "spinner/gap_small",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 14,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:29007",
+    "name": "spinner/title_top_padding",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 14,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:29008",
+    "name": "spinner/wheel/padding_horizontal",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 14,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:29009",
+    "name": "spinner/panel/large_height",
+    "values": {
+      "connect-s": 384,
+      "connect-l": 327,
+      "connect-w": 322,
+      "\bconnect-waterfall": 407
+    },
+    "android": null
+  },
+  {
+    "id": "67:29010",
+    "name": "spinner/wheel/radius_top_left",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:29011",
+    "name": "spinner/wheel/radius_top_right",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:29012",
+    "name": "spinner/wheel/radius_bottom_left",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:29013",
+    "name": "spinner/wheel/radius_bottom_right",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:29014",
+    "name": "spinner/wheel/date_min_width",
+    "values": {
+      "connect-s": 540,
+      "connect-l": 475,
+      "connect-w": 448,
+      "\bconnect-waterfall": 574
+    },
+    "android": null
+  },
+  {
+    "id": "67:29015",
+    "name": "spinner/gap_medium",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 18,
+      "\bconnect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:29016",
+    "name": "spinner/list_mask_height",
+    "values": {
+      "connect-s": 60,
+      "connect-l": 53,
+      "connect-w": 50,
+      "\bconnect-waterfall": 64
+    },
+    "android": null
+  },
+  {
+    "id": "67:29018",
+    "name": "spinner/number_width_small",
+    "values": {
+      "connect-s": 110,
+      "connect-l": 97,
+      "connect-w": 92,
+      "\bconnect-waterfall": 116
+    },
+    "android": null
+  },
+  {
+    "id": "67:29019",
+    "name": "spinner/number_height",
+    "values": {
+      "connect-s": 88,
+      "connect-l": 77,
+      "connect-w": 74,
+      "\bconnect-waterfall": 93
+    },
+    "android": null
+  },
+  {
+    "id": "67:29020",
+    "name": "spinner/number_width_large",
+    "values": {
+      "connect-s": 200,
+      "connect-l": 176,
+      "connect-w": 166,
+      "\bconnect-waterfall": 212
+    },
+    "android": null
+  },
+  {
+    "id": "67:29021",
+    "name": "spinner/list_height",
+    "values": {
+      "connect-s": 88,
+      "connect-l": 77,
+      "connect-w": 74,
+      "\bconnect-waterfall": 93
+    },
+    "android": null
+  },
+  {
+    "id": "67:29022",
+    "name": "spinner/focus_radius_top_left",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:29023",
+    "name": "spinner/focus_radius_top_right",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:29024",
+    "name": "spinner/focus_radius_bottom_left",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:29025",
+    "name": "spinner/focus_radius_bottom_right",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:29027",
+    "name": "color/feature/driving_view/mask/subtle_secondary",
+    "values": {
+      "Light": "#F7F8FA",
+      "Dark": "#1D1E21"
+    },
+    "android": null
+  },
+  {
+    "id": "67:29028",
+    "name": "color/feature/driving_view/mask/filled_secondary",
+    "values": {
+      "Light": "#F7F8FA00",
+      "Dark": "#1D1E2100"
+    },
+    "android": null
+  },
+  {
+    "id": "67:29029",
+    "name": "spinner/wheel/time_min_width",
+    "values": {
+      "connect-s": 480,
+      "connect-l": 422,
+      "connect-w": 398,
+      "\bconnect-waterfall": 509
+    },
+    "android": "controller_date_and_time(spinner 네이밍 논의 필요)/wheels_time_min_width"
+  },
+  {
+    "id": "67:29030",
+    "name": "spinner/number_width_medium",
+    "values": {
+      "connect-s": 140,
+      "connect-l": 123,
+      "connect-w": 116,
+      "\bconnect-waterfall": 148
+    },
+    "android": null
+  },
+  {
+    "id": "67:29031",
+    "name": "spinner/panel/medium_height",
+    "values": {
+      "connect-s": 288,
+      "connect-l": 245,
+      "connect-w": 234,
+      "\bconnect-waterfall": 297
+    },
+    "android": null
+  },
+  {
+    "id": "67:29032",
+    "name": "spinner/list_medium_height",
+    "values": {
+      "connect-s": 96,
+      "connect-l": 84,
+      "connect-w": 80,
+      "\bconnect-waterfall": 102
+    },
+    "android": null
+  },
+  {
+    "id": "67:29111",
+    "name": "spinner/gap_large",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 28,
+      "connect-w": 28,
+      "\bconnect-waterfall": 35
+    },
+    "android": "controller_date_and_time(spinner 네이밍 논의 필요)/wheels_time_min_width"
+  },
+  {
+    "id": "67:32544",
+    "name": "popup/toast/padding_horizontal",
+    "values": {
+      "connect-s": 40,
+      "connect-l": 35,
+      "connect-w": 34,
+      "\bconnect-waterfall": 42
+    },
+    "android": null
+  },
+  {
+    "id": "67:32545",
+    "name": "popup/toast/padding_vertical",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:32546",
+    "name": "popup/toast/radius_top_left",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:32547",
+    "name": "popup/toast/radius_top_right",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:32548",
+    "name": "popup/toast/radius_bottom_left",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:32549",
+    "name": "popup/toast/radius_bottom_right",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:32550",
+    "name": "popup/toast/max_width",
+    "values": {
+      "connect-s": 792,
+      "connect-l": 696,
+      "connect-w": 760,
+      "\bconnect-waterfall": 840
+    },
+    "android": null
+  },
+  {
+    "id": "67:32551",
+    "name": "popup/toast/icon",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "\bconnect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:32552",
+    "name": "popup/toast/margin_horizontal",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:32553",
+    "name": "popup/toast/margin_bottom",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:32602",
+    "name": "tabs/solid/padding",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 8,
+      "\bconnect-waterfall": 9
+    },
+    "android": null
+  },
+  {
+    "id": "67:32603",
+    "name": "tabs/solid/large/three_segments_width",
+    "values": {
+      "connect-s": 880,
+      "connect-l": 774,
+      "connect-w": 760,
+      "\bconnect-waterfall": 934
+    },
+    "android": null
+  },
+  {
+    "id": "67:32604",
+    "name": "tabs/solid/large/height",
+    "values": {
+      "connect-s": 100,
+      "connect-l": 88,
+      "connect-w": 84,
+      "\bconnect-waterfall": 106
+    },
+    "android": null
+  },
+  {
+    "id": "67:32605",
+    "name": "tabs/solid/large/radius_top_left",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:32606",
+    "name": "tabs/solid/large/radius_top_right",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:32607",
+    "name": "tabs/solid/large/radius_bottom_left",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:32608",
+    "name": "tabs/solid/large/radius_bottom_right",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 27,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:32609",
+    "name": "controller/tab_background",
+    "values": {
+      "Light": "#1314170D",
+      "Dark": "#FFFFFF0D"
+    },
+    "android": null
+  },
+  {
+    "id": "67:32610",
+    "name": "tabs/solid/medium/three_segments_width",
+    "values": {
+      "connect-s": 780,
+      "connect-l": 686,
+      "connect-w": 670,
+      "\bconnect-waterfall": 828
+    },
+    "android": null
+  },
+  {
+    "id": "67:32611",
+    "name": "tabs/solid/medium/height",
+    "values": {
+      "connect-s": 80,
+      "connect-l": 70,
+      "connect-w": 66,
+      "\bconnect-waterfall": 84
+    },
+    "android": null
+  },
+  {
+    "id": "67:32612",
+    "name": "tabs/solid/medium/radius_top_left",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:32613",
+    "name": "tabs/solid/medium/radius_top_right",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:32614",
+    "name": "tabs/solid/medium/radius_bottom_left",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:32615",
+    "name": "tabs/solid/medium/radius_bottom_right",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:32616",
+    "name": "tabs/solid/large/button/gap_horizontal",
+    "values": {
+      "connect-s": 14,
+      "connect-l": 12,
+      "connect-w": 12,
+      "\bconnect-waterfall": 16
+    },
+    "android": null
+  },
+  {
+    "id": "67:32617",
+    "name": "tabs/solid/large/button/padding_horizontal",
+    "values": {
+      "connect-s": 28,
+      "connect-l": 25,
+      "connect-w": 24,
+      "\bconnect-waterfall": 29
+    },
+    "android": null
+  },
+  {
+    "id": "67:32618",
+    "name": "tabs/solid/large/button/padding_vertical",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 14,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:32619",
+    "name": "tabs/solid/large/button/height",
+    "values": {
+      "connect-s": 84,
+      "connect-l": 74,
+      "connect-w": 70,
+      "\bconnect-waterfall": 90
+    },
+    "android": null
+  },
+  {
+    "id": "67:32620",
+    "name": "tabs/solid/large/button/radius_top_left",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:32621",
+    "name": "tabs/solid/large/button/radius_top_right",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:32622",
+    "name": "tabs/solid/large/button/radius_bottom_left",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:32623",
+    "name": "tabs/solid/large/button/radius_bottom_right",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:32624",
+    "name": "Radius/l",
+    "values": {
+      "Mode 1": 24
+    },
+    "android": null
+  },
+  {
+    "id": "67:32625",
+    "name": "tabs/solid/large/two_segments_width",
+    "values": {
+      "connect-s": 880,
+      "connect-l": 774,
+      "connect-w": 760,
+      "\bconnect-waterfall": 934
+    },
+    "android": null
+  },
+  {
+    "id": "67:32626",
+    "name": "tabs/solid/medium/button/gap_horizontal",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 8,
+      "\bconnect-waterfall": 9
+    },
+    "android": null
+  },
+  {
+    "id": "67:32627",
+    "name": "tabs/solid/medium/button/padding_horizontal",
+    "values": {
+      "connect-s": 18,
+      "connect-l": 16,
+      "connect-w": 16,
+      "\bconnect-waterfall": 19
+    },
+    "android": null
+  },
+  {
+    "id": "67:32628",
+    "name": "tabs/solid/medium/button/padding_vertical",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:32629",
+    "name": "tabs/solid/medium/button/radius_top_left",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:32630",
+    "name": "tabs/solid/medium/button/radius_top_right",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:32631",
+    "name": "tabs/solid/medium/button/radius_bottom_left",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:32632",
+    "name": "tabs/solid/medium/button/radius_bottom_right",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:32633",
+    "name": "tabs/solid/medium/four_segments_width",
+    "values": {
+      "connect-s": 960,
+      "connect-l": 845,
+      "connect-w": 800,
+      "\bconnect-waterfall": 1020
+    },
+    "android": null
+  },
+  {
+    "id": "67:32634",
+    "name": "tabs/solid/medium/two_segments_width",
+    "values": {
+      "connect-s": 780,
+      "connect-l": 686,
+      "connect-w": 670,
+      "\bconnect-waterfall": 828
+    },
+    "android": null
+  },
+  {
+    "id": "67:32635",
+    "name": "tabs/solid/large/button/width",
+    "values": {
+      "connect-s": 200,
+      "connect-l": 176,
+      "connect-w": 166,
+      "\bconnect-waterfall": 212
+    },
+    "android": null
+  },
+  {
+    "id": "67:32648",
+    "name": "tabs/solid/large/button/prefix_icon_square",
+    "values": {
+      "connect-s": 52,
+      "connect-l": 46,
+      "connect-w": 43,
+      "\bconnect-waterfall": 55
+    },
+    "android": null
+  },
+  {
+    "id": "67:32649",
+    "name": "tabs/solid/medium/button/width",
+    "values": {
+      "connect-s": 160,
+      "connect-l": 141,
+      "connect-w": 134,
+      "\bconnect-waterfall": 170
+    },
+    "android": null
+  },
+  {
+    "id": "67:32650",
+    "name": "tabs/solid/medium/button/height",
+    "values": {
+      "connect-s": 64,
+      "connect-l": 56,
+      "connect-w": 54,
+      "\bconnect-waterfall": 68
+    },
+    "android": null
+  },
+  {
+    "id": "67:32651",
+    "name": "tabs/solid/medium/button/prefix_square",
+    "values": {
+      "connect-s": 40,
+      "connect-l": 35,
+      "connect-w": 33,
+      "\bconnect-waterfall": 42
+    },
+    "android": null
+  },
+  {
+    "id": "67:33552",
+    "name": "selections/container_large",
+    "values": {
+      "connect-s": 64,
+      "connect-l": 56,
+      "connect-w": 54,
+      "\bconnect-waterfall": 68
+    },
+    "android": null
+  },
+  {
+    "id": "67:33553",
+    "name": "selections/container_medium",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "\bconnect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:33554",
+    "name": "selections/checkbox/radius_top_left",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:33555",
+    "name": "selections/checkbox/radius_top_right",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:33556",
+    "name": "selections/checkbox/radius_bottom_left",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:33557",
+    "name": "selections/checkbox/radius_bottom_right",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:33558",
+    "name": "line/level4",
+    "values": {
+      "connect-s": 4,
+      "connect-l": 4,
+      "connect-w": 3,
+      "connect-waterfall": 4
+    },
+    "android": null
+  },
+  {
+    "id": "67:33559",
+    "name": "selections/checkbox/normal_button_border",
+    "values": {
+      "connect-s": 4,
+      "connect-l": 4,
+      "connect-w": 4,
+      "\bconnect-waterfall": 4
+    },
+    "android": null
+  },
+  {
+    "id": "67:33560",
+    "name": "Radius/circle",
+    "values": {
+      "Mode 1": 999
+    },
+    "android": null
+  },
+  {
+    "id": "67:33561",
+    "name": "selections/border_large",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:33562",
+    "name": "selections/border_small",
+    "values": {
+      "connect-s": 4,
+      "connect-l": 4,
+      "connect-w": 3,
+      "\bconnect-waterfall": 4
+    },
+    "android": null
+  },
+  {
+    "id": "67:33928",
+    "name": "shadow/level3/blur1",
+    "values": {
+      "connect-s": 40,
+      "connect-l": 35,
+      "connect-w": 33,
+      "connect-waterfall": 42
+    },
+    "android": null
+  },
+  {
+    "id": "67:33929",
+    "name": "shadow/level3/y1",
+    "values": {
+      "connect-s": 20,
+      "connect-l": 18,
+      "connect-w": 17,
+      "connect-waterfall": 22
+    },
+    "android": null
+  },
+  {
+    "id": "67:33930",
+    "name": "shadow/level3/blur2",
+    "values": {
+      "connect-s": 4,
+      "connect-l": 4,
+      "connect-w": 3,
+      "connect-waterfall": 4
+    },
+    "android": null
+  },
+  {
+    "id": "67:33931",
+    "name": "shadow/level3/y2",
+    "values": {
+      "connect-s": 2,
+      "connect-l": 2,
+      "connect-w": 2,
+      "connect-waterfall": 3
+    },
+    "android": null
+  },
+  {
+    "id": "67:33933",
+    "name": "notification/system/width",
+    "values": {
+      "connect-s": 700,
+      "connect-l": 616,
+      "connect-w": 582,
+      "\bconnect-waterfall": 745
+    },
+    "android": null
+  },
+  {
+    "id": "67:33934",
+    "name": "notification/system/radius_top_left",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "\bconnect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:33935",
+    "name": "notification/system/radius_top_right",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "\bconnect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:33936",
+    "name": "notification/system/radius_bottom_left",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "\bconnect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:33937",
+    "name": "notification/system/radius_bottom_right",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "\bconnect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:33938",
+    "name": "notification/border",
+    "values": {
+      "connect-s": 1,
+      "connect-l": 1,
+      "connect-w": 1,
+      "\bconnect-waterfall": 1
+    },
+    "android": null
+  },
+  {
+    "id": "67:33939",
+    "name": "gleo/Olf/surface_primary",
+    "values": {
+      "Light": "#FFFFFF",
+      "Dark": "#44464E"
+    },
+    "android": null
+  },
+  {
+    "id": "67:33940",
+    "name": "notification/gap_large",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:33941",
+    "name": "notification/padding_large",
+    "values": {
+      "connect-s": 32,
+      "connect-l": 28,
+      "connect-w": 28,
+      "\bconnect-waterfall": 35
+    },
+    "android": null
+  },
+  {
+    "id": "67:33942",
+    "name": "notification/padding_small",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 14,
+      "\bconnect-waterfall": 16
+    },
+    "android": null
+  },
+  {
+    "id": "67:33943",
+    "name": "os_notification/container/width",
+    "values": {
+      "connect-s": 700,
+      "connect-l": 700,
+      "connect-w": 700,
+      "\bconnect-waterfall": 700
+    },
+    "android": null
+  },
+  {
+    "id": "67:33944",
+    "name": "notification/system/imagary_square",
+    "values": {
+      "connect-s": 100,
+      "connect-l": 88,
+      "connect-w": 83,
+      "\bconnect-waterfall": 106
+    },
+    "android": null
+  },
+  {
+    "id": "67:33945",
+    "name": "notification/system/images/radius_top_left",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:33946",
+    "name": "notification/system/images/radius_top_right",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:33947",
+    "name": "notification/system/images/radius_bottom_left",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:33948",
+    "name": "notification/system/images/radius_bottom_right",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:33949",
+    "name": "notification/system/text_gap_vertical",
+    "values": {
+      "connect-s": 12,
+      "connect-l": 11,
+      "connect-w": 10,
+      "\bconnect-waterfall": 13
+    },
+    "android": null
+  },
+  {
+    "id": "67:33950",
+    "name": "notification/system/text_padding_top",
+    "values": {
+      "connect-s": 4,
+      "connect-l": 3,
+      "connect-w": 4,
+      "\bconnect-waterfall": 5
+    },
+    "android": null
+  },
+  {
+    "id": "67:33951",
+    "name": "notification/gap_medium",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 14,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:33952",
+    "name": "notification/padding_medium",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:33953",
+    "name": "notification/system/text_padding_horizontal",
+    "values": {
+      "connect-s": 8,
+      "connect-l": 7,
+      "connect-w": 8,
+      "\bconnect-waterfall": 10
+    },
+    "android": null
+  },
+  {
+    "id": "67:33954",
+    "name": "notification/system/profile/app_radius_top_left",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:33955",
+    "name": "notification/system/profile/app_radius_top_right",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:33956",
+    "name": "notification/system/profile/app_radius_bottom_left",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:33957",
+    "name": "notification/system/profile/app_radius_bottom_right",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 14,
+      "connect-w": 13,
+      "\bconnect-waterfall": 17
+    },
+    "android": null
+  },
+  {
+    "id": "67:33958",
+    "name": "buttons/basic/medium/radius_top_right_medium",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:33959",
+    "name": "buttons/basic/medium/radius_bottom_left_medium",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:33960",
+    "name": "buttons/basic/medium/radius_bottom_right_medium",
+    "values": {
+      "connect-s": 24,
+      "connect-l": 21,
+      "connect-w": 20,
+      "\bconnect-waterfall": 26
+    },
+    "android": null
+  },
+  {
+    "id": "67:33961",
+    "name": "square/level22",
+    "values": {
+      "connect-s": 100,
+      "connect-l": 88,
+      "connect-w": 83,
+      "connect-waterfall": 106
+    },
+    "android": null
+  },
+  {
+    "id": "67:33962",
+    "name": "os_notification/contents/image_square",
+    "values": {
+      "connect-s": 100,
+      "connect-l": 100,
+      "connect-w": 100,
+      "\bconnect-waterfall": 100
+    },
+    "android": null
+  },
+  {
+    "id": "67:33963",
+    "name": "os_notification/contents/image_thumb_radius",
+    "values": {
+      "connect-s": 16,
+      "connect-l": 16,
+      "connect-w": 16,
+      "\bconnect-waterfall": 16
+    },
+    "android": null
+  },
+  {
+    "id": "67:33964",
+    "name": "notification/system/profile/radius_top_left",
+    "values": {
+      "connect-s": 999,
+      "connect-l": 999,
+      "connect-w": 999,
+      "\bconnect-waterfall": 999
+    },
+    "android": null
+  },
+  {
+    "id": "67:33965",
+    "name": "notification/system/profile/radius_top_right",
+    "values": {
+      "connect-s": 999,
+      "connect-l": 999,
+      "connect-w": 999,
+      "\bconnect-waterfall": 999
+    },
+    "android": null
+  },
+  {
+    "id": "67:33966",
+    "name": "notification/system/profile/radius_bottom_left",
+    "values": {
+      "connect-s": 999,
+      "connect-l": 999,
+      "connect-w": 999,
+      "\bconnect-waterfall": 999
+    },
+    "android": null
+  },
+  {
+    "id": "67:33967",
+    "name": "notification/system/profile/radius_bottom_right",
+    "values": {
+      "connect-s": 999,
+      "connect-l": 999,
+      "connect-w": 999,
+      "\bconnect-waterfall": 999
+    },
+    "android": null
+  },
+  {
+    "id": "67:33968",
+    "name": "notification/system/profile/app_square",
+    "values": {
+      "connect-s": 48,
+      "connect-l": 42,
+      "connect-w": 40,
+      "\bconnect-waterfall": 51
+    },
+    "android": null
+  },
+  {
+    "id": "67:33983",
+    "name": "_Legacy/Solid/Cool/500",
+    "values": {
+      "Light": "#626675",
+      "Dark": "#626675"
+    },
+    "android": null
+  },
+  {
+    "id": "67:33984",
+    "name": "Common/Empty/Content",
+    "values": {
+      "Light": "#C8C8C8",
+      "Dark": "#626675"
+    },
+    "android": null
+  },
+  {
+    "id": "39667:4699",
+    "name": "Common/24",
+    "values": {
+      "Mode 1": 24
+    },
+    "android": null
+  },
+  {
+    "id": "39667:4701",
+    "name": "color/alpha/dark/200",
+    "values": {
+      "Hyundai-Light": "#13141733",
+      "Hyundai-Dark": "#FFFFFF33",
+      "Kia-Light": "#161A1D33",
+      "Kia-Dark": "#F5FBFF33",
+      "Genesis-Light": "#13141733",
+      "Genesis-Dark": "#FFFFFF33"
+    },
+    "android": null
+  },
+  {
+    "id": "39667:4702",
+    "name": "color/divider/secondary",
+    "values": {
+      "Hyundai-Light": "#13141733",
+      "Hyundai-Dark": "#FFFFFF33",
+      "Kia-Light": "#161A1D33",
+      "Kia-Dark": "#F5FBFF33",
+      "Genesis-Light": "#13141733",
+      "Genesis-Dark": "#FFFFFF33"
+    },
+    "android": null
+  },
+  {
+    "id": "39667:4704",
+    "name": "Color/Neutral/60",
+    "values": {
+      "Mode 1": "#737373"
+    },
+    "android": null
+  }
+]

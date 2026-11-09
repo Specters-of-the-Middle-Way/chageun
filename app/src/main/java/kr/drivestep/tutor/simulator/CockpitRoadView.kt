@@ -119,51 +119,11 @@ class CockpitRoadView(context: Context) : View(context) {
     }
 
     private fun drawLandscape(c: Canvas, p: Projection, cameraX: Float) {
-        gradientRect(c, -20f, -20f, 1220f, 180f,
-            Color.rgb(119, 169, 207), Color.rgb(220, 232, 234))
-        paint.shader = RadialGradient(985f, 39f, 270f,
-            intArrayOf(Color.argb(90, 255, 250, 226), Color.TRANSPARENT), null, Shader.TileMode.CLAMP)
-        paint.style = Paint.Style.FILL
-        c.drawRect(700f, -20f, 1220f, 180f, paint)
-        paint.shader = null
-
-        // Low-contrast cloud banks and atmospheric hills keep the vanishing point legible.
-        cloud(c, 165f - cameraX * 2f, 57f, 130f, 9f, Color.argb(55, 255, 255, 250))
-        cloud(c, 737f - cameraX * 2f, 31f, 155f, 7f, Color.argb(45, 255, 255, 250))
-        cloud(c, 1100f - cameraX * 2f, 85f, 105f, 5f, Color.argb(65, 255, 255, 250))
-
-        path.reset()
-        path.moveTo(-30f, 131f)
-        path.lineTo(-30f, 103f)
-        path.cubicTo(70f, 106f, 103f, 72f, 177f, 84f)
-        path.cubicTo(260f, 60f, 290f, 105f, 367f, 102f)
-        path.cubicTo(443f, 77f, 473f, 99f, 556f, 111f)
-        path.cubicTo(631f, 98f, 674f, 108f, 730f, 111f)
-        path.cubicTo(870f, 96f, 898f, 85f, 986f, 105f)
-        path.cubicTo(1080f, 78f, 1140f, 87f, 1230f, 91f)
-        path.lineTo(1230f, 135f)
-        path.close()
-        fillPath(c, Color.rgb(154, 178, 185))
-
-        for (i in 0..27) {
-            val x = 714f + i * 12f - cameraX * 2.6f
-            val buildingHeight = 9f + ((i * 17) % 21)
-            rect(c, x, p.horizon - buildingHeight, x + 6f + i % 4, p.horizon + 4f,
-                Color.rgb(166, 183, 188))
-            if (i % 7 == 0) line(c, x + 3f, p.horizon - buildingHeight - 7f,
-                x + 3f, p.horizon - buildingHeight, .8f, Color.rgb(166, 183, 188))
-        }
-        path.reset()
-        path.moveTo(-30f, 125f)
-        path.cubicTo(190f, 107f, 282f, 113f, 455f, 119f)
-        path.cubicTo(689f, 110f, 781f, 120f, 950f, 118f)
-        path.cubicTo(1060f, 108f, 1120f, 111f, 1230f, 119f)
-        path.lineTo(1230f, 155f)
-        path.lineTo(-30f, 155f)
-        path.close()
-        fillPath(c, Color.rgb(126, 151, 142))
+        // Functional simulated road space; no invented scenic illustration or OEM-camera claim.
+        gradientRect(c, -20f, -20f, 1220f, p.horizon + 5f,
+            Color.rgb(237, 238, 242), Color.rgb(247, 248, 250))
         gradientRect(c, -30f, p.horizon + 5f, 1230f, 430f,
-            Color.rgb(144, 159, 133), Color.rgb(94, 117, 91))
+            Color.rgb(104, 106, 114), Color.rgb(49, 50, 54))
     }
 
     private fun drawRoad(c: Canvas, p: Projection, distance: Double, s: DrivingSimulationSnapshot?) {
@@ -172,7 +132,7 @@ class CockpitRoadView(context: Context) : View(context) {
         val surface = arrayOf(p.point(-5.25f, 0f, 270f), p.point(5.25f, 0f, 270f),
             p.point(5.25f, 0f, .7f), p.point(-5.25f, 0f, .7f))
         paint.shader = LinearGradient(0f, p.horizon, 0f, 390f,
-            Color.rgb(96, 111, 119), Color.rgb(47, 57, 65), Shader.TileMode.CLAMP)
+            Color.rgb(68, 70, 78), Color.rgb(29, 30, 33), Shader.TileMode.CLAMP)
         polygon(c, surface, Color.WHITE, preserveShader = true)
         paint.shader = null
 
@@ -238,20 +198,7 @@ class CockpitRoadView(context: Context) : View(context) {
                     dot(c, reflector.x, reflector.y, max(.7f, 13f / z), Color.rgb(235, 218, 165))
                 }
             }
-            val treePhase = positiveModulo(distance, 34.0).toFloat()
-            for (i in 6 downTo 1) {
-                val z = i * 34f - treePhase + 16f
-                val x = side * (11f + (i % 3) * 1.5f)
-                val base = p.point(x, 0f, z)
-                val top = p.point(x, 4.4f, z)
-                val size = 1.75f * p.focal / z
-                line(c, base.x, base.y, top.x, top.y + size * .5f, max(1f, 18f / z),
-                    Color.rgb(95, 111, 97))
-                oval(c, top.x - size * .86f, top.y, top.x + size * .67f, top.y + size * 1.25f,
-                    Color.rgb(107, 132, 113))
-                oval(c, top.x - size * .28f, top.y - size * .18f, top.x + size * .85f,
-                    top.y + size * .94f, Color.rgb(121, 143, 120))
-            }
+
         }
     }
 
