@@ -286,6 +286,7 @@ DRIVESTEP_AVD="DriveStep_Pleos" ./scripts/run-emulator.sh
 | Pleos 이미지·하드웨어 프로필이 안 보임 | OS별 SDK Update Site가 활성화됐는지, Show Package Details의 API 34 이미지 설치 여부 확인 후 Studio 재시작 |
 | Vehicle SDK 다운로드 실패 / 401·403·404 | [Pleos Maven](https://nexus-playground.pleos.ai/repository/maven-releases/) 접근, 프록시·방화벽과 `Vehicle:2.3.2` 제공 상태 확인. 저장소 주소나 SDK 버전을 임의로 바꾸기 전에 팀에 공유 |
 | 가상 기기가 안 켜지거나 검은 화면 | CPU와 이미지 ABI 일치, 가상화·RAM·GPU 드라이버 확인. Device Manager에서 Cold Boot 실행. [공식 문제 해결](https://developer.android.com/studio/run/emulator-troubleshooting) 참고 |
+| 하단 공조·앱 아이콘이 겹치거나 잘림 | Pleos Connect 2.1.0 기기 프로필의 기본값인 **2560×1440 / 160dpi**와 같은 크기의 스킨을 사용한 뒤 Cold Boot 실행. 1920×1080으로 줄이면 시스템 GNB가 겹칠 수 있음. 작은 창이 필요하면 Android 해상도 대신 에뮬레이터 창 크기를 조절 |
 | `adb` 명령을 찾을 수 없음 | SDK Platform-Tools 설치 후 해당 터미널의 PATH에 SDK `platform-tools` 추가 |
 | `more than one device/emulator` | `adb devices`로 확인해 `adb -s 실제_serial …` 또는 `ANDROID_SERIAL` 지정 |
 | 설치는 됐는데 앱이 안 열림 | `adb shell am start --user current -n kr.drivestep.tutor/.MainActivity` 실행. 기기가 여러 대면 위와 같이 대상 지정 |
