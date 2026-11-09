@@ -101,7 +101,17 @@ class PostureGuideView(context: Context) : View(context) {
         if (width <= 0 || height <= 0) return
 
         val pad = dp(8f)
-        cardRect.set(pad, pad, width - pad, height - pad)
+        val cardWidth = width - pad * 2
+        // Keep the illustration proportional when the surrounding column grows taller.
+        val preferredHeight = when (stepIndex) {
+            5 -> (cardWidth - dp(32f)) / 2.4f + dp(66f)
+            6, 7 -> (cardWidth - dp(32f)) / 1.8f + dp(66f)
+            8 -> cardWidth * 1.25f
+            else -> cardWidth * 1.1f
+        }
+        val cardHeight = preferredHeight.coerceAtMost(height - pad * 2)
+        val cardTop = (height - cardHeight) * 0.5f
+        cardRect.set(pad, cardTop, width - pad, cardTop + cardHeight)
         paint.style = Paint.Style.FILL
         paint.color = PleosUi.SURFACE
         canvas.drawRoundRect(cardRect, dp(14f), dp(14f), paint)
@@ -133,7 +143,7 @@ class PostureGuideView(context: Context) : View(context) {
         canvas.drawRoundRect(innerRect, dp(10f), dp(10f), paint)
 
         val cx = innerRect.centerX()
-        val floorY = innerRect.bottom - dp(14f)
+        val floorY = innerRect.centerY() + dp(40f)
 
         // Floor reference line and brake pedal on the left
         paint.style = Paint.Style.STROKE

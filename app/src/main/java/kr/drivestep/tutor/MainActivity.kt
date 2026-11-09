@@ -522,15 +522,22 @@ class MainActivity : Activity() {
             setBackgroundColor(PleosUi.BACKGROUND)
             setPadding(dp(12), dp(4), dp(12), dp(8))
         }
-        val bar = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
+        val bar = LinearLayout(this).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            isBaselineAligned = false
+        }
         val back = ImageButton(this).apply {
             setImageDrawable(PleosUi.icon(this@MainActivity, "back", 32))
             background = null; contentDescription = "app_back"
             setOnClickListener { onBackPressed() }
         }
         bar.addView(back, LinearLayout.LayoutParams(dp(64), dp(64)))
-        bar.addView(text(getString(R.string.app_name), 24, PleosUi.TEXT, true), LinearLayout.LayoutParams(0, dp(64), 1f))
-        bar.addView(text("IONIQ 3", 18, PleosUi.SECONDARY), LinearLayout.LayoutParams(dp(110), dp(64)))
+        bar.addView(text(getString(R.string.app_name), 24, PleosUi.TEXT, true).apply {
+            gravity = Gravity.START or Gravity.CENTER_VERTICAL
+        }, LinearLayout.LayoutParams(0, dp(64), 1f))
+        bar.addView(text("IONIQ 3", 18, PleosUi.SECONDARY).apply {
+            gravity = Gravity.CENTER
+        }, LinearLayout.LayoutParams(dp(110), dp(64)))
         val toggle = PleosSwitch(this).apply {
             text = "음성 안내  "
             textSize = 15f

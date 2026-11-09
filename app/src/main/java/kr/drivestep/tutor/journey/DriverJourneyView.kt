@@ -236,7 +236,15 @@ class DriverJourneyView(
     private fun setupPage(parent: LinearLayout) {
         val index = state.setupIndex
         val step = setupSteps[index]
-        heading(parent, "", step.first, "운전 환경 ${index + 1}/9  ·  ${state.setupCompletedCount}개 확인")
+        val progress = heading(parent, "", step.first,
+            context.getString(R.string.journey_setup_progress, index + 1, state.setupCompletedCount))
+        val stepButtons = mutableListOf<Button>()
+        fun refreshChecks() {
+            progress.text = context.getString(R.string.journey_setup_progress, index + 1, state.setupCompletedCount)
+            state.setupChecks().forEachIndexed { i, done ->
+                stepButtons[i].text = setupStepLabel(i, done)
+            }
+        }
         val row = horizontal(parent, 0, 1f)
         val reference = LinearLayout(context).apply { orientation = VERTICAL; gravity = Gravity.CENTER_HORIZONTAL; setPadding(dp(12), dp(14), dp(12), dp(14)) }
         row.addView(reference, LayoutParams(dp(300), -1).apply { marginEnd = dp(24) })
@@ -255,7 +263,9 @@ class DriverJourneyView(
         val axis = when (index) { 0 -> CalibrationAxis.FORE_AFT; 1 -> CalibrationAxis.HEIGHT; 2 -> CalibrationAxis.BACKREST; 4 -> CalibrationAxis.STEERING; else -> null }
         if (axis != null) {
             addSlider(info, "가상 조절값", state.calibration.value(axis), 0, 100, "/ 100", "journey_calibration_${axis.name.lowercase()}") {
-                state.setCalibration(axis, it); guideView.update(index, state.profile, state.calibration); persist()
+                state.setCalibration(axis, it)
+                guideView.update(index, state.profile, state.calibration)
+                refreshChecks(); persist()
             }
             val band = state.guideBand(axis)
             val presetRow = horizontal(info, 56)
@@ -266,7 +276,7 @@ class DriverJourneyView(
         } else info.addView(label(if (index in 5..7) "직접 후방과 옆쪽 시야를 확인하세요.\n앱에서 미러의 각도나 시야를 측정하지 않습니다." else "차량의 조절 장치와 사용설명서를 확인하세요.\n앱에서 올바른 상태를 자동 판정하지 않습니다.", 18, grey), full(100))
         info.addView(View(context), LayoutParams(1, 0, 1f))
         info.addView(button("설명 다시 확인", "journey_setup_skip_help") {
-            state.leaveSetupUnresolved(); persist()
+            state.leaveSetupUnresolved(); refreshChecks(); persist()
             showMessage(step.first, step.second + "\n\n확인하지 못한 항목은 완료로 바꾸지 않아요. 불편한 부분을 다시 조절한 뒤 확인하거나 정차 교육을 선택하세요.")
         }, full(64))
         info.addView(button("조절 및 확인 완료", "journey_setup_confirm", selected = true) {
@@ -275,9 +285,11 @@ class DriverJourneyView(
         gap(parent, 24)
         val steps = horizontal(parent, 64)
         state.setupChecks().forEachIndexed { i, done ->
-            steps.addView(button(if (done) "${i + 1} ✓" else "${i + 1}", "journey_setup_step_$i", selected = i == index) {
+            val stepButton = button(setupStepLabel(i, done), "journey_setup_step_$i", selected = i == index) {
                 state.enterSetup(i); render()
-            }, LayoutParams(0, dp(64), 1f).apply { marginEnd = dp(6) })
+            }
+            stepButtons += stepButton
+            steps.addView(stepButton, LayoutParams(0, dp(64), 1f).apply { marginEnd = dp(6) })
         }
     }
 
@@ -482,10 +494,15 @@ class DriverJourneyView(
         (0 until rows.length()).mapNotNull { rows.optJSONObject(it) }.take(20)
     }.getOrDefault(emptyList())
 
-    private fun heading(parent: LinearLayout, eyebrow: String, title: String, subtitle: String) {
+    private fun setupStepLabel(index: Int, done: Boolean): String =
+        context.getString(R.string.journey_setup_step, index + 1, if (done) " ✓" else "")
+
+    private fun heading(parent: LinearLayout, eyebrow: String, title: String, subtitle: String): TextView {
         parent.addView(label(title, 32, white, true), full(54))
-        parent.addView(label(subtitle, 18, grey), full(40))
+        val progress = label(subtitle, 18, grey)
+        parent.addView(progress, full(40))
         gap(parent, 16)
+        return progress
     }
     private fun specRow(parent: LinearLayout, title: String, value: String) {
         val row = horizontal(parent, 36)
