@@ -1,0 +1,281 @@
+[
+  {
+    "id": "ready",
+    "title": "내 차와 친해지기",
+    "scene": "setup",
+    "steps": [
+      {
+        "id": "ready_seat",
+        "correct": "ready_seat_check",
+        "wrong": "ready_seat_height",
+        "correctCue": "growth_ready_seat_ok",
+        "wrongCue": "growth_ready_seat_retry",
+        "animation": "OBSERVE"
+      },
+      {
+        "id": "ready_mirror",
+        "correct": "ready_mirror_adjust",
+        "wrong": "ready_mirror_only",
+        "correctCue": "growth_ready_mirror_ok",
+        "wrongCue": "growth_ready_mirror_retry",
+        "animation": "OBSERVE"
+      },
+      {
+        "id": "ready_belt",
+        "correct": "ready_belt_ready",
+        "wrong": "ready_belt_later",
+        "correctCue": "growth_ready_belt_ok",
+        "wrongCue": "growth_ready_belt_retry",
+        "animation": "WAIT"
+      }
+    ]
+  },
+  {
+    "id": "departure",
+    "title": "차분하게 출발하기",
+    "scene": "departure",
+    "steps": [
+      {
+        "id": "departure_observe",
+        "correct": "departure_observe_look",
+        "wrong": "departure_observe_go",
+        "correctCue": "growth_departure_observe_ok",
+        "wrongCue": "growth_departure_observe_retry",
+        "animation": "OBSERVE"
+      },
+      {
+        "id": "departure_signal",
+        "correct": "departure_signal_left",
+        "wrong": "departure_signal_hazard",
+        "correctCue": "growth_departure_signal_ok",
+        "wrongCue": "growth_departure_signal_retry",
+        "animation": "SIGNAL"
+      },
+      {
+        "id": "departure_yield",
+        "correct": "departure_yield_wait",
+        "wrong": "departure_yield_push",
+        "correctCue": "growth_departure_yield_ok",
+        "wrongCue": "growth_departure_yield_retry",
+        "animation": "WAIT"
+      }
+    ]
+  },
+  {
+    "id": "solid_line",
+    "title": "실선 앞에서 판단하기",
+    "scene": "solid_line",
+    "steps": [
+      {
+        "id": "solid_line_notice",
+        "correct": "solid_line_notice_keep",
+        "wrong": "solid_line_notice_cross",
+        "correctCue": "growth_solid_line_notice_ok",
+        "wrongCue": "growth_solid_line_notice_retry",
+        "animation": "WAIT"
+      },
+      {
+        "id": "solid_line_reroute",
+        "correct": "solid_line_reroute_route",
+        "wrong": "solid_line_reroute_brake",
+        "correctCue": "growth_solid_line_reroute_ok",
+        "wrongCue": "growth_solid_line_reroute_retry",
+        "animation": "PROCEED"
+      },
+      {
+        "id": "solid_line_dotted",
+        "correct": "solid_line_dotted_confirm",
+        "wrong": "solid_line_dotted_free",
+        "correctCue": "growth_solid_line_dotted_ok",
+        "wrongCue": "growth_solid_line_dotted_retry",
+        "animation": "OBSERVE"
+      }
+    ]
+  },
+  {
+    "id": "right_turn",
+    "title": "우회전 신호 읽기",
+    "scene": "right_turn",
+    "steps": [
+      {
+        "id": "right_turn_red",
+        "correct": "right_turn_red_stop",
+        "wrong": "right_turn_red_roll",
+        "correctCue": "growth_right_turn_red_ok",
+        "wrongCue": "growth_right_turn_red_retry",
+        "animation": "STOP"
+      },
+      {
+        "id": "right_turn_people",
+        "correct": "right_turn_people_wait",
+        "wrong": "right_turn_people_pass",
+        "correctCue": "growth_right_turn_people_ok",
+        "wrongCue": "growth_right_turn_people_retry",
+        "animation": "WAIT"
+      },
+      {
+        "id": "right_turn_arrow",
+        "correct": "right_turn_arrow_obey",
+        "wrong": "right_turn_arrow_empty",
+        "correctCue": "growth_right_turn_arrow_ok",
+        "wrongCue": "growth_right_turn_arrow_retry",
+        "animation": "STOP"
+      }
+    ]
+  },
+  {
+    "id": "highway",
+    "title": "추월 후 돌아오기",
+    "scene": "highway",
+    "steps": [
+      {
+        "id": "highway_lane",
+        "correct": "highway_lane_right",
+        "wrong": "highway_lane_left",
+        "correctCue": "growth_highway_lane_ok",
+        "wrongCue": "growth_highway_lane_retry",
+        "animation": "RIGHT_LANE"
+      },
+      {
+        "id": "highway_return",
+        "correct": "highway_return_return",
+        "wrong": "highway_return_stay",
+        "correctCue": "growth_highway_return_ok",
+        "wrongCue": "growth_highway_return_retry",
+        "animation": "RIGHT_LANE"
+      },
+      {
+        "id": "highway_exception",
+        "correct": "highway_exception_traffic",
+        "wrong": "highway_exception_slow",
+        "correctCue": "growth_highway_exception_ok",
+        "wrongCue": "growth_highway_exception_retry",
+        "animation": "OBSERVE"
+      }
+    ]
+  },
+  {
+    "id": "alley",
+    "title": "골목에서 마주쳤을 때",
+    "scene": "alley",
+    "steps": [
+      {
+        "id": "alley_stop",
+        "correct": "alley_stop_stop",
+        "wrong": "alley_stop_squeeze",
+        "correctCue": "growth_alley_stop_ok",
+        "wrongCue": "growth_alley_stop_retry",
+        "animation": "STOP"
+      },
+      {
+        "id": "alley_space",
+        "correct": "alley_space_check",
+        "wrong": "alley_space_angle",
+        "correctCue": "growth_alley_space_ok",
+        "wrongCue": "growth_alley_space_retry",
+        "animation": "OBSERVE"
+      },
+      {
+        "id": "alley_yield",
+        "correct": "alley_yield_space",
+        "wrong": "alley_yield_rush",
+        "correctCue": "growth_alley_yield_ok",
+        "wrongCue": "growth_alley_yield_retry",
+        "animation": "REVERSE_SAFE"
+      }
+    ]
+  },
+  {
+    "id": "hill",
+    "title": "좁은 언덕에서 양보하기",
+    "scene": "hill",
+    "steps": [
+      {
+        "id": "hill_hold",
+        "correct": "hill_hold_hold",
+        "wrong": "hill_hold_reverse",
+        "correctCue": "growth_hill_hold_ok",
+        "wrongCue": "growth_hill_hold_retry",
+        "animation": "STOP"
+      },
+      {
+        "id": "hill_rule",
+        "correct": "hill_rule_uphill",
+        "wrong": "hill_rule_downhill",
+        "correctCue": "growth_hill_rule_ok",
+        "wrongCue": "growth_hill_rule_retry",
+        "animation": "OBSERVE"
+      },
+      {
+        "id": "hill_room",
+        "correct": "hill_room_yield",
+        "wrong": "hill_room_turn",
+        "correctCue": "growth_hill_room_ok",
+        "wrongCue": "growth_hill_room_retry",
+        "animation": "YIELD"
+      }
+    ]
+  },
+  {
+    "id": "tunnel",
+    "title": "터널의 공기와 시야",
+    "scene": "tunnel",
+    "steps": [
+      {
+        "id": "tunnel_air",
+        "correct": "tunnel_air_prepare",
+        "wrong": "tunnel_air_screen",
+        "correctCue": "growth_tunnel_air_ok",
+        "wrongCue": "growth_tunnel_air_retry",
+        "animation": "OBSERVE"
+      },
+      {
+        "id": "tunnel_vision",
+        "correct": "tunnel_vision_clear",
+        "wrong": "tunnel_vision_keep",
+        "correctCue": "growth_tunnel_vision_ok",
+        "wrongCue": "growth_tunnel_vision_retry",
+        "animation": "OBSERVE"
+      },
+      {
+        "id": "tunnel_attention",
+        "correct": "tunnel_attention_gap",
+        "wrong": "tunnel_attention_menu",
+        "correctCue": "growth_tunnel_attention_ok",
+        "wrongCue": "growth_tunnel_attention_retry",
+        "animation": "WAIT"
+      }
+    ]
+  },
+  {
+    "id": "courtesy",
+    "title": "고마움을 안전하게 표현하기",
+    "scene": "courtesy",
+    "steps": [
+      {
+        "id": "courtesy_thanks",
+        "correct": "courtesy_thanks_steady",
+        "wrong": "courtesy_thanks_auto",
+        "correctCue": "growth_courtesy_thanks_ok",
+        "wrongCue": "growth_courtesy_thanks_retry",
+        "animation": "SIGNAL"
+      },
+      {
+        "id": "courtesy_mistake",
+        "correct": "courtesy_mistake_reroute",
+        "wrong": "courtesy_mistake_sorry",
+        "correctCue": "growth_courtesy_mistake_ok",
+        "wrongCue": "growth_courtesy_mistake_retry",
+        "animation": "PROCEED"
+      },
+      {
+        "id": "courtesy_hazard",
+        "correct": "courtesy_hazard_purpose",
+        "wrong": "courtesy_hazard_two",
+        "correctCue": "growth_courtesy_hazard_ok",
+        "wrongCue": "growth_courtesy_hazard_retry",
+        "animation": "OBSERVE"
+      }
+    ]
+  }
+]

@@ -1,27 +1,73 @@
-# Compiled class file
+# Gradle / Kotlin / Android generated files
+.gradle/
+.kotlin/
+**/build/
+.cxx/
+.externalNativeBuild/
+local.properties
+captures/
 *.class
+*.apk
+*.aab
+*.apks
+*.dex
+*.hprof
 
-# Log file
+# Local Android SDK, emulator images, research and build backups
+.tooling/
+.android/
+*.avd/
+
+# IDE and operating-system files
+.idea/
+.vscode/
+*.iml
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+
+# Python helper caches / virtual environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Local credentials and signing material
+.env
+.env.*
+!.env.example
+!.env.sample
+*.jks
+*.keystore
+*.p12
+*.pfx
+key.properties
+keystore.properties
+secrets.properties
+credentials.json
+google-services.json
+
+# Generated reports, logs and distribution archives
 *.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
+hs_err_pid*
+replay_pid*
+/docs/test-results/
+/output/
+/outputs/
 *.zip
 *.tar.gz
 *.rar
+*.war
+*.nar
+*.ear
+*.ctxt
+.mtj.tmp/
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
-
-# Kotlin Gradle plugin data, see https://kotlinlang.org/docs/whatsnew20.html#new-directory-for-kotlin-data-in-gradle-projects
-.kotlin/
+# Keep the wrapper required to build a fresh clone.
+*.jar
+!gradle/wrapper/gradle-wrapper.jar

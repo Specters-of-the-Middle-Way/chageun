@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+"""Generate local prototype Korean cue audio using the installed macOS Yuna voice.
+
+No cloud speech API or private credentials. Android can use its Korean TTS engine;
+these packaged clips keep the local demonstration usable when it is unavailable.
+"""
+import hashlib
+import json
+from pathlib import Path
+import re
+import subprocess
+import tempfile
+import wave
+
+ROOT = Path(__file__).resolve().parents[1]
+sources = [ROOT / "docs/signal-voice-cues.json", ROOT / "docs/parking-voice-cues.json", ROOT / "docs/steering-voice-cues.json", ROOT / "docs/growth-voice-cues.json", ROOT / "docs/ride-voice-cues.json", ROOT / "docs/context-voice-cues.json"]
+cues = [cue for path in sources for cue in json.loads(path.read_text())]
+guide = (ROOT / "app/src/main/java/kr/drivestep/tutor/coach/OperationGuide.kt").read_text()
+for cue_id, text in re.findall(r'CoachCue\("([a-z_]+)", "([^"]+)"\)', guide):
+    cues.append({"id": cue_id, "text": text})
+setup = (ROOT / "app/src/main/java/kr/drivestep/tutor/growth/SetupGuides.kt").read_text()
+for cue_id, text in re.findall(r'CoachCue\("([a-z_]+)", "([^"]+)"\)', setup):
+    cues.append({"id": cue_id, "text": text})
+assert len({c["id"] for c in cues}) == len(cues), "duplicate voice ID"
+dest = ROOT / "app/src/main/res/raw"
+dest.mkdir(parents=True, exist_ok=True)
+manifest = []
+old_path = ROOT / "docs/voice-assets.json"
+old = {c["id"]: c for c in json.loads(old_path.read_text())} if old_path.exists() else {}
+with tempfile.TemporaryDirectory() as directory:
+    temp = Path(directory)
+    for cue in cues:
+        assert re.fullmatch(r"[a-z][a-z0-9_]*", cue["id"])
+        target = dest / f'coach_{cue["id"]}.wav'
+        cached = old.get(cue["id"])
+        if cached and cached["text"] == cue["text"] and target.exists() and hashlib.sha256(target.read_bytes()).hexdigest() == cached["sha256"]:
+            manifest.append(cached)
+            continue
+        speech = temp / "speech.txt"
+        output = temp / "speech.wav"
+        speech.write_text(cue["text"])
+        subprocess.run(["/usr/bin/say", "-v", "Yuna (한국어(한국))", "-r", "165",
+                        "-f", str(speech), "-o", str(output), "--file-format=WAVE",
+                        "--data-format=LEI16@22050"], check=True)
+        target = dest / f'coach_{cue["id"]}.wav'
+        with wave.open(str(output), "rb") as source, wave.open(str(target), "wb") as result:
+            result.setparams(source.getparams())
+            # Pleos recommendation: 150–200ms pre-roll to avoid a clipped opening.
+            silence = int(source.getframerate() * 0.2) * source.getnchannels() * source.getsampwidth()
+            frames = source.readframes(source.getnframes())
+            assert any(frames), f'Empty speech: {cue["id"]}'
+            result.writeframes(b"\0" * silence + frames)
+        with wave.open(str(target), "rb") as result:
+            duration = result.getnframes() / result.getframerate()
+        assert duration < 25, f'Cue exceeds playback timeout: {cue["id"]}'
+        manifest.append({**cue, "seconds": round(duration, 3),
+                         "sha256": hashlib.sha256(target.read_bytes()).hexdigest()})
+(ROOT / "docs/voice-assets.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
+print(f"Generated {len(manifest)} Korean cues; max {max(c['seconds'] for c in manifest)}s; includes 200ms pre-roll.")

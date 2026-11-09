@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- VoiceCoach resolves reviewed cue IDs dynamically, including in release builds. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:keep="@raw/coach_*" />

@@ -1,0 +1,14 @@
+[
+  {
+    "id": "situation_speed_drop",
+    "text": "속도가 줄고 있어요. 차로 변경을 서두르지 말고, 앞차와 주변을 살펴요."
+  },
+  {
+    "id": "situation_speed_rise",
+    "text": "속도가 늘고 있어요. 급한 조작을 줄이고, 주변 흐름을 살펴요."
+  },
+  {
+    "id": "situation_lane_warning",
+    "text": "차량의 경고를 먼저 확인해요. 급하게 차로를 바꾸지 마세요."
+  }
+]
