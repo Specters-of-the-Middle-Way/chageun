@@ -1,49 +1,49 @@
-# Chageun (DriveStep) — AI Agent Skills Index
+# 차근 (Chageun / DriveStep) — AI 에이전트 스킬 인덱스
 
-This `/skills` directory contains the authoritative architectural, domain, SDK, storage, and quality-assurance specifications for **Chageun (`차근`, `kr.drivestep.tutor`)**, an Android Automotive / Pleos Connect driving coach prototype (`v0.9.0+`).
+이 `/skills` 디렉터리는 Pleos Connect / Android Automotive 기반 초보 운전자 코칭 프로토타입 **차근(`차근`, `kr.drivestep.tutor`, `v0.9.0+`)**의 아키텍처, 도메인 가드레일, SDK 연동, 로컬 저장소 및 QA 검증 명세를 담고 있습니다.
 
-AI coding agents (**Codex**, **Antigravity**, and peer subagents) MUST read this index first and load only the skill files relevant to their current task to maximize token efficiency and preserve zero-warning build stability.
+AI 코딩 에이전트(**Codex**, **Antigravity** 및 서브에이전트)는 작업 시작 전 이 인덱스를 먼저 확인하고, 현재 작업에 필요한 영문 스킬 파일(`01`~`06`)만 선택적으로 로드하여 토큰 효율성과 빌드 안정성(Zero-Warning Clean Lint)을 유지해야 합니다.
 
 ---
 
-## Quick Project Metadata
+## 프로젝트 핵심 메타데이터 요약
 
-| Property | Value |
+| 항목 | 설정값 |
 |---|---|
-| **App Name** | `차근` (`@string/app_name`) |
-| **Root Package** | `kr.drivestep.tutor` |
-| **Gradle Project Name** | `DriveStep` |
-| **SDK / Build Config** | `minSdk = 28`, `targetSdk = 35`, `compileSdk = 35`, JDK 17, Kotlin 2.0.0, AGP 8.8.2 |
-| **Vehicle Libraries** | `useLibrary("android.car")` + `implementation("ai.pleos.playground:Vehicle:2.3.2")` |
-| **UI Stack** | Programmatic Android `View` / `LinearLayout` / `Canvas` + Official Pleos Vector Adapters (`PleosUi`, `PleosSwitch`, `PracticeButton`) — **No Jetpack Compose** |
-| **Target Vehicle Spec** | Hyundai IONIQ 3 European Standard Body (`4,430 × 1,870 × 1,560 mm`, wheelbase `2,740 mm`, turning radius `5.32 m`) |
+| **앱 이름** | `차근` (`@string/app_name`) |
+| **루트 패키지** | `kr.drivestep.tutor` |
+| **Gradle 프로젝트명** | `DriveStep` |
+| **SDK / 빌드 환경** | `minSdk = 28`, `targetSdk = 35`, `compileSdk = 35`, JDK 17, Kotlin 2.0.0, AGP 8.8.2 |
+| **차량 라이브러리** | `useLibrary("android.car")` + `implementation("ai.pleos.playground:Vehicle:2.3.2")` |
+| **UI 스택** | 프로그래매틱 Android `View` / `LinearLayout` / `Canvas` + Pleos 공식 벡터 어댑터 (`PleosUi`, `PleosSwitch`, `PracticeButton`) — **Jetpack Compose 미사용** |
+| **기준 차량 제원** | 현대 IONIQ 3 유럽형 일반 차체 (`4,430 × 1,870 × 1,560 mm`, 축거 `2,740 mm`, 최소 회전반경 `5.32 m`) |
 
 ---
 
-## Skill Catalog & Task Routing
+## 스킬 카탈로그 및 작업별 라우팅 가이드
 
-Read the specific skill document(s) matching your task before editing code:
+코드를 수정하기 전에 담당 작업과 일치하는 스킬 문서를 먼저 읽고 규칙을 준수하세요. (개별 스킬 파일 `01`~`06`은 AI 에이전트가 파싱하기 용이하도록 영문으로 작성되어 있습니다.)
 
-1. **[`01-architecture-and-clean-lint.md`](./01-architecture-and-clean-lint.md)**
-   - **When to read:** Creating or modifying any Kotlin class, Android `View`, `Canvas`, or XML resource.
-   - **Covers:** Package map (`design/`, `journey/`, `parking/`, `simulator/`, `contextcoach/`, `vehicle/`, `practice/`, `coach/`, `data/`), the **3-File Modular Pattern (`*Session`/`*State` + `*View` + `*Test`)**, and the **8 Iron Rules for Zero-Warning Android Lint**.
+1. **[`01-architecture-and-clean-lint.md`](./01-architecture-and-clean-lint.md) — 아키텍처 & Clean Lint 8대 규칙**
+   - **언제 읽어야 하는가:** Kotlin 클래스, Android 커스텀 `View`, `Canvas` 렌더링, 또는 XML 리소스를 생성·수정할 때
+   - **포함 내용:** 패키지 구조(`design/`, `journey/`, `parking/`, `simulator/`, `contextcoach/`, `vehicle/`, `practice/`, `coach/`, `data/`), **3-File 모듈형 패턴(`*Session`/`*State` + `*View` + `*Test`)**, `:app:lintDebug` 경고 0건을 유지하기 위한 **8대 Clean Lint 철칙**
 
-2. **[`02-domain-guardrails-and-flowchart.md`](./02-domain-guardrails-and-flowchart.md)**
-   - **When to read:** Implementing or modifying user flows, safety gates, checklists, driving/parking coaching, or post-drive review logic.
-   - **Covers:** The 5 Non-Negotiable Safety Principles, `ParkedGate` (`P` gear + `speed == 0` + UX restriction check), the 11-Page Flowchart state machine (`JourneyState`), and strict separation of **Learning Completion / Confidence / Mastery**.
+2. **[`02-domain-guardrails-and-flowchart.md`](./02-domain-guardrails-and-flowchart.md) — 도메인 안전 가드레일 & 11쪽 플로우차트 상태 머신**
+   - **언제 읽어야 하는가:** 사용자 흐름, 정차 안전 게이트, 출발 전 체크리스트, 주행·주차 코칭, 도착 후 복습 로직을 구현·수정할 때
+   - **포함 내용:** 5대 절대 안전 원칙, `ParkedGate` (`P` 단 + `속도 == 0` + 주행 중 제한 해제 확인), 11쪽 상세 플로우차트 상태 전이(`JourneyState`), **학습 완료 / 운전자 자신감 / 연습 관측 결과** 3대 지표 분리 원칙
 
-3. **[`03-body-profile-and-posture-canvas.md`](./03-body-profile-and-posture-canvas.md)**
-   - **When to read:** Working on `DriverProfile`, `VirtualSeatCalibration`, `PostureGuideBand`, `PostureGuideView`, or the 9-step posture/mirror setup screen.
-   - **Covers:** Height/weight (`heightCm`, `weightKg`) reference guide band calculation, interactive `Canvas` posture & mirror visualization (`PostureGuideView`), neutral `50` calibration rules, and automatic mirror invalidation (`steps 5..7`) when seat or steering changes.
+3. **[`03-body-profile-and-posture-canvas.md`](./03-body-profile-and-posture-canvas.md) — 신체 조건 기반 가이드 구간 & 자세·미러 Canvas 시각화**
+   - **언제 읽어야 하는가:** `DriverProfile`, `VirtualSeatCalibration`, `PostureGuideBand`, `PostureGuideView`, 또는 9단계 자세·미러·벨트 설정 화면을 다룰 때
+   - **포함 내용:** 운전자 키·체중(`heightCm`, `weightKg`) 기반 참고 시작 구간 산출식, 실시간 `Canvas` 자세·미러 시각화(`PostureGuideView`), 중립 기본값(`50`) 유지 원칙, 시트·핸들 변경 시 미러 확인(`5..7`) 자동 무효화 규칙
 
-4. **[`04-pleos-sdk-and-2tier-timeout.md`](./04-pleos-sdk-and-2tier-timeout.md)**
-   - **When to read:** Touching `vehicle/`, `practice/`, `contextcoach/`, or `coach/VoiceCoach.kt`.
-   - **Covers:** AAOS (`android.car`) vs. Pleos Vehicle SDK (`2.3.2`) API priority, the **2-Tier Vehicle I/O Timeout Policy** (`VehicleTimeoutPolicy` — 10s parked connection vs. 1.5s–2.5s active maneuver deadlines), `isInitial = true` snapshot isolation, and signal provenance (`SIMULATION` vs. `SDK`).
+4. **[`04-pleos-sdk-and-2tier-timeout.md`](./04-pleos-sdk-and-2tier-timeout.md) — Pleos Vehicle SDK 2.3.2 & 2-Tier 타임아웃 정책**
+   - **언제 읽어야 하는가:** `vehicle/`, `practice/`, `contextcoach/`, 또는 `coach/VoiceCoach.kt`를 수정할 때
+   - **포함 내용:** AAOS (`android.car`) vs Pleos Vehicle SDK (`2.3.2`) API 우선순위, **2-Tier 차량 I/O 타임아웃 정책**(`VehicleTimeoutPolicy` — 정차 중 초기 연결 10초 vs 주행·주차·실습 행동 중 1.5~2.5초), 초기 스냅샷(`isInitial = true`)과 실제 조작 이벤트 분리, 입력 출처(`SIMULATION` vs `SDK`) 격리
 
-5. **[`05-local-storage-and-voice-assets.md`](./05-local-storage-and-voice-assets.md)**
-   - **When to read:** Modifying persistence (`data/`, `SharedPreferences`, `SQLite`, `AtomicFile`), editing Korean UI strings, or adding/changing `CoachCue` voice prompts.
-   - **Covers:** The 6 local storage schemas, scoped record deletion & consent rules, 3-way voice asset synchronization (`CoachCue` ↔ `res/raw/coach_*.wav` ↔ `res/values/coach_voice_resources.xml`), and Korean beginner-driver copywriting standards (`"룸미러"` instead of `"백미러"`).
+5. **[`05-local-storage-and-voice-assets.md`](./05-local-storage-and-voice-assets.md) — 로컬 저장소 스키마, 음성 에셋 동기화 & 한국어 문구 규칙**
+   - **언제 읽어야 하는가:** 로컬 데이터 저장(`data/`, `SharedPreferences`, `SQLite`, `AtomicFile`), 한국어 UI 문구, 또는 `CoachCue` 음성 안내를 추가·수정할 때
+   - **포함 내용:** 6종 로컬 저장소 스키마 및 보존 정책, 동의 철회와 범위별 삭제 분리, 194개 고정 한국어 음성 3자 동기화(`CoachCue` ↔ `res/raw/coach_*.wav` ↔ `res/values/coach_voice_resources.xml`), 초보 운전자 친화 한국어 표준 용어(`"백미러"` 금지 → `"룸미러"` 사용 등)
 
-6. **[`06-qa-simulation-and-git-workflow.md`](./06-qa-simulation-and-git-workflow.md)**
-   - **When to read:** Running tests, validating changes, adding QA scenarios under `/simulation/test`, or committing/pushing to `main`.
-   - **Covers:** Trunk-based `main` workflow, mandatory Gradle verification gates (`assembleDebug`, `testDebugUnitTest`, `lintDebug`), and the 3-stage `/simulation/test` QA pipeline.
+6. **[`06-qa-simulation-and-git-workflow.md`](./06-qa-simulation-and-git-workflow.md) — QA 시뮬레이션 파이프라인 & Git 워크플로우 (`main`)**
+   - **언제 읽어야 하는가:** 테스트 실행, 변경 사항 검증, `/simulation/test` 시나리오 추가, 또는 `main` 브랜치 커밋·푸시를 수행할 때
+   - **포함 내용:** `main` 브랜치 직접 통합 워크플로우, 푸시 전 필수 Gradle 검증 게이트(`assembleDebug`, `testDebugUnitTest`, `lintDebug`), `/simulation/test` 3단계 QA 파이프라인 및 공모전 시연 체크포인트 운영 가이드
