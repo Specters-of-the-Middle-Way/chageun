@@ -4,6 +4,8 @@
 
 현재 버전은 **v0.9.0**입니다. **Pleos Connect 공식 디자인 에셋의 벡터 아이콘·스위치·체크박스**를 앱에 적용하고, 공식 색상 토큰을 사용하는 밝은 네이티브 UI로 바꿨습니다. 사용자가 제공한 상세 플로우차트에 따라 **프로필 → 자세·미러 설정 → 출발 전 확인 → 가상 주행·주차 → 복습 → 재방문 확인**으로 연결했습니다. 대표 차종은 **IONIQ 3 유럽형 일반 차체**, 데모 체격은 **180cm·78kg(75~80kg 범위), 남성·동양인**입니다.
 
+**처음 받은 팀원:** [설치부터 시작](#setup) → [앱 실행](#run) · [터미널 실행](#terminal) · [문제 해결](#troubleshooting)
+
 ![v0.9 공식 Pleos 에셋을 적용한 프로필 화면](docs/screenshots/70-pleos-profile.png)
 
 ## 주요 기능과 사용 흐름
@@ -20,7 +22,7 @@
 | 복습 | 관측한 가상 조작과 자기 평가를 구분, 동의 시 최근 기록 보관 | 앱의 가상 연습 기록; 실차 운전 점수 아님 |
 | 보조 SDK 실습 | 방향지시등·조향 신호 수신 및 조작 복습 | Pleos 에뮬레이터 SDK; 선택 동의 필요 |
 
-주차는 퀴즈가 아니라 직접 조작하는 연습입니다. **브레이크 유지 → R → 브레이크 해제 → 가속을 조금씩 누름 → 핸들 조정 → 정지 → P → 주차 마침** 순서로 진행합니다. 정렬·충돌 판정은 가상 차체와 가상 공간에만 적용합니다. 후진 주차는 직선 후진 입문 코스이며, 평행 주차에서는 조향을 바꾸며 두 차량 사이에 들어가야 합니다.
+주차는 퀴즈가 아니라 직접 조작하는 연습입니다. **브레이크 유지 → R → 브레이크 유지 해제 → 가속을 조금씩 누름 → 핸들 조정 → 브레이크 유지 다시 켬 → 속도 0 확인 → P → 주차 마침** 순서로 진행합니다. 정렬·충돌 판정은 가상 차체와 가상 공간에만 적용합니다. 후진 주차는 직선 후진 입문 코스이며, 평행 주차에서는 조향을 바꾸며 두 차량 사이에 들어가야 합니다.
 
 자세 보정 값은 0~100의 **가상 수동 설정값**이고 기본값 50은 중립 시작점입니다. 키·체중·성별·인종으로 안전한 시트 좌표를 계산하는 AI는 구현하지 않았습니다. 실제 시트의 이동 범위·페달 위치·신체 치수 검증이 먼저 필요합니다. 시트나 핸들 값을 바꾸면 미러 확인을 다시 하게 합니다.
 
@@ -40,76 +42,285 @@
 
 한국어 TTS와 앱에 포함한 194개 고정 한국어 음성 파일을 사용합니다. TTS를 사용할 수 없을 때는 번들 음성으로 안내하며, LLM으로 주행 상황을 추측해 지시하는 기능은 없습니다.
 
-## 개발 환경
+<a id="setup"></a>
 
-| 항목 | 프로젝트 설정 / 확인 환경 |
-|---|---|
-| 언어·UI | Kotlin, Android View / Canvas |
-| JDK | 17 |
-| Gradle / Android Gradle Plugin | Wrapper 8.10.2 / 8.8.2 |
-| Kotlin Gradle Plugin | 2.0.0 |
-| Android SDK | compileSdk 35, targetSdk 34, minSdk 28 |
-| 차량 SDK | `ai.pleos.playground:Vehicle:2.3.2`, `android.car` |
-| 앱 ID | `kr.drivestep.tutor` |
-| 기존 실행 검증 환경 | Pleos 에뮬레이터 2.1.0 / Android 14 |
+## 팀원 설치 가이드 — 처음 받는 PC 기준
 
-빌드에는 JDK 17, Android SDK Platform 35와 Build Tools가 필요합니다. 실행에는 Pleos 차량 서비스가 제공되는 Automotive 환경이 필요하며, 일반 휴대폰이나 일반 Android 에뮬레이터만으로 차량 연동을 검증할 수 없습니다.
+**진행 순서: 도구 설치 → 소스 받기 → JDK·SDK 설정 → Pleos 이미지·가상 기기 생성 → 앱 실행.** 아래 절차는 저장소 밖에 준비된 개발 도구를 사용하는 방법입니다. 개발자의 `.tooling/`, SDK·AVD·APK·`local.properties`는 GitHub에 포함되지 않습니다.
 
-최초 빌드는 Gradle과 의존성을 내려받으므로 Google Maven, Maven Central 및 [설정된 Pleos Maven 저장소](https://nexus-playground.pleos.ai/repository/maven-releases/)에 접근할 수 있어야 합니다. Pleos SDK 아티팩트와 에뮬레이터 이미지의 제공·접근 조건은 별도로 확인하세요. 배포 경로에 따라 계정이나 접근 권한이 필요할 수 있습니다. 연결 근거는 [SDK 연동 메모](docs/SDK_NOTES.md)에 정리되어 있습니다.
+공식 설치 문서 확인일은 **2026-11-09**입니다. 메뉴 이름은 Android Studio 버전에 따라 조금 다를 수 있습니다. 앱의 기존 실행 검증 환경은 **macOS Apple Silicon / Pleos 2.1.0 / Android 14**이며, Windows·Linux의 설치 단계는 공식 가이드 기준입니다.
 
-**개발자가 사용한 `.tooling/`의 Android SDK·에뮬레이터·AVD와 `local.properties`는 저장소에 포함하지 않습니다.** 각 개발 환경에서 도구와 Pleos 이미지를 준비해야 합니다.
+### 1. Android Studio와 Git 설치
 
-## 소스 받기와 빌드
+1. [Android Studio 공식 다운로드·설치 안내](https://developer.android.com/studio/install)에서 **안정 버전**을 설치합니다. Mac은 CPU에 맞는 설치 파일을, Windows는 설치 프로그램을 선택합니다.
+2. 처음 실행되는 Setup Wizard를 끝까지 진행해 기본 Android SDK 도구를 받습니다.
+3. 터미널에서 소스를 받을 팀원은 [Git](https://git-scm.com/downloads/)도 설치하고 `git --version`이 출력되는지 확인합니다. Git 없이 시작하려면 다음 단계의 ZIP 방식을 사용합니다.
+
+PC 메모리는 Studio와 Emulator를 함께 실행할 때 **최소 16 GB, 권장 32 GB**를 기준으로 확인하세요. Windows/Linux의 Intel·AMD PC는 하드웨어 가상화도 켜져 있어야 합니다. Windows/Linux ARM PC는 현재 Android Studio 공식 지원 대상이 아닙니다. 자세한 OS·GPU 요구사항은 위 공식 설치 안내를 따릅니다.
+
+이 프로젝트의 **AGP 8.8.2**를 지원하는 Studio를 사용합니다. Ladybug Feature Drop 2024.2.2부터 해당 AGP 계열을 지원하며, 새로 설치할 때는 [공식 호환 표](https://developer.android.com/studio/releases#android_gradle_plugin_and_android_studio_compatibility)를 확인하세요. 프로젝트가 제안하는 **AGP·Gradle 업그레이드는 일단 적용하지 않고**, 저장소에 고정된 버전으로 첫 실행을 맞춥니다.
+
+### 2. GitHub에서 받기 → 프로젝트 열기
+
+터미널 또는 Windows PowerShell에서 프로젝트를 보관할 폴더로 이동한 뒤 실행합니다.
 
 ```bash
-git clone https://github.com/Specters-of-the-Middle-Way/chageun.git
+git clone --branch main https://github.com/Specters-of-the-Middle-Way/chageun.git
 cd chageun
 ```
 
-### Android Studio
+Git 없이 받으려면 GitHub의 **Code → Download ZIP**을 선택하고 압축을 풉니다. 이 경우 폴더 이름은 보통 `chageun-main`이며 이후 업데이트는 다시 내려받아야 합니다.
 
-1. AGP 8.8.2를 지원하는 Android Studio에서 저장소 루트의 `settings.gradle.kts`를 엽니다.
-2. Gradle JDK를 **17**로 설정하고 SDK Manager에서 Android SDK Platform 35와 필요한 Build Tools를 설치합니다.
-3. SDK 위치를 설정하고 Gradle Sync를 실행합니다. SDK 의존성 다운로드가 실패하면 저장소 접근과 Pleos 아티팩트 제공 상태를 확인합니다.
-4. 별도로 준비한 Pleos 에뮬레이터를 시작하고 `app`의 `debug` 변형을 실행합니다.
+Android Studio의 **Open** 또는 **File → Open**에서 `chageun` 폴더를 선택합니다. **`settings.gradle.kts`, `gradlew`, `app/`가 함께 들어 있는 최상위 폴더**를 여세요. `app/`만 열거나 새 Android 프로젝트를 만들 필요는 없습니다. 처음 열었을 때 Sync가 실패해도 다음 단계에서 JDK·SDK를 지정한 뒤 다시 실행하면 됩니다.
 
-### 명령행
+### 3. Gradle JDK 17과 Android SDK 설치
 
-다음 경로는 예시입니다. 설치된 JDK와 Android SDK 경로로 바꾸세요. Windows에서는 `./gradlew` 대신 `gradlew.bat`를 사용합니다.
+**JDK 설정**
+
+1. Windows/Linux는 **File → Settings**, macOS는 **Android Studio → Settings**를 엽니다.
+2. **Build, Execution, Deployment → Build Tools → Gradle → Gradle JDK**로 이동합니다.
+3. **JDK 17**을 선택합니다. 없으면 **Download JDK**에서 버전 17을 받거나 **Add JDK**로 이미 설치한 JDK 17 경로를 지정합니다.
+4. 터미널 빌드도 사용할 경우 이 설치 경로를 기록합니다. 아래 명령의 `JAVA_HOME`에 같은 경로를 넣습니다.
+
+IDE를 실행하는 내장 런타임과 프로젝트를 빌드하는 Gradle JDK는 별도 설정입니다. Android Studio 자체 런타임을 바꾸는 대신 **Gradle JDK만 17로 지정**합니다. [Android 공식 JDK 설정](https://developer.android.com/build/jdks)
+
+**SDK 설정**
+
+**Tools → SDK Manager**를 엽니다. 시작 화면에서는 **More Actions → SDK Manager**로 들어갈 수 있습니다.
+
+| 탭 | 설치할 항목 | 용도 |
+|---|---|---|
+| SDK Platforms | **Android 15 / API 35 / Android SDK Platform 35** | 앱 컴파일, `android.car` 컴파일 라이브러리 |
+| SDK Tools | **Android SDK Build-Tools 35.0.0** | APK 빌드; 안 보이면 Show Package Details 선택 |
+| SDK Tools | **Android SDK Platform-Tools** | `adb`로 기기 연결·앱 설치 |
+| SDK Tools | **Android Emulator** | 가상 기기 실행 |
+| SDK Tools | Android SDK Command-line Tools (latest) | 선택: `sdkmanager` 등 명령행 SDK 관리 |
+
+선택 후 **Apply / OK**로 다운로드를 완료합니다. Build Tools 35.0.0은 AGP 8.8의 기본 버전이며, 별도의 `buildToolsVersion` 설정을 추가할 필요는 없습니다. [AGP 8.8 공식 호환 정보](https://developer.android.com/build/releases/agp-8-8-0-release-notes)
+
+**빌드용 SDK 35와 실행용 Pleos API 34 이미지는 서로 다릅니다.** 다음 단계의 이미지가 API 34여도 `compileSdk`를 34로 낮추지 마세요. SDK Platform 34 자체는 이 앱의 컴파일 필수 항목이 아닙니다.
+
+SDK Manager 상단의 **Android SDK Location**을 확인하세요. 보통 다음 위치지만 실제 표시된 경로를 우선합니다.
+
+| OS | 일반적인 SDK 경로 |
+|---|---|
+| macOS | `$HOME/Library/Android/sdk` |
+| Windows | `%LOCALAPPDATA%\Android\Sdk` |
+| Linux | `$HOME/Android/Sdk` |
+
+Android Studio가 SDK 위치를 인식하면 루트의 `local.properties`에 `sdk.dir`을 기록합니다. 팀원별로 다른 로컬 파일이므로 Git에 올리지 않습니다.
+
+이제 **File → Sync Project with Gradle Files** 또는 **Sync Now**를 실행합니다. 필요한 Gradle Wrapper·Kotlin·Vehicle SDK는 프로젝트 설정으로 내려받습니다. **Gradle 별도 설치, AAR 수동 복사, Python·Node·NDK 설치, 음성 파일 재생성은 앱 실행에 필요하지 않습니다.**
+
+<details>
+<summary>현재 프로젝트의 버전 확인표</summary>
+
+| 항목 | 값 |
+|---|---|
+| JDK / Java·Kotlin 대상 | 17 |
+| Gradle Wrapper / Android Gradle Plugin | 8.10.2 / 8.8.2 |
+| Kotlin Plugin | 2.0.0 |
+| compileSdk / targetSdk / minSdk | 35 / 34 / 28 |
+| Vehicle SDK | `ai.pleos.playground:Vehicle:2.3.2` |
+| 앱 ID / 실행 Activity | `kr.drivestep.tutor` / `.MainActivity` |
+| 검증한 실행 이미지 | Pleos Connect 2.1.0, Android 14(API 34) |
+
+Pleos Maven 저장소는 [settings.gradle.kts](settings.gradle.kts)에 이미 등록되어 있습니다. 첫 Sync에는 Google Maven, Maven Central, Gradle 배포 서버와 Pleos Maven에 접근할 수 있는 네트워크가 필요합니다.
+
+</details>
+
+### 4. Pleos 이미지 설치 → 가상 기기 만들기
+
+**이미지 등록·설치**
+
+1. **Tools → SDK Manager → SDK Update Sites → +**를 엽니다.
+2. Name은 `Pleos Connect System Image`, URL은 아래의 본인 환경에 해당하는 주소를 입력합니다.
+
+| 환경 | SDK Update Site URL |
+|---|---|
+| Mac / Apple Silicon (`arm64-v8a`) | `https://nexus-playground.pleos.ai/repository/raw-releases/connect-avd/2.x/crp-arm64-sys-img.xml` |
+| Windows·Linux / Intel·AMD (`x86_64`) | `https://nexus-playground.pleos.ai/repository/raw-releases/connect-avd/2.x/crp-sys-img.xml` |
+
+3. **SDK Platforms → Show Package Details**를 켜고, **Android 14 / API 34** 아래 **Pleos Connect v2.1.0 APIs** 시스템 이미지를 설치합니다.
+4. 설치 후 Android Studio를 **재시작**합니다.
+
+위 주소는 [Pleos 공식 설치 문서](https://document.pleos.ai/docs/connect/guide/getting-started/application-development/setup-connect-sdk-emulator)의 공개 주소입니다. Mac용 주소는 ARM 이미지이므로 Intel Mac 사용자는 지원되는 이미지·실행 환경을 별도로 확인하세요.
+
+**AVD(Android Virtual Device) 생성**
+
+1. **Tools → Device Manager → Create device**로 들어갑니다.
+2. **Automotive → Pleos Connect v2.1.0**을 선택합니다.
+3. 이름은 팀에서 알아보기 쉽게 `DriveStep_Pleos`로 정합니다. 다른 이름도 가능하지만 명령행 실행 시 같은 이름을 써야 합니다.
+4. **Advanced Settings / Show Advanced Settings**에서 **Cold / Cold boot**, **RAM 4 GB**를 지정합니다. 기존 UI에서 Graphics 항목을 선택해야 하면 공식 안내에 따라 **Hardware**를 사용합니다.
+5. 시스템 이미지로 **API 34 / Pleos Connect v2.1.0 APIs**를 선택하고 **Finish**를 누릅니다. Studio 버전에 따라 이미지 선택과 고급 설정의 순서는 달라질 수 있습니다.
+6. Device Manager의 실행 버튼을 누르고 **플레오스 자동차 홈 화면**이 나타날 때까지 기다립니다.
+
+일반 Pixel 가상 기기는 Pleos 차량 서비스 테스트 환경을 제공하지 않습니다. 또한 공식 문서는 Quick boot에서 VHAL을 사용할 수 없다고 안내하므로 **Cold boot**를 사용합니다. [Pleos 에뮬레이터 설정](https://document.pleos.ai/docs/connect/guide/getting-started/application-development/configure-pleos-connect-emulator)
+
+현재 저장소 실행에는 별도로 입력할 API 키·클라이언트 시크릿이 없습니다. 공식 안내상 **Pleos 2.1.0부터 CRN 입력이 필요 없고 Vehicle State는 별도 신청 없이 사용 가능**합니다. 공모전 앱 등록·팀 프로젝트 관리는 [Pleos 프로젝트·SDK 안내](https://document.pleos.ai/docs/pleos-only/create-my-project)를 따릅니다.
+
+<a id="run"></a>
+
+### 5. Android Studio에서 앱 실행
+
+1. 플레오스 에뮬레이터를 켜 둡니다.
+2. Android Studio 상단 실행 구성을 **`app`**, 실행 대상 기기를 **`DriveStep_Pleos`**로 선택합니다.
+3. **Build → Select Build Variant** 또는 **View → Tool Windows → Build Variants**에서 `app`을 **`debug`**로 선택합니다.
+4. **Run ▶**을 누릅니다. 처음에는 의존성 다운로드와 빌드에 시간이 걸립니다.
+5. 차량 화면에 **드라이브스텝 → 운전자 설정**이 나타나면 성공입니다. 기존 기록이 있는 기기에는 **운전자와 차량 확인**이 먼저 나올 수 있습니다.
+
+APK 경로는 `app/build/outputs/apk/debug/app-debug.apk`입니다. 앱 설치에 성공했는데 화면이 열리지 않으면 아래 터미널 방법의 `am start --user current` 명령으로 **현재 차량 사용자**에서 실행하세요.
+
+### 6. 처음 실행했을 때 해볼 순서
+
+1. 에뮬레이터 차량을 **P·속도 0** 상태로 둡니다. 상태를 바꿔야 하면 아래 Virtual Console을 사용합니다.
+2. **운전자**에서 체격과 운전 경험을 확인합니다. 복습을 저장하려면 **프로필·연습 기록**을 켭니다. 꺼도 준비 과정과 가상 연습은 가능합니다.
+3. 아래의 **운전 환경 설정**을 누릅니다. 시트·핸들·미러 등 9개 설명에서 **조절 및 확인 완료**를 진행하고, **출발 준비**의 7개 항목을 모두 확인한 뒤 **연습 선택**을 누릅니다.
+4. **연습 → 주차**에서 후진 또는 평행 주차를 선택합니다. 화면 속 **브레이크 유지 → R → 브레이크 유지 해제 → 가속을 조금씩 누름 → 브레이크 유지 다시 켬 → 속도 0 확인 → P → 주차 마침**을 조작합니다. 조향은 화면의 가상 핸들을 씁니다.
+5. **연습 → 차로 변경**에서는 안내에 맞춰 화면 속 깜빡이·미러·핸들을 조작합니다. 화면의 음성 안내 스위치와 PC·에뮬레이터 음량을 확인하세요.
+
+**앱 화면의 가상 R/D와 에뮬레이터 차량 자체의 R/D는 다릅니다.** 가상 연습을 위해 Virtual Console에서 실제 차량 기어를 R/D로 바꾸면 정차 사용 제한 때문에 연습이 멈춥니다.
+
+SDK 신호까지 확인하려면 **운전자**에서 기록과 차량 조작 신호 동의를 모두 켜고 **정차 중 교육 → 방향지시등 조작 / 핸들 조작**으로 들어갑니다. 핸들 실습에서 **차량 속도 읽기 허용** 버튼이 나오면 눌러 권한을 선택합니다. 일반 가상 연습의 첫 화면에서 무조건 필요한 권한 단계는 아닙니다.
+
+### 7. Virtual Console 연결 — 차량 상태·SDK 실습용
+
+아래 터미널 환경 설정으로 `adb`를 찾을 수 있게 한 뒤 실행합니다. `emulator-5554`는 예시이므로 **`adb devices`에 실제 표시된 serial**로 바꾸세요. 한 대만 실행해도 `-s`로 대상을 지정하면 혼동을 줄일 수 있습니다.
 
 ```bash
+adb devices
+adb -s emulator-5554 forward tcp:8088 tcp:8088
+```
+
+PC 브라우저에서 [Virtual Console](http://127.0.0.1:8088/)을 엽니다. **Emulation Controls → Motion → Gear Selection**에서 P를 확인하고, 차량 화면의 속도가 0인지 확인합니다. SDK 실습에서는 해당 방향지시등·조향 입력을 바꿔 앱의 수신을 확인할 수 있습니다. 콘솔은 Pleos 2.1.0 이상이 필요합니다. [공식 Console 연결 안내](https://document.pleos.ai/docs/connect/guide/getting-started/application-development/use-vehicle-emulator)
+
+<a id="terminal"></a>
+
+## 터미널로 빌드·실행하기 — 선택
+
+Android Studio의 **Run**으로 실행한 팀원은 이 절차를 생략해도 됩니다. 아래 명령은 **프로젝트 루트**에서 실행합니다. JDK·SDK는 앞 단계에서 설치한 경로를 사용하며 환경 변수 설정은 현재 터미널에만 적용됩니다.
+
+### macOS / Linux
+
+```bash
+# Android Studio에서 선택한 JDK 17의 실제 경로로 변경
 export JAVA_HOME="/path/to/jdk-17"
-export ANDROID_HOME="/path/to/android-sdk"
+
+# SDK Manager의 Android SDK Location과 같은 경로 사용
+export ANDROID_HOME="$HOME/Library/Android/sdk" # macOS 기본 위치
+# Linux 기본 위치라면 위 줄 대신: export ANDROID_HOME="$HOME/Android/Sdk"
 export PATH="$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
 
-./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
+java -version
+./gradlew --version
+./gradlew :app:assembleDebug
+
+# Android Studio에서 이미 실행 중이면 다음 두 줄은 생략
+emulator -list-avds
+emulator -avd DriveStep_Pleos -no-snapshot -memory 4096
 ```
 
-Debug APK는 `app/build/outputs/apk/debug/app-debug.apk`에 생성됩니다. `:app:assembleRelease`로 release 빌드도 확인할 수 있으며, 배포용 서명 설정은 별도로 구성해야 합니다.
-
-macOS/Linux에서는 `./scripts/build.sh`로 같은 debug 빌드·단위 테스트·lint를 실행할 수 있습니다. 이 스크립트는 `scripts/env.sh`를 통해 환경을 찾으며, 프로젝트에 `.tooling/android-sdk`가 있으면 해당 SDK를 우선 사용합니다.
-
-## Pleos 에뮬레이터 실행
-
-Pleos 이미지를 별도로 설치하고 AVD를 만든 뒤 실행합니다. AVD 이름은 자신의 환경에 맞게 바꿀 수 있습니다.
-
-```bash
-DRIVESTEP_AVD="your-pleos-avd" ./scripts/run-emulator.sh
-```
-
-부팅이 끝나면 다른 터미널에서 위의 SDK 환경 변수를 설정하고 앱을 설치합니다. 기기가 여러 대 연결되어 있으면 `adb devices`에서 대상 에뮬레이터를 확인해 `ANDROID_SERIAL`을 지정하세요.
+터미널에서 에뮬레이터를 실행하면 그 창을 계속 사용하므로 **새 터미널**을 열어 위 환경 변수를 다시 설정하고, 프로젝트 루트로 이동한 뒤 설치합니다.
 
 ```bash
 adb devices
 export ANDROID_SERIAL="emulator-5554" # 실제 대상 serial로 변경
-./scripts/install.sh
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb shell am start --user current -n kr.drivestep.tutor/.MainActivity
+adb forward tcp:8088 tcp:8088
 ```
 
-`install.sh`는 debug APK를 `adb install -r`로 설치하고 현재 차량 사용자로 앱을 엽니다. 기존 앱 데이터를 지우지 않으며, Virtual Console용 `8088` 포트를 전달합니다. [로컬 Virtual Console](http://127.0.0.1:8088/) 또는 debug 앱의 에뮬레이터 조작 패널로 SDK 신호를 시험할 수 있습니다. PC용 한국어 시험 패널은 `python3 scripts/control-panel.py` 실행 후 [로컬 시험 패널](http://127.0.0.1:8090/)에서 사용할 수 있습니다.
+### Windows PowerShell
 
-`scripts/launch-tutor.command`는 **기존 개발 환경의 `.tooling/avd/DriveStep_Pleos.avd`가 준비된 macOS용 도우미**입니다. clone만 한 환경에서 바로 실행되는 설치 도구가 아니며, APK가 이미 있으면 다시 빌드하지 않으므로 소스 변경 후 먼저 빌드해야 합니다.
+```powershell
+# Android Studio에서 선택한 JDK 17의 실제 경로로 변경
+$env:JAVA_HOME = "C:\path\to\jdk-17"
+$env:ANDROID_HOME = "$env:LOCALAPPDATA\Android\Sdk"
+$env:Path = "$env:JAVA_HOME\bin;$env:ANDROID_HOME\platform-tools;$env:ANDROID_HOME\emulator;$env:Path"
+
+java -version
+.\gradlew.bat --version
+.\gradlew.bat :app:assembleDebug
+
+# Android Studio에서 이미 실행 중이면 다음 두 줄은 생략
+emulator -list-avds
+Start-Process -FilePath "$env:ANDROID_HOME\emulator\emulator.exe" -ArgumentList "-avd", "DriveStep_Pleos", "-no-snapshot", "-memory", "4096"
+
+# 자동차 홈 화면이 완전히 나타난 뒤 실행
+adb devices
+$env:ANDROID_SERIAL = "emulator-5554" # 실제 대상 serial로 변경
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb shell am start --user current -n kr.drivestep.tutor/.MainActivity
+adb forward tcp:8088 tcp:8088
+```
+
+설치 명령의 `-r`은 기존 앱 데이터를 유지한 채 업데이트합니다. Windows에서는 `.sh`·`.command` 대신 위 PowerShell 명령을 사용합니다.
+
+<details>
+<summary>저장소에 있는 보조 스크립트의 사용 범위</summary>
+
+macOS/Linux에서 JDK·SDK 환경 변수를 먼저 설정한 뒤 사용할 수 있습니다.
+
+```bash
+./scripts/build.sh  # debug APK + 단위 테스트 + lint
+DRIVESTEP_AVD="DriveStep_Pleos" ./scripts/run-emulator.sh
+./scripts/install.sh # APK가 이미 빌드돼 있고 에뮬레이터가 켜진 상태
+```
+
+`env.sh`는 `.tooling/android-sdk`가 있으면 그 경로를 우선합니다. clone한 팀원의 환경에는 없으므로 본인의 SDK를 사용합니다. `install.sh`는 현재 차량 사용자로 앱을 열고 8088 포트를 연결합니다. 선택 도구인 PC용 한국어 시험 패널은 Python 설치 후 `python3 scripts/control-panel.py`로 실행하고 `http://127.0.0.1:8090/`에서 엽니다.
+
+**`scripts/launch-tutor.command`는 원래 개발자의 `.tooling/avd/DriveStep_Pleos.avd`를 사용하는 도우미입니다.** 팀원이 Android Studio의 기본 위치에 만든 AVD를 자동으로 찾는 설치 프로그램이 아니므로 첫 실행 방법으로 사용하지 마세요. 또한 기존 APK가 있으면 자동 재빌드하지 않습니다.
+
+</details>
+
+<a id="troubleshooting"></a>
+
+## 실행이 안 될 때
+
+| 증상 | 먼저 확인할 내용 |
+|---|---|
+| 프로젝트가 아닌 폴더처럼 열리거나 `app` 실행 구성이 없음 | `settings.gradle.kts`가 있는 루트를 열었는지, Gradle Sync가 끝났는지 확인 |
+| JDK 관련 오류 / `Unsupported class file major version` | Gradle JDK와 터미널 `JAVA_HOME`을 17로 맞추고 재Sync. `java -version`과 Wrapper의 `--version`도 확인 |
+| `SDK location not found` | SDK Manager의 Location을 확인하고 Studio에서 SDK 경로 지정. `local.properties` 예시는 아래 참고 |
+| `android-35` / Build Tools / `android.car`를 찾지 못함 | SDK Platform 35와 Build Tools 35.0.0 설치 완료 확인. API 34 이미지 설치만으로 컴파일 SDK가 준비되지는 않음 |
+| Pleos 이미지·하드웨어 프로필이 안 보임 | OS별 SDK Update Site가 활성화됐는지, Show Package Details의 API 34 이미지 설치 여부 확인 후 Studio 재시작 |
+| Vehicle SDK 다운로드 실패 / 401·403·404 | [Pleos Maven](https://nexus-playground.pleos.ai/repository/maven-releases/) 접근, 프록시·방화벽과 `Vehicle:2.3.2` 제공 상태 확인. 저장소 주소나 SDK 버전을 임의로 바꾸기 전에 팀에 공유 |
+| 가상 기기가 안 켜지거나 검은 화면 | CPU와 이미지 ABI 일치, 가상화·RAM·GPU 드라이버 확인. Device Manager에서 Cold Boot 실행. [공식 문제 해결](https://developer.android.com/studio/run/emulator-troubleshooting) 참고 |
+| `adb` 명령을 찾을 수 없음 | SDK Platform-Tools 설치 후 해당 터미널의 PATH에 SDK `platform-tools` 추가 |
+| `more than one device/emulator` | `adb devices`로 확인해 `adb -s 실제_serial …` 또는 `ANDROID_SERIAL` 지정 |
+| 설치는 됐는데 앱이 안 열림 | `adb shell am start --user current -n kr.drivestep.tutor/.MainActivity` 실행. 기기가 여러 대면 위와 같이 대상 지정 |
+| 준비·연습 버튼이 비활성화 | 실제 에뮬레이터 차량 P·속도 0, 차량 서비스 연결, 운전 환경 9개·출발 확인 7개 완료 여부 확인 |
+| SDK 실습이 연결되지 않음 | 기록·차량 신호 동의, 해당 실습의 권한, Cold boot 확인. `정차 중 교육 → 핸들 조작`은 속도 읽기 권한도 확인 |
+| Console `127.0.0.1:8088`에 접속되지 않음 | Pleos 2.1.0 이상·완전 부팅 확인 후 포트 전달 재실행. PC의 8088 포트 사용 여부 확인 |
+| 소리가 안 나옴 | 앱의 음성 안내 스위치, 에뮬레이터 미디어 음량, PC 음소거·출력 장치 확인. 번들 음성이 있으므로 음성 생성 작업은 불필요 |
+| Mac/Linux에서 `gradlew` 권한 오류 | 프로젝트 루트에서 `chmod +x gradlew` 후 다시 실행 |
+| `INSTALL_FAILED_UPDATE_INCOMPATIBLE` | 같은 앱 ID의 기존 APK와 서명키가 다른 경우. 팀의 기존 서명키 사용 여부를 확인하고, 데이터를 보관할 필요가 있는지 확인한 뒤 재설치 여부 결정 |
+
+`local.properties`를 직접 만들어야 한다면 **SDK Location을 본인 경로로 치환**합니다. 둘 중 해당 OS의 한 줄만 사용합니다. Windows는 `/`로 적으면 역슬래시 이스케이프 문제를 피할 수 있습니다.
+
+```properties
+# macOS 예시
+sdk.dir=/Users/your-name/Library/Android/sdk
+# Windows 예시
+# sdk.dir=C:/Users/your-name/AppData/Local/Android/Sdk
+```
+
+해결되지 않으면 팀에 **OS·CPU, Android Studio 버전, `java -version`, `gradlew --version`, `adb devices`, Build/Logcat의 첫 오류와 재현 단계**를 함께 전달하세요. 계정 비밀키나 개인 SDK 경로 전체를 공개 이슈에 복사할 필요는 없습니다.
+
+### 이후 업데이트 받기
+
+Git clone으로 받은 팀원은 프로젝트 루트에서 실행합니다. 작업 중인 변경이 있으면 먼저 팀 작업 방식에 맞춰 커밋하거나 보관하세요.
+
+```bash
+git status
+git pull --ff-only origin main
+```
+
+다시 **Gradle Sync → Pleos 실행 → Run** 순서로 실행합니다. 터미널 방식이라면 `assembleDebug` 후 APK를 다시 설치합니다.
 
 ## 테스트와 검증 기록
+
+**설치 가이드 확인(2026-11-09):** GitHub `main`을 새 폴더에 clone하고, 외부 JDK 17·SDK 35와 기존 Gradle 캐시를 사용해 `:app:assembleDebug`가 성공하는 것을 확인했습니다. clone 안에 개발자의 `.tooling/`이나 `local.properties`를 복사하지 않았습니다. 이 확인은 macOS의 새 checkout 빌드이며, Windows·Linux에서 도구 설치 전체를 직접 재현했다는 의미는 아닙니다.
 
 단위 테스트는 상황 감지 규칙, 방향지시등·조향 상태 전이, 가상 주행 과정과 기존 학습 과정을 다룹니다. 로컬 저장소의 Android 계측 테스트는 `app/src/androidTest`에 있습니다.
 
