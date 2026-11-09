@@ -1,0 +1,30 @@
+{
+  "id": "03_body_preset_and_mirror_reset",
+  "title": "Driver Body Profile Guide Bands, Canvas Diagram & Mirror Invalidation",
+  "flowchartPages": ["02", "03", "04"],
+  "targetClasses": [
+    "kr.drivestep.tutor.journey.DriverProfile",
+    "kr.drivestep.tutor.journey.JourneyState",
+    "kr.drivestep.tutor.journey.PostureGuideView"
+  ],
+  "steps": [
+    {
+      "action": "Initialize JourneyState and update DriverProfile(heightCm=190, weightKg=90)",
+      "expected": {
+        "defaultCalibrationRemainsNeutral50": true,
+        "foreAftRecommendedCenterGreaterThan50": true,
+        "heightRecommendedCenterLessThan50": true
+      }
+    },
+    {
+      "action": "Complete all 9 setup steps and all 7 preflight checks, then call applyRecommendedPreset() or setCalibration()",
+      "expected": {
+        "calibrationMatchesRecommended": true,
+        "modifiedSeatAndSteeringStepsResetToFalse": [0, 1, 2, 4],
+        "mirrorStepsAutomaticallyInvalidated": [5, 6, 7],
+        "preflightChecksResetToZero": true,
+        "canPractice": false
+      }
+    }
+  ]
+}

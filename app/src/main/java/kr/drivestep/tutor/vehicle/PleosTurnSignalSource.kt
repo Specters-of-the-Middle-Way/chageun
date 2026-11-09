@@ -42,7 +42,11 @@ class PleosTurnSignalSource(context: Context) : TurnSignalSource {
                 session.initialize()
                 val signals = session.getTurnSignal()
                 api = signals
-                armDeadline(token, "차량 서비스의 기능 확인 응답이 없습니다. Pleos 에뮬레이터를 확인하고 다시 연결해 주세요.")
+                armDeadline(
+                    token,
+                    "차량 서비스의 기능 확인 응답이 없습니다. Pleos 에뮬레이터를 확인하고 다시 연결해 주세요.",
+                    VehicleTimeoutPolicy.PARKED_CONNECT_TIMEOUT_MS,
+                )
                 signals.checkTurnSignalStateCapabilities(
                     onComplete = { capabilities -> dispatch(token) {
                         clearDeadline()
@@ -99,7 +103,11 @@ class PleosTurnSignalSource(context: Context) : TurnSignalSource {
     private fun readSnapshot(token: Long) {
         val signals = api ?: return
         val updatesAtRequest = updateSequence
-        armDeadline(token, "차량 신호 확인이 지연되어 실습을 멈춥니다. 다시 연결해 주세요.")
+        armDeadline(
+            token,
+            "차량 신호 확인이 지연되어 실습을 멈춥니다. 다시 연결해 주세요.",
+            VehicleTimeoutPolicy.ACTIVE_READ_TIMEOUT_MS,
+        )
         try {
             signals.getCurrentTurnSignalState(
                 onComplete = { value ->
@@ -139,14 +147,14 @@ class PleosTurnSignalSource(context: Context) : TurnSignalSource {
         heartbeat?.let(main::removeCallbacks)
         heartbeat = Runnable {
             if (token == generation && vehicle != null) readSnapshot(token)
-        }.also { main.postDelayed(it, 3_000L) }
+        }.also { main.postDelayed(it, VehicleTimeoutPolicy.TURN_SIGNAL_HEARTBEAT_MS) }
     }
 
-    private fun armDeadline(token: Long, message: String) {
+    private fun armDeadline(token: Long, message: String, timeoutMillis: Long) {
         clearDeadline()
         deadline = Runnable {
             if (token == generation && vehicle != null) fail(token, SourceState.ERROR, message)
-        }.also { main.postDelayed(it, 10_000L) }
+        }.also { main.postDelayed(it, timeoutMillis) }
     }
 
     private fun clearDeadline() {

@@ -1,8 +1,23 @@
 package kr.drivestep.tutor.journey
 
+import kotlin.math.roundToInt
+
 enum class JourneyDestination { DRIVE, PARKING, SIGNAL, STEERING, LEGACY, CONTEXT }
 enum class JourneyStep { PROFILE, REVISIT, SETUP, PREFLIGHT, PRACTICE, EDUCATION, REVIEW }
 enum class CalibrationAxis { FORE_AFT, HEIGHT, BACKREST, STEERING }
+
+/**
+ * Heuristic reference band derived from driver height/weight for visual guidance only.
+ * Neutral 50 remains the initial default until the user adjusts the slider or applies
+ * the reference preset. Final confirmation always requires direct physical verification.
+ */
+data class PostureGuideBand(
+    val recommendedCenter: Int,
+    val minRecommended: Int,
+    val maxRecommended: Int,
+) {
+    fun contains(value: Int): Boolean = value in minRecommended..maxRecommended
+}
 
 /** User-specified demonstration metadata, not an anthropometric seat-fitting model. */
 data class DriverProfile(
@@ -13,8 +28,36 @@ data class DriverProfile(
     val guidance: String = "차근차근",
     val difficulty: String = "주차",
 ) {
-    fun validated() = copy(heightCm = heightCm.coerceIn(150, 200), weightKg = weightKg.coerceIn(50, 110),
-        confidence = confidence.coerceIn(1, 5))
+    fun validated() = copy(
+        heightCm = heightCm.coerceIn(150, 200),
+        weightKg = weightKg.coerceIn(50, 110),
+        confidence = confidence.coerceIn(1, 5),
+    )
+
+    fun guideBand(axis: CalibrationAxis): PostureGuideBand {
+        val safe = validated()
+        val heightDelta = safe.heightCm - 175
+        val weightDelta = safe.weightKg - 75
+        val center = when (axis) {
+            CalibrationAxis.FORE_AFT -> (50 + (heightDelta * 0.48).roundToInt()).coerceIn(25, 75)
+            CalibrationAxis.HEIGHT -> (50 - (heightDelta * 0.44).roundToInt()).coerceIn(25, 75)
+            CalibrationAxis.BACKREST -> (50 + (weightDelta * 0.20).roundToInt()).coerceIn(35, 65)
+            CalibrationAxis.STEERING -> (50 + (heightDelta * 0.28).roundToInt()).coerceIn(30, 70)
+        }
+        val halfSpan = 8
+        return PostureGuideBand(
+            recommendedCenter = center,
+            minRecommended = (center - halfSpan).coerceAtLeast(0),
+            maxRecommended = (center + halfSpan).coerceAtMost(100),
+        )
+    }
+
+    fun recommendedCalibration(): VirtualSeatCalibration = VirtualSeatCalibration(
+        foreAft = guideBand(CalibrationAxis.FORE_AFT).recommendedCenter,
+        height = guideBand(CalibrationAxis.HEIGHT).recommendedCenter,
+        backrest = guideBand(CalibrationAxis.BACKREST).recommendedCenter,
+        steering = guideBand(CalibrationAxis.STEERING).recommendedCenter,
+    )
 }
 
 /** Neutral 50 is a display starting point. These values have no mm/degree/SDK mapping. */
@@ -72,6 +115,7 @@ class JourneyState(
     val preflightCompletedCount get() = preflight.count { it }
     fun setupChecks(): List<Boolean> = setup.toList()
     fun preflightChecks(): List<Boolean> = preflight.toList()
+    fun guideBand(axis: CalibrationAxis): PostureGuideBand = profile.guideBand(axis)
 
     fun updateProfile(next: DriverProfile) {
         val safe = next.validated()
@@ -100,6 +144,25 @@ class JourneyState(
         }
         setup[ownStep] = false
         // A changed eye/arm position invalidates all previously checked mirror views.
+        for (i in 5..7) setup[i] = false
+        preflight.fill(false)
+    }
+
+    fun applyRecommendedPreset() {
+        val next = profile.recommendedCalibration()
+        if (next == calibration) return
+        val changedAxes = CalibrationAxis.entries.filter { calibration.value(it) != next.value(it) }
+        calibration = next
+        changedAxes.forEach { axis ->
+            val ownStep = when (axis) {
+                CalibrationAxis.FORE_AFT -> 0
+                CalibrationAxis.HEIGHT -> 1
+                CalibrationAxis.BACKREST -> 2
+                CalibrationAxis.STEERING -> 4
+            }
+            setup[ownStep] = false
+        }
+        // Applying a new posture starting preset invalidates all mirror confirmations.
         for (i in 5..7) setup[i] = false
         preflight.fill(false)
     }

@@ -215,4 +215,41 @@ class JourneyStateTest {
         assertFalse(state.enterPractice())
         assertEquals(JourneyStep.PROFILE, state.page)
     }
+
+    @Test fun recommendedGuideBandScalesWithBodyProfileWhileKeepingNeutralDefault() {
+        val shorter = DriverProfile(heightCm = 158, weightKg = 55)
+        val taller = DriverProfile(heightCm = 192, weightKg = 96)
+        assertTrue(taller.guideBand(CalibrationAxis.FORE_AFT).recommendedCenter > shorter.guideBand(CalibrationAxis.FORE_AFT).recommendedCenter)
+        assertTrue(shorter.guideBand(CalibrationAxis.HEIGHT).recommendedCenter > taller.guideBand(CalibrationAxis.HEIGHT).recommendedCenter)
+        assertTrue(taller.guideBand(CalibrationAxis.BACKREST).recommendedCenter > shorter.guideBand(CalibrationAxis.BACKREST).recommendedCenter)
+        CalibrationAxis.entries.forEach { axis ->
+            val band = taller.guideBand(axis)
+            assertTrue(band.contains(band.recommendedCenter))
+            assertTrue(band.minRecommended in 0..band.recommendedCenter)
+            assertTrue(band.maxRecommended in band.recommendedCenter..100)
+        }
+    }
+
+    @Test fun applyingRecommendedPresetUpdatesCalibrationAndInvalidatesMirrorsWithoutAutoCompleting() {
+        val state = prepared()
+        state.updateProfile(state.profile.copy(heightCm = 190, weightKg = 90))
+        state.confirmProfile()
+        repeat(JourneyState.SETUP_COUNT) { state.confirmSetupStep() }
+        repeat(JourneyState.PREFLIGHT_COUNT) { state.setPreflight(it, true) }
+        assertTrue(state.canPractice)
+
+        state.applyRecommendedPreset()
+        assertEquals(state.profile.recommendedCalibration(), state.calibration)
+        assertFalse(state.setupChecks()[0])
+        assertFalse(state.setupChecks()[1])
+        assertFalse(state.setupChecks()[2])
+        assertFalse(state.setupChecks()[4])
+        assertFalse(state.setupChecks()[5])
+        assertFalse(state.setupChecks()[6])
+        assertFalse(state.setupChecks()[7])
+        assertTrue(state.setupChecks()[3])
+        assertTrue(state.setupChecks()[8])
+        assertEquals(0, state.preflightCompletedCount)
+        assertFalse(state.canPractice)
+    }
 }

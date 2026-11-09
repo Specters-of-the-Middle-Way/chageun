@@ -1,0 +1,15 @@
+{
+  "id": "05_review_no_auto_penalty",
+  "title": "Post-Drive Review Cause Reflection & Separated Progress Metrics",
+  "flowchartPages": ["09", "10"],
+  "targetClasses": [
+    "kr.drivestep.tutor.contextcoach.SituationCoachEngine",
+    "kr.drivestep.tutor.journey.JourneyState"
+  ],
+  "assertions": [
+    "Speed drop or lane warning records observational evidence without automatic skill point deduction",
+    "Stationary education completion never increases driving mastery score",
+    "Learning completion, driver self-confidence (1-5), and observed exercise outcomes remain strictly separated",
+    "Revoking recordConsent stops new record persistence while keeping existing history deletion as a separate confirmed action"
+  ]
+}

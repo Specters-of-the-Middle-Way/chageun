@@ -1,0 +1,36 @@
+{
+  "id": "01_parked_gate_and_d_gear",
+  "title": "Parked (P) Safety Gate & D/R Gear Interruption",
+  "flowchartPages": ["01", "02", "06", "08", "11"],
+  "preconditions": {
+    "actualVehicleGear": "P",
+    "actualVehicleSpeedMps": 0.0,
+    "uxRestrictionsActive": false
+  },
+  "steps": [
+    {
+      "action": "Enter setup or parking simulation while actual vehicle gear is P and speed is 0.0 m/s",
+      "expected": {
+        "allowsParkedFlow": true,
+        "interactiveControlsEnabled": true
+      }
+    },
+    {
+      "action": "Shift actual vehicle gear to D or R (or exceed 0.01 m/s speed tolerance)",
+      "expected": {
+        "allowsParkedFlow": false,
+        "voiceCoachSilencedImmediately": true,
+        "virtualControlsDisabled": true,
+        "steeringPracticeOutcome": "INTERRUPTED",
+        "interruptionReason": "GEAR_NOT_P"
+      }
+    },
+    {
+      "action": "Return actual vehicle gear to P at 0.0 m/s and reopen app",
+      "expected": {
+        "revisitRequiresFreshPreflightChecks": true,
+        "preflightCompletedCount": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": "04_parking_reverse_and_parallel",
+  "title": "Interactive Reverse-Bay & Parallel Parking Simulation Sequence",
+  "flowchartPages": ["08", "09"],
+  "targetClasses": [
+    "kr.drivestep.tutor.parking.ParkingSimulationSession",
+    "kr.drivestep.tutor.parking.ParkingSceneView"
+  ],
+  "vehicleSpec": {
+    "model": "IONIQ 3 European Standard Body",
+    "lengthM": 4.43,
+    "widthM": 1.87,
+    "wheelbaseM": 2.74,
+    "minTurningRadiusM": 5.32
+  },
+  "requiredManeuverSequence": [
+    "Hold brake pedal (brakeHold = true)",
+    "Shift virtual gear to R",
+    "Release brake hold and apply gentle accelerator pulses while steering",
+    "Engage brake hold and bring speed to 0.0 m/s inside target bay",
+    "Shift virtual gear to P and tap Finish (주차 마침)"
+  ],
+  "assertions": [
+    "Real emulator vehicle remains in P at 0 km/h throughout virtual maneuver",
+    "Saved record carries source='SIMULATION' only when recordConsent is true",
+    "Physical parking line entry and real obstacle clearance are never auto-certified"
+  ]
+}

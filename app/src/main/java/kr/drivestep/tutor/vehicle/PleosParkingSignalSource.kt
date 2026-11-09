@@ -381,9 +381,9 @@ class PleosParkingSignalSource(context: Context) : ParkingSignalSource {
 
     private companion object {
         const val GLOBAL_AREA = 0
-        const val CONNECT_TIMEOUT_MS = 10_000L
-        const val READ_TIMEOUT_MS = 3_000L
-        const val HEARTBEAT_MS = 1_000L
+        const val CONNECT_TIMEOUT_MS = VehicleTimeoutPolicy.PARKED_CONNECT_TIMEOUT_MS
+        const val READ_TIMEOUT_MS = VehicleTimeoutPolicy.ACTIVE_READ_TIMEOUT_MS
+        const val HEARTBEAT_MS = VehicleTimeoutPolicy.ACTIVE_HEARTBEAT_MS
         val REQUIRED = setOf(ParkingSignalField.GEAR, ParkingSignalField.STEERING, ParkingSignalField.SPEED)
         val CAR_FIELDS = listOf(ParkingSignalField.GEAR, ParkingSignalField.SPEED, ParkingSignalField.PARKING_BRAKE)
         fun readable(access: AccessType) = access == AccessType.READ || access == AccessType.READ_WRITE

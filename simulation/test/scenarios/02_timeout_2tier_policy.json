@@ -1,0 +1,25 @@
+{
+  "id": "02_timeout_2tier_policy",
+  "title": "Two-Tier Vehicle I/O Timeout Policy (Parked vs Active Maneuver)",
+  "targetClass": "kr.drivestep.tutor.vehicle.VehicleTimeoutPolicy",
+  "tiers": {
+    "tier1_parked_connection": {
+      "constant": "PARKED_CONNECT_TIMEOUT_MS",
+      "timeoutMs": 10000,
+      "context": "Initial Pleos Vehicle SDK / AAOS CarPropertyManager binding and capability lookup while parked in P"
+    },
+    "tier2_active_maneuver": {
+      "activeReadTimeoutMs": 2500,
+      "activeHeartbeatMs": 1000,
+      "turnSignalHeartbeatMs": 3000,
+      "activePracticeFreshnessMs": 3000,
+      "drivingSituationFreshnessMs": 1500,
+      "context": "Active turn-signal practice, steering practice, parking maneuver, and real-time driving situation coaching"
+    }
+  },
+  "assertions": [
+    "Initial GET or first subscription snapshot (isInitial=true) never completes a practice step",
+    "Stale signal exceeding freshness threshold interrupts active practice safely without false completion",
+    "VoiceCoach never queues delayed TTS prompts after timeout or audio-focus loss"
+  ]
+}

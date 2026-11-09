@@ -238,14 +238,15 @@ class DriverJourneyView(
         val step = setupSteps[index]
         heading(parent, "", step.first, "운전 환경 ${index + 1}/9  ·  ${state.setupCompletedCount}개 확인")
         val row = horizontal(parent, 0, 1f)
-        val reference = LinearLayout(context).apply { orientation = VERTICAL; gravity = Gravity.CENTER_HORIZONTAL; setPadding(dp(16), dp(36), dp(16), dp(20)) }
-        row.addView(reference, LayoutParams(dp(230), -1).apply { marginEnd = dp(24) })
+        val reference = LinearLayout(context).apply { orientation = VERTICAL; gravity = Gravity.CENTER_HORIZONTAL; setPadding(dp(12), dp(14), dp(12), dp(14)) }
+        row.addView(reference, LayoutParams(dp(300), -1).apply { marginEnd = dp(24) })
         val icon = when (index) { in 0..3 -> "seat"; 4 -> "steering"; in 5..7 -> "eye"; else -> "check" }
-        reference.addView(PleosUi.image(context, icon, 112), LayoutParams(dp(136), dp(136)))
-        gap(reference, 24)
-        reference.addView(label(step.first, 22, white, true).apply { gravity = Gravity.CENTER }, full(64))
-        reference.addView(label("${state.profile.heightCm} cm · ${state.profile.weightKg} kg", 18, grey).apply { gravity = Gravity.CENTER }, full(44))
-        reference.addView(label("직접 조절하고 확인", 16, grey).apply { gravity = Gravity.CENTER }, full(44))
+        reference.addView(PleosUi.image(context, icon, 48), LayoutParams(dp(56), dp(56)))
+        gap(reference, 8)
+        reference.addView(label(step.first, 20, white, true).apply { gravity = Gravity.CENTER }, full(32))
+        reference.addView(label("${state.profile.heightCm} cm · ${state.profile.weightKg} kg", 16, grey).apply { gravity = Gravity.CENTER }, full(26))
+        val guideView = PostureGuideView(context).apply { update(index, state.profile, state.calibration) }
+        reference.addView(guideView, LayoutParams(-1, 0, 1f).apply { topMargin = dp(6) })
         val info = LinearLayout(context).apply { orientation = VERTICAL }
         row.addView(info, LayoutParams(0, -1, 1f))
         info.addView(label(step.second, 23, white), full(132))
@@ -254,9 +255,14 @@ class DriverJourneyView(
         val axis = when (index) { 0 -> CalibrationAxis.FORE_AFT; 1 -> CalibrationAxis.HEIGHT; 2 -> CalibrationAxis.BACKREST; 4 -> CalibrationAxis.STEERING; else -> null }
         if (axis != null) {
             addSlider(info, "가상 조절값", state.calibration.value(axis), 0, 100, "/ 100", "journey_calibration_${axis.name.lowercase()}") {
-                state.setCalibration(axis, it); persist()
+                state.setCalibration(axis, it); guideView.update(index, state.profile, state.calibration); persist()
             }
-            info.addView(label("실제 시트 좌표가 아닌 수동 기록값입니다.\n50은 중간값이며 차량에 전송하지 않습니다.", 18, grey), full(76))
+            val band = state.guideBand(axis)
+            val presetRow = horizontal(info, 56)
+            presetRow.addView(label("체격 참고 시작 구간 ${band.minRecommended}~${band.maxRecommended} (중심 ${band.recommendedCenter})\n50은 중립 시작값이며 차량에 전송하지 않습니다.", 16, grey), LayoutParams(0, -1, 1f).apply { marginEnd = dp(12) })
+            presetRow.addView(button("체격 참고 시작값 적용", "journey_apply_recommended_preset") {
+                state.applyRecommendedPreset(); persist(); render()
+            }, LayoutParams(dp(210), dp(56)))
         } else info.addView(label(if (index in 5..7) "직접 후방과 옆쪽 시야를 확인하세요.\n앱에서 미러의 각도나 시야를 측정하지 않습니다." else "차량의 조절 장치와 사용설명서를 확인하세요.\n앱에서 올바른 상태를 자동 판정하지 않습니다.", 18, grey), full(100))
         info.addView(View(context), LayoutParams(1, 0, 1f))
         info.addView(button("설명 다시 확인", "journey_setup_skip_help") {

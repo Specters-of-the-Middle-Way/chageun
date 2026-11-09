@@ -339,7 +339,7 @@ python3 -u scripts/verify-situation.py
 
 Python 검증 도구는 `adb`가 PATH에 있고 Pleos Virtual Console이 동작하는 환경을 전제로 합니다. Python의 `sqlite3.Connection.deserialize` 지원도 필요합니다. 이 도구는 **에뮬레이터 전용**이며 기어·속도·방향지시등 등을 변경하고 연습 기록을 추가합니다. 기존 기록은 삭제하지 않지만 `docs/screenshots/`의 검증 화면은 갱신합니다. 콘솔 HTTP 경로는 해당 에뮬레이터에서 관찰한 시험용 구현이므로 다른 이미지 버전에서는 확인이 필요합니다.
 
-**v0.9 검증:** Debug/Release 빌드와 단위 테스트 **205개** 통과, lint 오류 0개·경고 54개입니다. 공식 벡터 표시, 스위치 상태, 출발 확인 제한, 후진 주차의 조작·음성·저장·복습과 차로 변경의 신호·미러·교정 음성을 에뮬레이터에서 확인했습니다. [v0.9 적용·검증 기록](docs/V09_OFFICIAL_ASSETS.md)을 참고하세요.
+**v0.9 검증:** Debug/Release 빌드와 단위 테스트 **207개** 통과, lint **오류 0개·경고 0개(Clean Lint)**입니다. 공식 벡터 표시, 스위치 상태, 체격 기반 시각 자세·미러 가이드(`PostureGuideView`), 2-Tier 타임아웃 정책(`VehicleTimeoutPolicy`), 출발 확인 제한, 후진 주차의 조작·음성·저장·복습과 차로 변경의 신호·미러·교정 음성을 확인했습니다. [v0.9 적용·검증 기록](docs/V09_OFFICIAL_ASSETS.md)을 참고하세요.
 
 **v0.8 당시 검증:** Debug/Release 빌드, 단위 테스트 **205개**, lint 오류 0을 확인했습니다. 두 주차 코스·기록 동의·재방문·주행 제한을 UI로 확인했고, 기존 차로 변경 통합 검사는 전체 통과했습니다. [자세한 결과와 자동 검사 재개 이력](docs/V08_VALIDATION.md)을 확인하세요.
 
@@ -354,12 +354,12 @@ app/src/main/java/kr/drivestep/tutor/
 ├── MainActivity.kt         # 코치 홈, 화면 연결, 수명주기
 ├── ParkedGate.kt           # 차량 플랫폼의 정차 사용 제한 확인
 ├── SteeringFeature.kt     # 조향 연수 연결·진행·저장 제어
-├── design/                # 공식 벡터·토큰의 네이티브 UI 적용, 스위치 접근성
-├── journey/               # 프로필·동의, 9개 자세 설정, 7개 출발 확인, 복습
-├── parking/               # 가상 후진·평행 주차 모델, Canvas, 조작·저장
+├── design/                # 공식 벡터·토큰의 네이티브 UI 적용(PleosUi, PleosSwitch, PracticeButton)
+├── journey/               # 프로필·동의, 9개 자세 설정, 체격 기반 시각 가이드(PostureGuideView), 7개 출발 확인, 복습
+├── parking/               # 가상 후진·평행 주차 모델, Canvas(ParkingSceneView), 조작·저장
 ├── simulator/             # 운전자 시점 도로·미러, 직접 조작, 연속 가상 모델
 ├── contextcoach/          # 상황 감지 규칙, 가상 입력, 근거·복습
-├── vehicle/               # Pleos/AAOS 읽기와 변경 구독
+├── vehicle/               # Pleos/AAOS 읽기와 변경 구독, 2-Tier 타임아웃 정책(VehicleTimeoutPolicy)
 ├── practice/              # 방향지시등·조향 연수 상태 모델
 ├── coach/                 # 조작 안내와 음성 코치
 ├── ride/                  # 가상 페달·기어·조향 연수
@@ -375,8 +375,59 @@ app/src/test/               # JVM 단위 테스트
 app/src/androidTest/        # Android 저장소 계측 테스트
 scripts/                   # 빌드·실행·음성 생성·에뮬레이터 검증 도구
 docs/                      # 설계, SDK 근거, 검증 기록·화면
-third_party/               # 공식 에셋 원본 노드·해시·토큰, 글꼴 출처
+third_party/               # 공식 에셋 원본 노드·해시·토큰, 글꼴 출처, 미사용 벡터 보관
+skills/                    # AI 코딩 에이전트(Codex, Antigravity)용 영문 모듈형 스킬 프롬프트
+├── README.md              # 스킬 마스터 인덱스 및 작업별 라우팅 가이드
+├── 01-architecture-and-clean-lint.md     # 패키지 구조, 3-File 모듈 패턴, Clean Lint 8대 규칙
+├── 02-domain-guardrails-and-flowchart.md # 5대 안전 가드레일 및 11쪽 플로우차트 상태 규칙
+├── 03-body-profile-and-posture-canvas.md # 신체 조건(키·체중) 가이드 구간 및 PostureGuideView 명세
+├── 04-pleos-sdk-and-2tier-timeout.md     # Pleos SDK 2.3.2 + AAOS 연동 및 2-Tier 타임아웃 정책
+├── 05-local-storage-and-voice-assets.md  # 6종 로컬 저장소 스키마 및 194개 음성 에셋 3자 동기화
+└── 06-qa-simulation-and-git-workflow.md  # main 브랜치 워크플로우 및 3단계 QA 검증 파이프라인
+simulation/test/           # 시나리오 기반 QA 테스트 및 공모전 데모 검증 도구
+├── QA_TEST_PLAN.md        # 3단계 통합 QA 테스트 계획서
+├── scenarios/             # 5대 핵심 플로우·안전 가드레일 검증 시나리오 JSON
+├── runners/               # 오프라인 단위/린트/시나리오 자동 검증 실행기 (run_unit_qa.ps1, run_scenario_qa.py)
+└── checklists/            # 공모전 라이브 시연 4대 체크포인트 점검표
 ```
+
+## 적용된 디자인 패턴 및 아키텍처 원칙
+
+프로젝트 전반의 유지보수성, 멀티 에이전트 협업 효율, 차량 안전 가드레일 준수를 위해 다음 4가지 디자인 패턴을 적용했습니다.
+
+### 1. 3-File 모듈형 상태-뷰-테스트 분리 패턴 (`*Session`/`*State` + `*View` + `*Test`)
+- **순수 도메인 상태/물리 엔진 (`*Session.kt`, `*State.kt`)**: Android UI(`View`, `Context`) 의존성을 완전히 배제하고 불변(Immutable) `*Snapshot` 데이터만 방출합니다. (`JourneyState`, `ParkingSimulationSession`, `DrivingSimulationSession`, `SituationCoachEngine`, `SteeringPracticeSession`, `PracticeSession`, `GrowthSession`)
+- **프로그래매틱 뷰 & 무할당 Canvas 렌더러 (`*View.kt`)**: `PleosUi` 공식 벡터·토큰과 사전 할당된(`pre-allocated`) `Paint`/`RectF`/`Path`만을 사용하여 `onDraw` 내부 객체 할당(`DrawAllocation`) 없이 60fps로 렌더링합니다. (`DriverJourneyView`, `PostureGuideView`, `ParkingSceneView`, `DriverSceneView`)
+- **결정론적 JVM 단위 테스트 (`*Test.kt`)**: 에뮬레이터 없이도 모든 상태 전이·안전 인터럽트·경계값을 밀리초 단위로 검증합니다.
+- **호스트 병목 방지 (`MainActivity.kt` 최소화)**: `MainActivity.kt`는 화면 간 라우팅과 `ParkedGate`/수명주기 연결만 담당하여 기능 확장 시 충돌을 방지합니다.
+
+### 2. 차량 상태별 2-Tier 타임아웃 패턴 (`VehicleTimeoutPolicy.kt`)
+차량이 정차(`P`) 상태에서 초기 서비스를 연결할 때와 실제 주행·주차·조작 실습 중일 때의 사용자 체감 특성을 분리한 **2단계(2-Tier) 타임아웃 정책**을 적용했습니다.
+- **Tier 1 — 정차(`P`) 중 초기 서비스 바인딩 및 Capability 조회 (`PARKED_CONNECT_TIMEOUT_MS = 10,000ms`)**: 에뮬레이터나 헤드유닛의 콜드 바인더 초기화 지연을 충분히 허용하여 정차 중 불필요한 연결 실패를 방지합니다.
+- **Tier 2 — 주행·주차·실습 행동 중 실시간 응답 및 신선도 제한 (`ACTIVE_READ_TIMEOUT_MS = 2,500ms`, `DRIVING_SITUATION_FRESHNESS_MS = 1,500ms`)**: 운전자가 핸들·방향지시등·페달을 조작하는 도중 신호 지연이 발생하면 즉시 대기 상태를 해제하고 안전 보류/화면 안내로 전환하여 조작 중 답답함을 없앴습니다.
+
+### 3. 신체 조건(키·체중) 기반 참고 구간 산출 및 Canvas 시각 가이드 패턴 (`PostureGuideView.kt`)
+- 운전자의 키(`heightCm`, 150~200cm)와 체중(`weightKg`, 50~110kg)을 바탕으로 시트 앞뒤·시트 높이·등받이 기울기·핸들 위치의 **체격 참고 시작 구간(`PostureGuideBand`)**을 산출합니다.
+- 초기 기본값은 중립값(`50`)을 그대로 유지하여 임의 자동 조작을 막고, 사용자가 **`체격 참고 시작값 적용`** 버튼을 누르거나 슬라이더를 조절할 때 좌측 **`PostureGuideView` Canvas**에 권장 실루엣(점선)과 현재 조절 상태(실선), 룸미러·사이드미러(`상하 1/2 지평선 · 안쪽 1/4 내 차체 · 바깥쪽 3/4 옆 차로`) 기준선 비율, 안전벨트 착용 경로를 실시간 그림으로 보여줍니다.
+- 시트나 핸들 조절값이 변경되면 기존에 확인했던 **미러 확인 항목(6~8번: 룸미러·좌우 사이드미러)과 출발 전 7대 확인을 자동으로 미완료 상태로 초기화**하여 바뀐 눈높이에 맞춰 미러를 반드시 다시 확인하도록 강제합니다.
+
+### 4. 입력 출처(Provenance) 격리 및 Clean Lint Zero-Warning 패턴
+- **출처 격리 (`SIMULATION` vs `SDK`)**: 가상 시뮬레이터 입력과 실차/에뮬레이터 SDK 입력이 섞이지 않도록 출처 전환 시 관측 윈도우를 즉시 초기화하며, 초기 스냅샷(`isInitial = true`)으로는 실습 과제가 완료되지 않고 실제 조작 변화 이벤트(`isInitial = false`, `isSubscription = true`)로만 단계가 전이됩니다.
+- **Clean Lint 8대 규칙 준수**: `resources.getIdentifier` 전면 배제(`@array/coach_voice_resources` 및 `R.font.asta_sans` 직접 참조), `PracticeButton`을 통한 터치 접근성(`performClick`) 보장, 미사용 리소스 분리 보관으로 `:app:lintDebug` **오류 0개·경고 0개**를 유지합니다.
+
+## AI 에이전트 스킬 (`/skills`) 안내
+
+저장소 루트의 [`skills/`](skills/README.md) 폴더에는 **Codex**, **Antigravity** 등 AI 코딩 에이전트가 프로젝트의 도메인 규칙과 아키텍처를 빠르게 파악하고 일관된 품질로 코드를 작성할 수 있도록 설계된 **영문(English) 모듈형 스킬 문서**가 포함되어 있습니다.
+
+| 스킬 파일 | 주요 역할 및 포함 기능 |
+|---|---|
+| [`skills/README.md`](skills/README.md) | **스킬 마스터 인덱스**: 프로젝트 핵심 메타데이터 요약 및 작업 유형별 읽어야 할 스킬 파일 라우팅 가이드 |
+| [`skills/01-architecture-and-clean-lint.md`](skills/01-architecture-and-clean-lint.md) | **아키텍처 & Clean Lint 규칙**: `kr.drivestep.tutor` 패키지 맵, 3-File 모듈형 패턴(`*Session` + `*View` + `*Test`), Android Lint 경고 0개를 유지하기 위한 8대 필수 규칙 |
+| [`skills/02-domain-guardrails-and-flowchart.md`](skills/02-domain-guardrails-and-flowchart.md) | **안전 가드레일 & 11쪽 플로우차트**: 5대 절대 안전 원칙, `ParkedGate` 정차 조건, 플로우차트 01~11쪽 상태 전이 규칙, 3대 지표(학습 완료 / 자신감 / 연습 관측 결과) 분리 원칙 |
+| [`skills/03-body-profile-and-posture-canvas.md`](skills/03-body-profile-and-posture-canvas.md) | **신체 프로필 & 자세·미러 Canvas 명세**: `DriverProfile`(`heightCm`, `weightKg`) 기반 `PostureGuideBand` 산출식, `PostureGuideView` 시각 다이어그램 렌더링 규격, 시트·핸들 변경 시 미러 재확인(`5..7`) 무효화 규칙 |
+| [`skills/04-pleos-sdk-and-2tier-timeout.md`](skills/04-pleos-sdk-and-2tier-timeout.md) | **Pleos SDK 연동 & 2-Tier 타임아웃**: AAOS 표준 속성(`GEAR_SELECTION`, `PERF_VEHICLE_SPEED`) 및 Pleos Vehicle SDK `2.3.2` 우선순위, 정차 중 연결(10초) vs 조작 행동 중 응답(1.5~2.5초) 타임아웃 정책, `isInitial=true` 스냅샷 분리 규칙 |
+| [`skills/05-local-storage-and-voice-assets.md`](skills/05-local-storage-and-voice-assets.md) | **로컬 저장소 & 음성 에셋 동기화**: SQLite·AtomicFile JSON·SharedPreferences 6종 로컬 저장소 스키마, 동의 철회와 범위별 삭제 분리, 194개 고정 한국어 음성(`CoachCue` ↔ `raw/coach_*.wav` ↔ `coach_voice_resources.xml`) 3자 동기화 및 한국어 용어(`룸미러` 등) 표준 |
+| [`skills/06-qa-simulation-and-git-workflow.md`](skills/06-qa-simulation-and-git-workflow.md) | **QA 시뮬레이션 & Git 워크플로우**: `main` 브랜치 직접 통합 워크플로우, 푸시 전 필수 Gradle/시나리오 검증 명령, `/simulation/test` 3단계 QA 파이프라인 및 공모전 시연 체크리스트 운영 방법 |
 
 ## 데이터 저장
 
