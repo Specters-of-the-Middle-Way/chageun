@@ -14,6 +14,7 @@ import wave
 
 ROOT = Path(__file__).resolve().parents[1]
 sources = [ROOT / "docs/signal-voice-cues.json", ROOT / "docs/parking-voice-cues.json", ROOT / "docs/steering-voice-cues.json", ROOT / "docs/growth-voice-cues.json", ROOT / "docs/ride-voice-cues.json", ROOT / "docs/context-voice-cues.json"]
+sources.append(ROOT / "docs/simulation-voice-cues.json")
 cues = [cue for path in sources for cue in json.loads(path.read_text())]
 guide = (ROOT / "app/src/main/java/kr/drivestep/tutor/coach/OperationGuide.kt").read_text()
 for cue_id, text in re.findall(r'CoachCue\("([a-z_]+)", "([^"]+)"\)', guide):

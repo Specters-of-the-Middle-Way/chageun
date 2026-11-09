@@ -16,6 +16,7 @@ import kr.drivestep.tutor.data.PracticeRepository
 import kr.drivestep.tutor.growth.GrowthTutorView
 import kr.drivestep.tutor.ride.DriveCoachView
 import kr.drivestep.tutor.contextcoach.SituationCoachView
+import kr.drivestep.tutor.simulator.DrivingSimulatorView
 import kr.drivestep.tutor.coach.*
 import kr.drivestep.tutor.practice.*
 import kr.drivestep.tutor.tutor.*
@@ -27,10 +28,11 @@ import java.util.UUID
 import java.util.concurrent.Executors
 
 class MainActivity : Activity() {
-    private enum class Screen { COACH, SITUATION, RIDE, HOME, HOW_TO, PRACTICE, REVIEW, PARKING, STEERING_SETUP, STEERING, GROWTH }
+    private enum class Screen { COACH, SIMULATOR, SITUATION, RIDE, HOME, HOW_TO, PRACTICE, REVIEW, PARKING, STEERING_SETUP, STEERING, GROWTH }
     private lateinit var growth: GrowthTutorView
     private lateinit var ride: DriveCoachView
     private lateinit var situation: SituationCoachView
+    private lateinit var simulator: DrivingSimulatorView
     private var returnToCoach = true
     private var voiceStatusView: TextView? = null
     private var voiceRepeatButton: Button? = null
@@ -60,6 +62,7 @@ class MainActivity : Activity() {
     private var lastWriteError = false
     private var latestSaveRevision = 0L
     private var foreground = false
+    private var resumed = false
     private var rootScroll: ScrollView? = null
     private var renderedScreen: Screen? = null
     private var rendering = false
@@ -100,6 +103,9 @@ class MainActivity : Activity() {
         situation = SituationCoachView(this, onCue = { offerCue(it) }, stopVoice = {
             voice.stop(); currentCue = null
         }, onExit = { voice.stop(); currentCue = null; screen = Screen.COACH; render() })
+        simulator = DrivingSimulatorView(this, onCue = { offerCue(it) }, stopVoice = {
+            voice.stop(); currentCue = null
+        }, onExit = { voice.stop(); currentCue = null; screen = Screen.COACH; render() })
         render()
         io.execute {
             try {
@@ -120,7 +126,7 @@ class MainActivity : Activity() {
         parkedGate.start { allowed, message ->
             parked = allowed
             gateMessage = message
-            voice.setActive(allowed && foreground)
+            voice.setActive(allowed && foreground && (screen != Screen.SIMULATOR || resumed))
             if (!allowed) {
                 interrupt("DRIVING_RESTRICTION")
                 steering.interrupt("DRIVING_RESTRICTION", speak = false)
@@ -128,6 +134,7 @@ class MainActivity : Activity() {
                 growth.setActive(false)
                 ride.setActive(false)
                 situation.setActive(false)
+                simulator.setActive(false)
                 currentCue = null
             }
             render()
@@ -136,11 +143,28 @@ class MainActivity : Activity() {
         if (hasSpeedPermission()) steering.connect()
     }
 
+    override fun onResume() {
+        super.onResume()
+        resumed = true
+        voice.setActive(foreground && parked)
+        render()
+    }
+
+    override fun onPause() {
+        resumed = false
+        simulator.setActive(false)
+        // EVS side-camera overlays also pause the Activity during SDK signal practice.
+        // Only this interactive road simulation requires silence on a partial pause.
+        if (screen == Screen.SIMULATOR) voice.setActive(false)
+        super.onPause()
+    }
+
     override fun onStop() {
         foreground = false
         growth.setActive(false)
         ride.setActive(false)
         situation.setActive(false)
+        simulator.setActive(false)
         voice.setActive(false)
         interrupt("SCREEN_LEFT")
         steering.stop("SCREEN_LEFT")
@@ -154,6 +178,7 @@ class MainActivity : Activity() {
     override fun onDestroy() {
         ride.close()
         situation.close()
+        simulator.close()
         emulatorControls.close()
         steering.close()
         voice.close()
@@ -170,6 +195,7 @@ class MainActivity : Activity() {
     @Deprecated("Legacy Activity back callback")
     override fun onBackPressed() {
         if (screen == Screen.COACH) super.onBackPressed()
+        else if (screen == Screen.SIMULATOR) { if (!simulator.goBack()) { screen = Screen.COACH; render() } }
         else if (screen == Screen.SITUATION) { if (!situation.goBack()) { screen = Screen.COACH; render() } }
         else if (screen == Screen.RIDE) { if (!ride.goBack()) { screen = Screen.COACH; render() } }
         else if (screen == Screen.GROWTH) {
@@ -300,20 +326,26 @@ class MainActivity : Activity() {
 
     private fun renderContent() {
         if (isDestroyed) return
-        if (!::emulatorControls.isInitialized || !::steering.isInitialized || !::growth.isInitialized || !::ride.isInitialized || !::situation.isInitialized) return
+        if (!::emulatorControls.isInitialized || !::steering.isInitialized || !::growth.isInitialized || !::ride.isInitialized || !::situation.isInitialized || !::simulator.isInitialized) return
         growth.setActive(foreground && parked && screen == Screen.GROWTH)
         ride.setActive(foreground && parked && screen == Screen.RIDE)
         situation.setActive(foreground && parked && screen == Screen.SITUATION)
+        simulator.setActive(foreground && resumed && parked && screen == Screen.SIMULATOR)
         // Keep the direct-manipulation surface mounted during speech/sensor updates.
         // Replacing it would cancel a held pedal or restart its simulation ticker.
         if (foreground && parked && renderedScreen == screen &&
-            ((screen == Screen.RIDE && ride.isAttachedToWindow) || (screen == Screen.SITUATION && situation.isAttachedToWindow))) {
+            ((screen == Screen.RIDE && ride.isAttachedToWindow) || (screen == Screen.SITUATION && situation.isAttachedToWindow) ||
+                (screen == Screen.SIMULATOR && simulator.isAttachedToWindow))) {
             voiceStatusView?.text = voiceStatus
             voiceRepeatButton?.isEnabled = voiceEnabled && currentCue != null
             return
         }
         if (!foreground || !parked || screen !in setOf(Screen.HOW_TO, Screen.PRACTICE, Screen.STEERING_SETUP, Screen.STEERING) ||
             (screen == Screen.STEERING && (steeringReview != null || steering.snapshot?.isTerminal == true))) emulatorControls.stop()
+        if (parked && screen == Screen.SIMULATOR) {
+            renderSimulator()
+            return
+        }
         val savedScroll = if (renderedScreen == screen) rootScroll?.scrollY ?: 0 else 0
         val scroll = ScrollView(this).apply { setBackgroundColor(canvas); isFillViewport = true }
         rootScroll = scroll
@@ -341,6 +373,7 @@ class MainActivity : Activity() {
         gap(content, 12)
         when (screen) {
             Screen.COACH -> coachHome(content)
+            Screen.SIMULATOR -> Unit // Mounted without a ScrollView above.
             Screen.SITUATION -> {
                 (situation.parent as? android.view.ViewGroup)?.removeView(situation)
                 content.addView(situation)
@@ -364,6 +397,7 @@ class MainActivity : Activity() {
         gap(content, 16)
         val footer = when (screen) {
             Screen.COACH -> "현대자동차 기본 탑재를 제안하는 개발 프로토타입입니다. 현재 공식 기본 앱은 아닙니다."
+            Screen.SIMULATOR -> "가상 주행 연습"
             Screen.SITUATION -> "상황 감지 검증용 가상 입력 · 실제 주행 중 화면 실행과 주변 인식은 구현되지 않았습니다."
             Screen.RIDE -> "정차 중 가상 주행 체험 · 실제 도로 인식이나 차량 제어를 하지 않습니다."
             Screen.GROWTH -> "완료한 가상 연습만 학습 점수로 저장해요. 실제 SDK 실습 기록과 구분됩니다."
@@ -384,10 +418,10 @@ class MainActivity : Activity() {
         hero.addView(text("제가 알려드릴게요.\n직접 해 보면서 익혀요.", 32, Color.WHITE, true))
         gap(hero, 8)
         hero.addView(text("조작법을 듣고 → 직접 조작하고 → 코치의 피드백을 받아요.\n서두르지 않아도 괜찮아요. 익숙해질 때까지 함께 연습해요.", 18, Color.rgb(221, 234, 232)))
-        hero.addView(button("상황을 알아채는 코치 · 차로 변경 체험", "coach_situation") {
-            voice.stop(); currentCue = null; screen = Screen.SITUATION; render()
+        hero.addView(button("도로를 보며 직접 연습 · 차로 변경", "coach_simulator") {
+            voice.stop(); currentCue = null; screen = Screen.SIMULATOR; render()
         })
-        hero.addView(text("깜빡이 + 속도 변화 / 차량 경고 → 자동 안내 → 같은 상황 복습", 15, Color.rgb(221, 234, 232)))
+        hero.addView(text("운전자 시점 · 움직이는 주변 차량 · 미러 확인 · 핸들 조작 · 옆자리 음성 코치", 15, Color.rgb(221, 234, 232)))
         gap(parent, 14)
         val wide = resources.configuration.screenWidthDp >= 900
         val row = LinearLayout(this).apply { orientation = if (wide) LinearLayout.HORIZONTAL else LinearLayout.VERTICAL }
@@ -429,6 +463,46 @@ class MainActivity : Activity() {
         links.addView(button("기존 교통상식 학습 자료", "coach_reference", secondary = true) {
             voice.stop(); currentCue = null; growth.openLibrary(); screen = Screen.GROWTH; render()
         }, LinearLayout.LayoutParams(0, dp(56), 1f))
+        parent.addView(button("상황 감지 변수 확인 · 개발용", "coach_situation", secondary = true) {
+            voice.stop(); currentCue = null; screen = Screen.SITUATION; render()
+        })
+    }
+
+    /** Preserve the platform's system bars; dedicate the app viewport to the road. */
+    private fun renderSimulator() {
+        rootScroll = null
+        renderedScreen = screen
+        voiceStatusView = null
+        val content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Color.rgb(13, 26, 36))
+            setPadding(dp(12), dp(4), dp(12), dp(8))
+        }
+        val bar = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
+        bar.addView(text("DRIVESTEP  /  옆자리 주행 코치", 17, Color.WHITE, true), LinearLayout.LayoutParams(0, dp(48), 1f))
+        val toggle = Switch(this).apply {
+            text = "음성 안내  "
+            textSize = 15f
+            setTextColor(Color.WHITE)
+            contentDescription = "voice_toggle"
+            isChecked = voiceEnabled
+            setOnCheckedChangeListener { _, checked ->
+                voiceEnabled = checked
+                getSharedPreferences("coach", MODE_PRIVATE).edit().putBoolean("voice_enabled", checked).apply()
+                voice.setEnabled(checked)
+                render()
+            }
+        }
+        bar.addView(toggle, LinearLayout.LayoutParams(dp(160), dp(48)))
+        val repeat = button("다시 듣기", "replay_voice", voiceEnabled && currentCue != null, secondary = true) {
+            voice.stop(); currentCue?.let(voice::speak)
+        }
+        voiceRepeatButton = repeat
+        bar.addView(repeat, LinearLayout.LayoutParams(dp(135), dp(48)))
+        content.addView(bar)
+        (simulator.parent as? android.view.ViewGroup)?.removeView(simulator)
+        content.addView(simulator, LinearLayout.LayoutParams(-1, 0, 1f))
+        setContentView(content)
     }
 
     private fun home(parent: LinearLayout) {

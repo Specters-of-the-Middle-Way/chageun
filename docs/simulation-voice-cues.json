@@ -1,0 +1,20 @@
+[
+  { "id": "simulation_start_left", "text": "왼쪽 차로로 가볼게요. 먼저 왼쪽 신호를 켜요." },
+  { "id": "simulation_start_right", "text": "오른쪽 차로로 가볼게요. 먼저 오른쪽 신호를 켜요." },
+  { "id": "simulation_mirror_left", "text": "왼쪽 가상 미러를 확인해요." },
+  { "id": "simulation_mirror_right", "text": "오른쪽 가상 미러를 확인해요." },
+  { "id": "simulation_wait", "text": "옆에 가상 차량이 있어요. 핸들을 중앙에 두고 기다려요." },
+  { "id": "simulation_steer_left", "text": "화면의 주변을 보며, 왼쪽으로 조금씩 조작해요." },
+  { "id": "simulation_steer_right", "text": "화면의 주변을 보며, 오른쪽으로 조금씩 조작해요." },
+  { "id": "simulation_center", "text": "목표 차로예요. 핸들을 중앙에 두고 신호를 꺼요." },
+  { "id": "simulation_complete", "text": "직접 조작해 마쳤어요. 방금 연습을 함께 돌아봐요." },
+  { "id": "simulation_wrong_signal", "text": "신호가 반대쪽이에요. 목표 방향으로 바꿔봐요." },
+  { "id": "simulation_no_signal", "text": "옆으로 움직이기 전에, 방향지시등부터 켜요." },
+  { "id": "simulation_mirror_first", "text": "움직이기 전에, 가상 미러부터 확인해요." },
+  { "id": "simulation_wrong_mirror", "text": "이동할 방향의 가상 미러를 확인해요." },
+  { "id": "simulation_nearby", "text": "옆차가 가까워요. 핸들을 중앙에 두고 기다려요." },
+  { "id": "simulation_speed_drop", "text": "속도가 빠르게 줄었어요. 조작을 조금 부드럽게 해봐요." },
+  { "id": "simulation_speed_rise", "text": "속도가 빠르게 늘었어요. 가속을 조금 줄여봐요." },
+  { "id": "simulation_road_edge", "text": "가상 도로를 벗어나 연습을 멈췄어요. 다시 시작해요." },
+  { "id": "simulation_collision", "text": "가상 차량이 겹쳐 연습을 멈췄어요. 다시 시작해요." }
+]

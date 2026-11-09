@@ -906,6 +906,114 @@
     "sha256": "6e7bfc258fb2ef5709697bf3d49c4babffc0c386884060d9a955d7b9df2a2bf7"
   },
   {
+    "id": "simulation_start_left",
+    "text": "왼쪽 차로로 가볼게요. 먼저 왼쪽 신호를 켜요.",
+    "seconds": 3.901,
+    "sha256": "fb6b84e769646bda0c0b1bc473482aa0391b0fa75a4cac8ed12ed904f968eb1f"
+  },
+  {
+    "id": "simulation_start_right",
+    "text": "오른쪽 차로로 가볼게요. 먼저 오른쪽 신호를 켜요.",
+    "seconds": 4.145,
+    "sha256": "c53adbebda2b3c4f0c1ead78241e25ded2bb614a1b3ccbdbbab8f4a13a0b9ccb"
+  },
+  {
+    "id": "simulation_mirror_left",
+    "text": "왼쪽 가상 미러를 확인해요.",
+    "seconds": 2.311,
+    "sha256": "b2f21caf8bf6e66627162cda15d408cbb51c2c28210e1782f12e0e61a6074858"
+  },
+  {
+    "id": "simulation_mirror_right",
+    "text": "오른쪽 가상 미러를 확인해요.",
+    "seconds": 2.427,
+    "sha256": "c4cf9b434ec74e68b3335f898e65e303abd4871a4e8553359c8189099a9fea44"
+  },
+  {
+    "id": "simulation_wait",
+    "text": "옆에 가상 차량이 있어요. 핸들을 중앙에 두고 기다려요.",
+    "seconds": 4.435,
+    "sha256": "1b83458b923f459a1f4cf50daaa5b01b02007f3b2afea6a1cf064f9c00ce3126"
+  },
+  {
+    "id": "simulation_steer_left",
+    "text": "화면의 주변을 보며, 왼쪽으로 조금씩 조작해요.",
+    "seconds": 3.862,
+    "sha256": "fd410f936c3f97dc7e11a204250760e7cc47d125a08e117f4a2cadaa0fc684b2"
+  },
+  {
+    "id": "simulation_steer_right",
+    "text": "화면의 주변을 보며, 오른쪽으로 조금씩 조작해요.",
+    "seconds": 3.978,
+    "sha256": "e9a9aeb12155b1513c95f1eb86e986658b91780c47a2e46c908ca6c27a0927ef"
+  },
+  {
+    "id": "simulation_center",
+    "text": "목표 차로예요. 핸들을 중앙에 두고 신호를 꺼요.",
+    "seconds": 3.901,
+    "sha256": "2553f10b2af710e681b710879ec707156fa6c3a3a9def389b2ee13d1623f761f"
+  },
+  {
+    "id": "simulation_complete",
+    "text": "직접 조작해 마쳤어요. 방금 연습을 함께 돌아봐요.",
+    "seconds": 4.274,
+    "sha256": "ca3aa0d8f01ea6a1c042c0e2d07689b1e2f44a8434700d75a0a837113405ffbf"
+  },
+  {
+    "id": "simulation_wrong_signal",
+    "text": "신호가 반대쪽이에요. 목표 방향으로 바꿔봐요.",
+    "seconds": 3.796,
+    "sha256": "7f78010dbfcf66711942e4f30d78de6b2df1654fc5502414c56f75528c7bac16"
+  },
+  {
+    "id": "simulation_no_signal",
+    "text": "옆으로 움직이기 전에, 방향지시등부터 켜요.",
+    "seconds": 3.796,
+    "sha256": "ff1f460b2146474bd2e795aae65f0f393be0a64a24d30afe0343a9b1d6e32034"
+  },
+  {
+    "id": "simulation_mirror_first",
+    "text": "움직이기 전에, 가상 미러부터 확인해요.",
+    "seconds": 3.414,
+    "sha256": "1ce296a83af0d3969857f990a855f3f6e62ee61bd5ccf0b79284e173cbe98a57"
+  },
+  {
+    "id": "simulation_wrong_mirror",
+    "text": "이동할 방향의 가상 미러를 확인해요.",
+    "seconds": 2.81,
+    "sha256": "c3ba4d8e68dd9dafd045d570cad4463dfe22d6c81db20507c1d9c7533f7f8bc8"
+  },
+  {
+    "id": "simulation_nearby",
+    "text": "옆차가 가까워요. 핸들을 중앙에 두고 기다려요.",
+    "seconds": 3.761,
+    "sha256": "2a46b5067ccdda895ad6de5de62f403c08fb19da792061d4460bf505cc5b2257"
+  },
+  {
+    "id": "simulation_speed_drop",
+    "text": "속도가 빠르게 줄었어요. 조작을 조금 부드럽게 해봐요.",
+    "seconds": 4.342,
+    "sha256": "ec474c8e5f589582c129fcbbee3cb634c606a60483e3164014bc76a1f9dece56"
+  },
+  {
+    "id": "simulation_speed_rise",
+    "text": "속도가 빠르게 늘었어요. 가속을 조금 줄여봐요.",
+    "seconds": 3.9,
+    "sha256": "13471dcb9a21f081467723d8bcb174e6b80ac9700fe9cf6b25c239a2ba8d32eb"
+  },
+  {
+    "id": "simulation_road_edge",
+    "text": "가상 도로를 벗어나 연습을 멈췄어요. 다시 시작해요.",
+    "seconds": 4.533,
+    "sha256": "a2b434e9d838328472dd1aa5acf3c20f563f25f7c5b568ce075d457ddf00af9d"
+  },
+  {
+    "id": "simulation_collision",
+    "text": "가상 차량이 겹쳐 연습을 멈췄어요. 다시 시작해요.",
+    "seconds": 4.545,
+    "sha256": "d52a31ab062921b33d0d826bbe28a7ca6f5424122b7806c3119a16e4911c55d3"
+  },
+  {
     "id": "signal_how_to",
     "text": "정차한 상태에서 방향지시등 조작부를 찾아볼까요? 레버형 차량의 예시에서는 아래로 움직이면 왼쪽, 위로 움직이면 오른쪽이에요. 내 차의 표시와 사용설명서를 먼저 확인해 주세요.",
     "seconds": 13.376,
