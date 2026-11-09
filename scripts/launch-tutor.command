@@ -43,7 +43,7 @@ find_target() {
   printf '%s' "$found"
 }
 
-printf '\n드라이브스텝 · 플레오스 운전 튜터를 열고 있어요.\n'
+printf '\n차근 · 플레오스 운전 튜터를 열고 있어요.\n'
 printf '프로젝트: %s\n\n' "$DRIVESTEP_ROOT"
 DRIVESTEP_SERIAL="$(find_target)" || fail "실행 대상을 하나로 확인할 수 없어요."
 
@@ -88,8 +88,8 @@ fi
 # Confirm the target again immediately before the install; preserve the exact serial.
 DRIVESTEP_CONFIRMED="$("$DRIVESTEP_ADB" -s "$ANDROID_SERIAL" emu avd name 2>/dev/null | tr -d '\r' | head -n 1)" || DRIVESTEP_CONFIRMED=""
 [ "$DRIVESTEP_CONFIRMED" = "$DRIVESTEP_AVD" ] || fail "설치 전에 기기 연결이 바뀌었어요. 다른 기기에는 설치하지 않았습니다."
-printf '드라이브스텝을 설치하고 현재 차량 사용자로 엽니다. 기존 학습 기록은 유지합니다.\n'
+printf '차근을 설치하고 현재 차량 사용자로 엽니다. 기존 학습 기록은 유지합니다.\n'
 "$DRIVESTEP_SCRIPT_DIR/install.sh"
-printf '\n준비됐어요! 플레오스 자동차 화면에서 드라이브스텝을 확인해 주세요.\n'
+printf '\n준비됐어요! 플레오스 자동차 화면에서 차근을 확인해 주세요.\n'
 printf '권한 요청이 나오면 차량 앱 화면에서 선택할 수 있습니다.\n'
 printf '다음에도 이 launch-tutor.command 파일을 더블클릭하면 됩니다.\n'

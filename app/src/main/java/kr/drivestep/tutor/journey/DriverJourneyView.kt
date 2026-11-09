@@ -1,6 +1,7 @@
 package kr.drivestep.tutor.journey
 
 import android.app.AlertDialog
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
@@ -14,6 +15,7 @@ import android.widget.ImageView
 import android.widget.ScrollView
 import android.widget.SeekBar
 import android.widget.TextView
+import kr.drivestep.tutor.R
 import kr.drivestep.tutor.design.PleosUi
 import kr.drivestep.tutor.design.PleosSwitch
 import org.json.JSONArray
@@ -24,6 +26,8 @@ import java.util.Locale
 import kotlin.math.roundToInt
 
 /** The parked-only service journey. SDK subscriptions and vehicle UX gating belong to the host. */
+// Created in code with required host/session arguments; never inflated from XML.
+@SuppressLint("ViewConstructor")
 class DriverJourneyView(
     context: Context,
     private val onDestination: (JourneyDestination) -> Unit,
@@ -505,7 +509,7 @@ class DriverJourneyView(
     private fun addSlider(parent: LinearLayout, title: String, value: Int, min: Int, max: Int, unit: String, key: String, onChange: (Int) -> Unit) {
         val top = horizontal(parent, 30)
         top.addView(label(title, 18, grey), LayoutParams(0, dp(30), 1f))
-        val number = label("$value $unit", 22, white, true)
+        val number = label(context.getString(R.string.journey_slider_value, value, unit), 22, white, true)
         top.addView(number, LayoutParams(dp(112), dp(30)))
         val slider = SeekBar(context).apply {
             this.max = max - min; progress = value - min; contentDescription = key
@@ -515,7 +519,10 @@ class DriverJourneyView(
                 override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
                 override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    if (fromUser && active && !closed) { number.text = "${progress + min} $unit"; onChange(progress + min) }
+                    if (fromUser && active && !closed) {
+                        number.text = context.getString(R.string.journey_slider_value, progress + min, unit)
+                        onChange(progress + min)
+                    }
                 }
             })
         }

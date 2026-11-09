@@ -107,7 +107,7 @@ class EmulatorControls(
         val token = generation.incrementAndGet()
         clientId = "drivestep-panel-${UUID.randomUUID()}"
         val client = clientId
-        heartbeat = executor.scheduleAtFixedRate({
+        heartbeat = executor.scheduleWithFixedDelay({
             if (current(token)) runCatching { http("/browser/session?client=$client", "POST", token) }
         }, 0, 1, TimeUnit.SECONDS)
     }

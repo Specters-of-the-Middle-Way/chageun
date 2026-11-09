@@ -11,6 +11,7 @@ import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import java.util.Locale
+import kr.drivestep.tutor.R
 
 /**
  * Speaks the current parked-practice cue. The caller must setActive(false) onStop and
@@ -19,6 +20,19 @@ import java.util.Locale
  */
 class VoiceCoach(context: Context, private val onStatus: (String) -> Unit) : AutoCloseable {
     private val app = context.applicationContext
+    private val bundledVoiceResources by lazy {
+        val clips = app.resources.obtainTypedArray(R.array.coach_voice_resources)
+        try {
+            buildMap {
+                for (index in 0 until clips.length()) {
+                    val id = clips.getResourceId(index, 0)
+                    if (id != 0) put(app.resources.getResourceEntryName(id).removePrefix("coach_"), id)
+                }
+            }
+        } finally {
+            clips.recycle()
+        }
+    }
     private val main = Handler(Looper.getMainLooper())
     private val audioManager = app.getSystemService(AudioManager::class.java)
     private val attributes = AudioAttributes.Builder()
@@ -207,9 +221,7 @@ class VoiceCoach(context: Context, private val onStatus: (String) -> Unit) : Aut
         runCatching { tts?.stop() }
         clearTimeout(playback)
         releasePlayer(playback)
-        val resource = if (RESOURCE_ID.matches(playback.cue.id)) {
-            app.resources.getIdentifier("coach_${playback.cue.id}", "raw", app.packageName)
-        } else 0
+        val resource = bundledVoiceResources[playback.cue.id] ?: 0
         if (resource == 0) {
             finish(playback)
             report("음성 파일 없음 · 화면 안내 사용")
@@ -342,6 +354,5 @@ class VoiceCoach(context: Context, private val onStatus: (String) -> Unit) : Aut
         const val PRE_ROLL_MS = 200L
         const val START_TIMEOUT_MS = 3_000L
         const val PLAYBACK_TIMEOUT_MS = 25_000L
-        val RESOURCE_ID = Regex("[a-z0-9_]+")
     }
 }

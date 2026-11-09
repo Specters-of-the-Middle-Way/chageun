@@ -7,6 +7,8 @@
 
 `app/src/main/res/drawable/pleos_*.xml`은 공식 Figma 파일의 원본 벡터 path와 노드 변환을 읽어 Android VectorDrawable 형식으로 변환한 것입니다. 생성형 이미지나 육안으로 따라 그린 아이콘이 아닙니다. 원본 노드·경로·파일 SHA256은 `asset-provenance.json`에서 확인합니다. 앱에서 크기와 단색 tint를 적용합니다. `pleos_seat`는 원본 열선 시트 구성 요소의 시트 모양 path만 사용한 파생 에셋입니다.
 
+Android 경로는 SVGO 4.0.0의 `convertPathData`로 명령을 줄이고 좌표를 소수 둘째 자리로 정리했습니다(`makeArcs=false`). 변환 전 Android 해시와 현재 해시를 함께 기록하며, 원본 Figma 노드의 출처는 유지합니다. 사용하지 않는 내보내기 8개는 `unused-drawables/`에 보관하고 APK에서는 제외합니다.
+
 색상·버튼 규격은 `design-tokens.json`에 원본 모드와 함께 기록합니다. `PleosUi.kt`는 디자인 에셋을 네이티브 Android 컨트롤에 적용하는 앱 코드이며, 현대차가 배포한 Android 위젯 라이브러리라고 주장하지 않습니다.
 
 원본 .fig 전체와 원본에 포함된 타사 앱 로고·인물 사진은 앱에 포함하지 않습니다. 가상 도로와 주차장의 좌표·차체 윤곽은 시뮬레이션 렌더링이며 공식 카메라 영상·차량 3D 모델 에셋이 아닙니다.

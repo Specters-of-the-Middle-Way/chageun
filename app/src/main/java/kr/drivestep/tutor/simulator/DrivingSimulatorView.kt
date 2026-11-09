@@ -1,6 +1,7 @@
 package kr.drivestep.tutor.simulator
 
 import android.app.AlertDialog
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
@@ -13,6 +14,7 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
+import kr.drivestep.tutor.design.PracticeButton
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
@@ -31,6 +33,8 @@ import kotlin.math.roundToInt
  * The host owns the P/UX gate and calls setActive(false) whenever that gate or this screen closes.
  * A suspended view keeps its session, but only an explicit Resume restarts time and input.
  */
+// Created in code with required host/session arguments; never inflated from XML.
+@SuppressLint("ViewConstructor")
 class DrivingSimulatorView(
     context: Context,
     private val onCue: (CoachCue) -> Unit,
@@ -653,7 +657,7 @@ class DrivingSimulatorView(
         if (bold) setTypeface(typeface, Typeface.BOLD)
     }
 
-    private fun button(title: String, key: String, secondary: Boolean = false, action: () -> Unit) = Button(context).apply {
+    private fun button(title: String, key: String, secondary: Boolean = false, action: () -> Unit) = PracticeButton(context).apply {
         text = title; textSize = 17f; isAllCaps = false
         minWidth = 0; minimumWidth = 0; minHeight = 0; minimumHeight = 0
         setPadding(dp(7), 0, dp(7), 0); gravity = Gravity.CENTER

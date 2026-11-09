@@ -1,5 +1,6 @@
 package kr.drivestep.tutor.contextcoach
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -27,6 +28,8 @@ import java.util.Date
 import java.util.Locale
 
 /** SIMULATION-only signal workbench. It never imports, queries or controls a vehicle SDK. */
+// Created in code with required host/session arguments; never inflated from XML.
+@SuppressLint("ViewConstructor")
 class SituationCoachView(
     context: Context,
     private val onCue: (CoachCue) -> Unit,
@@ -594,10 +597,16 @@ class SituationCoachView(
 /** Saved/live input plot only; displaying a change does not infer its cause or safety. */
 private class ObservationChart(context: Context) : View(context) {
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val speedPath = Path()
     private var samples = emptyList<SituationInput>()
     private var selected = -1
+    private var lower = 0.0
+    private var upper = 50.0
     fun show(values: List<SituationInput>, cursor: Int = -1) {
         samples = values; selected = cursor
+        val speeds = values.mapNotNull { it.speedKmh?.takeIf(Double::isFinite) }
+        lower = ((speeds.minOrNull() ?: 0.0) - 5).coerceAtLeast(0.0)
+        upper = ((speeds.maxOrNull() ?: 45.0) + 5).coerceAtLeast(lower + 10)
         contentDescription = if (values.isEmpty()) "아직 가상 속도 관측이 없어요" else "가상 속도 ${values.first().speedKmh ?: 0.0}에서 ${values.last().speedKmh ?: 0.0} 킬로미터로 변한 관측 그래프"
         invalidate()
     }
@@ -609,9 +618,6 @@ private class ObservationChart(context: Context) : View(context) {
         paint.style = Paint.Style.FILL; paint.textSize = 12f * density; paint.color = Color.rgb(89, 111, 113)
         c.drawText("가상 속도 변화 · km/h", 4f * density, 15f * density, paint)
         paint.strokeWidth = density
-        val values = samples.mapNotNull { it.speedKmh?.takeIf(Double::isFinite) }
-        val lower = ((values.minOrNull() ?: 0.0) - 5).coerceAtLeast(0.0)
-        val upper = ((values.maxOrNull() ?: 45.0) + 5).coerceAtLeast(lower + 10)
         for (i in 0..2) {
             val y = top + (bottom - top) * i / 2f
             paint.color = Color.rgb(217, 230, 223); c.drawLine(left, y, right, y, paint)
@@ -623,7 +629,7 @@ private class ObservationChart(context: Context) : View(context) {
         val span = (samples.last().atElapsedMillis - first).coerceAtLeast(1)
         fun x(index: Int) = left + (right - left) * ((samples[index].atElapsedMillis - first).toDouble() / span).toFloat()
         fun y(index: Int) = bottom - (bottom - top) * (((samples[index].speedKmh ?: lower) - lower) / (upper - lower)).coerceIn(0.0, 1.0).toFloat()
-        val path = Path()
+        val path = speedPath.apply { rewind() }
         samples.indices.forEach { index -> if (index == 0) path.moveTo(x(index), y(index)) else path.lineTo(x(index), y(index)) }
         paint.style = Paint.Style.STROKE; paint.strokeWidth = 3f * density; paint.color = Color.rgb(8, 127, 113); c.drawPath(path, paint)
         val index = if (selected in samples.indices) selected else samples.lastIndex

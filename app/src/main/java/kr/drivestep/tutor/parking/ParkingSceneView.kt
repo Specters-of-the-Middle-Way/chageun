@@ -10,6 +10,7 @@ import android.graphics.Path
 import android.graphics.Shader
 import android.graphics.Typeface
 import android.view.View
+import kr.drivestep.tutor.R
 import kotlin.math.min
 
 /** Draws one educational world. There is no camera feed, vehicle API, or separate animation state. */
@@ -26,8 +27,7 @@ class ParkingSceneView(context: Context) : View(context) {
     private val pale = Color.rgb(222, 229, 233)
     private val amber = Color.rgb(255, 186, 105)
     private val regularTypeface = runCatching {
-        val id = resources.getIdentifier("asta_sans", "font", context.packageName)
-        if (id != 0) resources.getFont(id) else Typeface.DEFAULT
+        resources.getFont(R.font.asta_sans)
     }.getOrDefault(Typeface.DEFAULT)
     private val boldTypeface = Typeface.create(regularTypeface, Typeface.BOLD)
 

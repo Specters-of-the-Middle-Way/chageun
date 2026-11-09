@@ -1,6 +1,7 @@
 package kr.drivestep.tutor.growth
 
 import android.app.AlertDialog
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
@@ -14,6 +15,8 @@ import java.util.Date
 import java.util.Locale
 
 /** Entirely parked, fictional scenario training; isolated from the real Vehicle SDK. */
+// Created in code with required host/session arguments; never inflated from XML.
+@SuppressLint("ViewConstructor")
 class GrowthTutorView(
     context: Context,
     private val onCue: (CoachCue) -> Unit,

@@ -23,7 +23,8 @@
       ],
       "svgSha256": "862a2a30e58343c7bd979689374e8430c299bcb822d0dad501a0922fc055bfdf",
       "androidResourcePath": "app/src/main/res/drawable/pleos_switch_on.xml",
-      "androidSha256": "f7ad51422404ffc65be55975f3814d77fb9ffae59052e8f88a634ca9a15488f9"
+      "androidSha256": "b6beddb5bac6e301671eb6020936ffbf4779da9642dc9b7f51080b9542e68d74",
+      "originalAndroidSha256": "f7ad51422404ffc65be55975f3814d77fb9ffae59052e8f88a634ca9a15488f9"
     },
     {
       "name": "pleos_switch_off",
@@ -44,7 +45,8 @@
       ],
       "svgSha256": "8095e15a67f87782beea9031b0c631e86cfa0fdf25849cf70b74ee2ffacb572d",
       "androidResourcePath": "app/src/main/res/drawable/pleos_switch_off.xml",
-      "androidSha256": "d710e17962b0f448fdfd8de805907ccd705a2a7ff455d577a7ed40a9928fa849"
+      "androidSha256": "581ca239f6dc9518db430853276bf087598ced10437163aea5b28fafd36ae549",
+      "originalAndroidSha256": "d710e17962b0f448fdfd8de805907ccd705a2a7ff455d577a7ed40a9928fa849"
     },
     {
       "name": "pleos_checkbox_off",
@@ -61,7 +63,8 @@
       ],
       "svgSha256": "9e99811a1fc733334aff93d2cc1b4bae69f3b79522ac1e7dcbc1b7f5a2a34f33",
       "androidResourcePath": "app/src/main/res/drawable/pleos_checkbox_off.xml",
-      "androidSha256": "340888cec52df9ccd94506853458479c8398538eac28c3e3abc0e0820e219c64"
+      "androidSha256": "8afd64f5c7a2d3889aedd5a34a84bc5859f6198ff57392523caee8b54bb004c8",
+      "originalAndroidSha256": "340888cec52df9ccd94506853458479c8398538eac28c3e3abc0e0820e219c64"
     },
     {
       "name": "pleos_checkbox_on",
@@ -82,7 +85,8 @@
       ],
       "svgSha256": "79afde90d9d8e69c8a32f96e57603ac6a7c896f20b08b5fcba0c4f48b93f2e04",
       "androidResourcePath": "app/src/main/res/drawable/pleos_checkbox_on.xml",
-      "androidSha256": "1ddc75ef7da3a00ca89eeb66bb244a708f7d83bfc2864d539606e31a6938402e"
+      "androidSha256": "8b77ddb905e00b789115e7ff7256c74c18fb2ada40326cef970e7b922f04419f",
+      "originalAndroidSha256": "1ddc75ef7da3a00ca89eeb66bb244a708f7d83bfc2864d539606e31a6938402e"
     },
     {
       "name": "pleos_steering_a",
@@ -99,7 +103,8 @@
       ],
       "svgSha256": "65d805c14c39f6db0765cdcd42fe7152d67f617e2eeeb1df56682132058bba1c",
       "androidResourcePath": "app/src/main/res/drawable/pleos_steering_a.xml",
-      "androidSha256": "c33e4afd1bbf874c9eb23dfdff9c91902f7df9b1c50e120559da59d81cb63dd4"
+      "androidSha256": "2152253305dd6ed6f18cc4a653a1606a33d6a663846866be86dc94321692fb63",
+      "originalAndroidSha256": "c33e4afd1bbf874c9eb23dfdff9c91902f7df9b1c50e120559da59d81cb63dd4"
     },
     {
       "name": "pleos_steering_b",
@@ -116,7 +121,8 @@
       ],
       "svgSha256": "cf7f50b41e3c0feb8e459cd85810b0e21e15be3eed9a9c075bcb8077e5877a0d",
       "androidResourcePath": "app/src/main/res/drawable/pleos_steering_b.xml",
-      "androidSha256": "1e6709076d77d2257029d2ceba1bdb0d948291c37a8ab9a48e518537a47e919a"
+      "androidSha256": "f3943a07d2025f0eb6ace3af1c5a9cb9e9ef91adc33d64711820b116713fa309",
+      "originalAndroidSha256": "1e6709076d77d2257029d2ceba1bdb0d948291c37a8ab9a48e518537a47e919a"
     },
     {
       "name": "pleos_steering_c",
@@ -132,8 +138,9 @@
         }
       ],
       "svgSha256": "850f6910f5625584b351bf775b03e31fd4d8b09301a8e252bb87cf8d4b2f41b5",
-      "androidResourcePath": "app/src/main/res/drawable/pleos_steering_c.xml",
-      "androidSha256": "cdc95651f57444fd01750b7d523682a2adae80d225f395289227b276521c902c"
+      "androidResourcePath": "third_party/pleos/unused-drawables/pleos_steering_c.xml",
+      "androidSha256": "cdc95651f57444fd01750b7d523682a2adae80d225f395289227b276521c902c",
+      "packaged": false
     },
     {
       "name": "pleos_vehicle",
@@ -150,7 +157,8 @@
       ],
       "svgSha256": "fd5942464f9cd1ab28b66a81b397ea210194eac8207853df6addcd38ab984c58",
       "androidResourcePath": "app/src/main/res/drawable/pleos_vehicle.xml",
-      "androidSha256": "955aa7bec9159e12db32da6b76e04d337e857c9d932fa7c847fa49f7862381ae"
+      "androidSha256": "e534942992af276764b25ad118bb6fcf25d7b218fe0e7ac1d0dd89d9b2c9a5b1",
+      "originalAndroidSha256": "955aa7bec9159e12db32da6b76e04d337e857c9d932fa7c847fa49f7862381ae"
     },
     {
       "name": "pleos_profile",
@@ -171,7 +179,8 @@
       ],
       "svgSha256": "d5250c603b8f69890c9a73ad38738ec992e1e0ad1ead24a9a57fbc66f6f5a2f2",
       "androidResourcePath": "app/src/main/res/drawable/pleos_profile.xml",
-      "androidSha256": "c7fd49e2c37d9de07d8902a8612f148e6364a25d675f8b79c0f7df120e7cfbc9"
+      "androidSha256": "b9b38df175425f895ca6a6b34d20a4bad856e3a8f12e56b17994681920a55715",
+      "originalAndroidSha256": "c7fd49e2c37d9de07d8902a8612f148e6364a25d675f8b79c0f7df120e7cfbc9"
     },
     {
       "name": "pleos_profile_solid",
@@ -192,7 +201,8 @@
       ],
       "svgSha256": "52da5fa479f635b9d822577671e32228f87e5d7bf9957907bc87b7ba7b1934a7",
       "androidResourcePath": "app/src/main/res/drawable/pleos_profile_solid.xml",
-      "androidSha256": "c934633c462b44406316b297453e61e34ee21ba2f275fd5cf0ce90390d403ad8"
+      "androidSha256": "c93b05364db43306ca0963ca9fa8f42f40bb9797805c356972395614d37777b9",
+      "originalAndroidSha256": "c934633c462b44406316b297453e61e34ee21ba2f275fd5cf0ce90390d403ad8"
     },
     {
       "name": "pleos_seat",
@@ -209,7 +219,8 @@
       ],
       "svgSha256": "99d7e10505aedc2a6b27caeb1edc091f3b5a7e4fe5dc190828484500280ecf84",
       "androidResourcePath": "app/src/main/res/drawable/pleos_seat.xml",
-      "androidSha256": "9a5ef663d45233876080d34b50dd9eb5a1433f832a459806d5ba96f8b3afce40"
+      "androidSha256": "9611e149e49af636d046c1ff90f08e766b6980c94bbaf8eb4e3a0a632c7bd95b",
+      "originalAndroidSha256": "9a5ef663d45233876080d34b50dd9eb5a1433f832a459806d5ba96f8b3afce40"
     },
     {
       "name": "pleos_seat_heating",
@@ -237,8 +248,9 @@
         }
       ],
       "svgSha256": "64706c5cab8b6eade103c01f016b446831345d502aee732a55a6001d4717a92d",
-      "androidResourcePath": "app/src/main/res/drawable/pleos_seat_heating.xml",
-      "androidSha256": "70f88a33ff4a38fcae5d10c8c8753e43e71c895f5fcc5bb4bf12fabff9d10cbb"
+      "androidResourcePath": "third_party/pleos/unused-drawables/pleos_seat_heating.xml",
+      "androidSha256": "70f88a33ff4a38fcae5d10c8c8753e43e71c895f5fcc5bb4bf12fabff9d10cbb",
+      "packaged": false
     },
     {
       "name": "pleos_navigation",
@@ -255,7 +267,8 @@
       ],
       "svgSha256": "db1765e49411a4581cb8e9824fa65376177ceb1948c9bc75959d81f22f952af5",
       "androidResourcePath": "app/src/main/res/drawable/pleos_navigation.xml",
-      "androidSha256": "3ebf3c648c32ac0000f7edaba5761829d5c37bb484a0c479134c042877781ef4"
+      "androidSha256": "082cd37bc450220b019910dd8b21497026201c5b72b5ce0b17c050f43055afd7",
+      "originalAndroidSha256": "3ebf3c648c32ac0000f7edaba5761829d5c37bb484a0c479134c042877781ef4"
     },
     {
       "name": "pleos_driving",
@@ -276,7 +289,8 @@
       ],
       "svgSha256": "30ffbf9b7154e6ff54122fb73dd811e4d069d2d7a9b545eed1a69445b46c4ef1",
       "androidResourcePath": "app/src/main/res/drawable/pleos_driving.xml",
-      "androidSha256": "125058274805d9c2882d9c106628916344977cf6b049fc39d07f197d0d9e2b37"
+      "androidSha256": "9e3e070017a83ffc65509e74c23b3c530ea5b51ee8d398bd60d269b1b8b7ffee",
+      "originalAndroidSha256": "125058274805d9c2882d9c106628916344977cf6b049fc39d07f197d0d9e2b37"
     },
     {
       "name": "pleos_eye",
@@ -297,7 +311,8 @@
       ],
       "svgSha256": "195e8491aff9d78f5336879106245e7aa5de51aa6cb1f8c2f6b01fff191aafdf",
       "androidResourcePath": "app/src/main/res/drawable/pleos_eye.xml",
-      "androidSha256": "504bf7a1a0a71728bf1e12144c73be0967e4a6c8fdd974ef914fb4575ebfa9d3"
+      "androidSha256": "7a73284740c6b437948184ed75dba82b61d1052aff4740da68879f4c345f1eca",
+      "originalAndroidSha256": "504bf7a1a0a71728bf1e12144c73be0967e4a6c8fdd974ef914fb4575ebfa9d3"
     },
     {
       "name": "pleos_eye_closed",
@@ -317,8 +332,9 @@
         }
       ],
       "svgSha256": "58d592e783b30e99e1bdc9c5a48121a3582c41e16c6f4d60537af6e121a64836",
-      "androidResourcePath": "app/src/main/res/drawable/pleos_eye_closed.xml",
-      "androidSha256": "de9b2178bf09efa090f0bf86f82e9ff27afb41b9f8ecc742aee21f963da0c6f6"
+      "androidResourcePath": "third_party/pleos/unused-drawables/pleos_eye_closed.xml",
+      "androidSha256": "de9b2178bf09efa090f0bf86f82e9ff27afb41b9f8ecc742aee21f963da0c6f6",
+      "packaged": false
     },
     {
       "name": "pleos_check",
@@ -335,7 +351,8 @@
       ],
       "svgSha256": "d8ddb137bbbcaf2d32b668d637754bb9e04abdaec5e9238d78745559a7812695",
       "androidResourcePath": "app/src/main/res/drawable/pleos_check.xml",
-      "androidSha256": "dde86694fb5cbe465f0d2fafd40a3856e168245a9bd4ba197aadfe56b27aae32"
+      "androidSha256": "ab2cebb89f509959ead9c4a771a8c7998bdb59230e4b8747b0c4cbf5172bb3e7",
+      "originalAndroidSha256": "dde86694fb5cbe465f0d2fafd40a3856e168245a9bd4ba197aadfe56b27aae32"
     },
     {
       "name": "pleos_check_bold",
@@ -351,8 +368,9 @@
         }
       ],
       "svgSha256": "0b1927fa3495afc156461cbda25fb490c54af7f8ff87e6e4a6fdcf8a0219f8ce",
-      "androidResourcePath": "app/src/main/res/drawable/pleos_check_bold.xml",
-      "androidSha256": "44d6ae3ee9d209c9b2f2dcd1b1a1de9949c63e3026cef03bf7588852ae1be46b"
+      "androidResourcePath": "third_party/pleos/unused-drawables/pleos_check_bold.xml",
+      "androidSha256": "44d6ae3ee9d209c9b2f2dcd1b1a1de9949c63e3026cef03bf7588852ae1be46b",
+      "packaged": false
     },
     {
       "name": "pleos_check_round",
@@ -373,7 +391,8 @@
       ],
       "svgSha256": "985409f00455778c1b6eaa18807af76d7b276fe2799085854c314d490d4c16b4",
       "androidResourcePath": "app/src/main/res/drawable/pleos_check_round.xml",
-      "androidSha256": "33737bfa8657d5f2f3cf447cd15d5d478bbf405ee7fe092ec10d6f76d3317c4d"
+      "androidSha256": "ee657357154c8d063ac1b00dd72698a0a4bf49ec5321d71fb46cd754ff796791",
+      "originalAndroidSha256": "33737bfa8657d5f2f3cf447cd15d5d478bbf405ee7fe092ec10d6f76d3317c4d"
     },
     {
       "name": "pleos_back",
@@ -390,7 +409,8 @@
       ],
       "svgSha256": "d582b9f363853b9b7f7b0c0c75ff90305f5cf8bd0f1236e76e9cc65abf0321f1",
       "androidResourcePath": "app/src/main/res/drawable/pleos_back.xml",
-      "androidSha256": "cbfa7947c13e6ea28da1c3b70827499ca6b47e833851407e3da0cb7b8f0d2b48"
+      "androidSha256": "29fed151de30109a2faa248b414a2518b38376bfcf7bbcdda645b9b5dc2c4680",
+      "originalAndroidSha256": "cbfa7947c13e6ea28da1c3b70827499ca6b47e833851407e3da0cb7b8f0d2b48"
     },
     {
       "name": "pleos_next",
@@ -407,7 +427,8 @@
       ],
       "svgSha256": "ebb2708a43d25bcd56913c6ee2b59a282bc9a0e2516c3ae600baf07579f63217",
       "androidResourcePath": "app/src/main/res/drawable/pleos_next.xml",
-      "androidSha256": "66bb9b1987c31cf8017402d528d481712cbd86834786e51af3f29b801f0d5d8e"
+      "androidSha256": "d6751db6e40012d4de7bad5e136a118e1064757f223541fb70ba50e550e81346",
+      "originalAndroidSha256": "66bb9b1987c31cf8017402d528d481712cbd86834786e51af3f29b801f0d5d8e"
     },
     {
       "name": "pleos_up",
@@ -423,8 +444,9 @@
         }
       ],
       "svgSha256": "1b0e28503522f61bfcad9cc727a7bd90f2b61455efa9b7e2c45e7ad7ef187190",
-      "androidResourcePath": "app/src/main/res/drawable/pleos_up.xml",
-      "androidSha256": "8df46104c51ff3d941b7d73ba119ef8c4e8872e1521cf745ec12451e4c140ff9"
+      "androidResourcePath": "third_party/pleos/unused-drawables/pleos_up.xml",
+      "androidSha256": "8df46104c51ff3d941b7d73ba119ef8c4e8872e1521cf745ec12451e4c140ff9",
+      "packaged": false
     },
     {
       "name": "pleos_down",
@@ -440,8 +462,9 @@
         }
       ],
       "svgSha256": "6da3fdfd79760f8aa9fcb5d034307d218b57e72424e568a2a2cd9d9099a7ed18",
-      "androidResourcePath": "app/src/main/res/drawable/pleos_down.xml",
-      "androidSha256": "a3aca5a24e5ca426f0020070c58fc6ceac394d624904d9170e0bda56524a1a3d"
+      "androidResourcePath": "third_party/pleos/unused-drawables/pleos_down.xml",
+      "androidSha256": "a3aca5a24e5ca426f0020070c58fc6ceac394d624904d9170e0bda56524a1a3d",
+      "packaged": false
     },
     {
       "name": "pleos_close",
@@ -458,7 +481,8 @@
       ],
       "svgSha256": "cca21befa20745c8e7a485c874b121350b8f5cdcfb70c36f619bb39910eb7824",
       "androidResourcePath": "app/src/main/res/drawable/pleos_close.xml",
-      "androidSha256": "0a2ec7beaeba2bda28a1e0a1ea16b030ecf3d41c3e6cf4aff92b6119b656f62f"
+      "androidSha256": "2efcf19090577f26b5346358292e4d449e1203134665d6eca6a6f4bb625f2664",
+      "originalAndroidSha256": "0a2ec7beaeba2bda28a1e0a1ea16b030ecf3d41c3e6cf4aff92b6119b656f62f"
     },
     {
       "name": "pleos_sound",
@@ -483,7 +507,8 @@
       ],
       "svgSha256": "86f54ed98213fa27eb70048b0eec2c31bbb23ea9fc8567b8c84e6c26425918cc",
       "androidResourcePath": "app/src/main/res/drawable/pleos_sound.xml",
-      "androidSha256": "03e8dc2bfadc1688c470e53cd59621e887e1aafe1b3f2cbe3a3462c8c31e720d"
+      "androidSha256": "1eda8236ef1aa9499ed4193523263fdc62078020e479ca37125b5d845ae38c74",
+      "originalAndroidSha256": "03e8dc2bfadc1688c470e53cd59621e887e1aafe1b3f2cbe3a3462c8c31e720d"
     },
     {
       "name": "pleos_sound_mute",
@@ -520,7 +545,8 @@
       ],
       "svgSha256": "4c94f99f8aa968285899803f1f6287a6adf55e3113aa85a336850ecad6feb6f7",
       "androidResourcePath": "app/src/main/res/drawable/pleos_sound_mute.xml",
-      "androidSha256": "feb348d8ee5f3392f054ff229e2b949460bee63031fdc9c95b5a880daf6b3011"
+      "androidSha256": "c2bda667e2d2d4e0a0ea0d41efcb083637e65cfd667d94e051485b36f10bb295",
+      "originalAndroidSha256": "feb348d8ee5f3392f054ff229e2b949460bee63031fdc9c95b5a880daf6b3011"
     },
     {
       "name": "pleos_info",
@@ -545,7 +571,8 @@
       ],
       "svgSha256": "65e0eefe52ca3cd59976bd2c37e99ad22ee538d68a2ef7fc4dedba63994e2e05",
       "androidResourcePath": "app/src/main/res/drawable/pleos_info.xml",
-      "androidSha256": "baee19e8069de8a6e82a646389f2d999bfec020fdc0934d2553a21467a606f2b"
+      "androidSha256": "fbe83343e5d2b2a81ec7cf9657db2aeccd2aab3c0788a3a06e5e10382e985956",
+      "originalAndroidSha256": "baee19e8069de8a6e82a646389f2d999bfec020fdc0934d2553a21467a606f2b"
     },
     {
       "name": "pleos_warning",
@@ -562,7 +589,8 @@
       ],
       "svgSha256": "905c72621013429c287c3bc2533985c2e07dd0988e0a5b3a3d72399f2aaa67d4",
       "androidResourcePath": "app/src/main/res/drawable/pleos_warning.xml",
-      "androidSha256": "58262fbe77dc18f7c0c607a79dc786d55bcb9d2a54bc503b141010858cad4fd0"
+      "androidSha256": "5a7968e88854ad48fe6009dc81de1bfbf3957dbbb607cfa3ad9d5ba2036cb64a",
+      "originalAndroidSha256": "58262fbe77dc18f7c0c607a79dc786d55bcb9d2a54bc503b141010858cad4fd0"
     },
     {
       "name": "pleos_plus",
@@ -579,7 +607,8 @@
       ],
       "svgSha256": "2b3009187c67e46e04395c551e03b6078d4cd753527f00276523279114205473",
       "androidResourcePath": "app/src/main/res/drawable/pleos_plus.xml",
-      "androidSha256": "47f8b00faabdaea4311856ca5684807b1ef5dd0a3a696f519ab423862e614d4a"
+      "androidSha256": "aa4d418b0064320be33d391e62aa9fbedfeb91720a023da8940d4374170a408d",
+      "originalAndroidSha256": "47f8b00faabdaea4311856ca5684807b1ef5dd0a3a696f519ab423862e614d4a"
     },
     {
       "name": "pleos_minus",
@@ -596,7 +625,8 @@
       ],
       "svgSha256": "39d3c8233bb4a9d1af5d2f6555b2eec8551b9341b5edd1ca5413f5313e086631",
       "androidResourcePath": "app/src/main/res/drawable/pleos_minus.xml",
-      "androidSha256": "1bc4543061c0400b765ee71492b367bc561e295ff5b8e05cf2eb01e964ec31ad"
+      "androidSha256": "f45ac56f368269ec5948a36c46c4772e5b07e3d695805eea4d16a3bfd6f16ece",
+      "originalAndroidSha256": "1bc4543061c0400b765ee71492b367bc561e295ff5b8e05cf2eb01e964ec31ad"
     },
     {
       "name": "pleos_delete",
@@ -617,7 +647,8 @@
       ],
       "svgSha256": "25877082804e4331a988b288b7d516c766c718ab205fbdebdc4e74a7114236a6",
       "androidResourcePath": "app/src/main/res/drawable/pleos_delete.xml",
-      "androidSha256": "bb6c9ccb013bb4f4063fc9ef3398954e9435c3809506d7345f6f9af42dd6eb1b"
+      "androidSha256": "54dbcbbf093660700ca8b462cf54f1943b195f433f8dc26e131351b9bda91a2d",
+      "originalAndroidSha256": "bb6c9ccb013bb4f4063fc9ef3398954e9435c3809506d7345f6f9af42dd6eb1b"
     },
     {
       "name": "pleos_menu",
@@ -642,7 +673,8 @@
       ],
       "svgSha256": "f928e35053e3dd4456347efce0b8b556612f3947719b15093018a3e7ec3633d2",
       "androidResourcePath": "app/src/main/res/drawable/pleos_menu.xml",
-      "androidSha256": "faa0e6311924dedcb0cc2877c634add0614407b8c830d492b88643886c8f429a"
+      "androidSha256": "fd186a3965e6d08acfcbfe55d42b115cbbb8357f30f7133178f714e1bbf6fa5b",
+      "originalAndroidSha256": "faa0e6311924dedcb0cc2877c634add0614407b8c830d492b88643886c8f429a"
     },
     {
       "name": "pleos_dropdown",
@@ -658,8 +690,9 @@
         }
       ],
       "svgSha256": "37f6430e9325413d79bd2f36792e2d43506bf5a44bc0d52bc8ea91029b91f668",
-      "androidResourcePath": "app/src/main/res/drawable/pleos_dropdown.xml",
-      "androidSha256": "700ff75d02ec398a75d06e04610eff16de87a3e6edbaed6bac0df352d02df2ef"
+      "androidResourcePath": "third_party/pleos/unused-drawables/pleos_dropdown.xml",
+      "androidSha256": "700ff75d02ec398a75d06e04610eff16de87a3e6edbaed6bac0df352d02df2ef",
+      "packaged": false
     },
     {
       "name": "pleos_charging",
@@ -675,10 +708,12 @@
         }
       ],
       "svgSha256": "9bf18aa8166101e87794fd1ccdd358cd5f2a849c741c830384fba8404e00c39d",
-      "androidResourcePath": "app/src/main/res/drawable/pleos_charging.xml",
-      "androidSha256": "fd8194b60e5026f50478c57717941e231a82e88091fdfdb952be04f5f40c9210"
+      "androidResourcePath": "third_party/pleos/unused-drawables/pleos_charging.xml",
+      "androidSha256": "fd8194b60e5026f50478c57717941e231a82e88091fdfdb952be04f5f40c9210",
+      "packaged": false
     }
   ],
   "packagedCount": 34,
-  "context": "User-requested local Pleos competition prototype; not a redistribution license."
+  "context": "User-requested local Pleos competition prototype; not a redistribution license.",
+  "androidOptimization": "SVGO 4.0.0 convertPathData, floatPrecision=2, makeArcs=false. Original source geometry and node provenance retained; unreferenced exports kept outside res/."
 }

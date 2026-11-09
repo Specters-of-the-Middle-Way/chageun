@@ -30,6 +30,9 @@ class CockpitRoadView(context: Context) : View(context) {
     private val laneWidth = 3.5f
     private val viewWidth = 1200f
     private val viewHeight = 430f
+    private val forwardProjection = Projection(600f, 117f, 750f, 1.52f, 0f)
+    private val leftMirrorBounds = RectF(30f, 223f, 249f, 338f)
+    private val rightMirrorBounds = RectF(951f, 223f, 1170f, 338f)
 
     init {
         minimumHeight = (270 * resources.displayMetrics.density).toInt()
@@ -76,7 +79,7 @@ class CockpitRoadView(context: Context) : View(context) {
         canvas.clipRect(0f, 0f, viewWidth, viewHeight)
         val s = snapshot
         val cameraX = (s?.lanePosition?.toFloat() ?: 0f) * laneWidth
-        val projection = Projection(600f, 117f, 750f, 1.52f, cameraX)
+        val projection = forwardProjection.apply { this.cameraX = cameraX }
         val distance = s?.distanceM ?: 0.0
 
         canvas.save()
@@ -95,8 +98,8 @@ class CockpitRoadView(context: Context) : View(context) {
         canvas.restore()
 
         drawHood(canvas)
-        drawMirror(canvas, RectF(30f, 223f, 249f, 338f), -1, s)
-        drawMirror(canvas, RectF(951f, 223f, 1170f, 338f), 1, s)
+        drawMirror(canvas, leftMirrorBounds, -1, s)
+        drawMirror(canvas, rightMirrorBounds, 1, s)
         drawDashboard(canvas, s)
         drawSceneLabel(canvas)
         if (paused) drawPause(canvas)
@@ -108,7 +111,7 @@ class CockpitRoadView(context: Context) : View(context) {
         val horizon: Float,
         val focal: Float,
         val eyeHeight: Float,
-        val cameraX: Float,
+        var cameraX: Float,
         val horizontalDirection: Float = 1f
     ) {
         fun point(x: Float, y: Float, z: Float): PointF {

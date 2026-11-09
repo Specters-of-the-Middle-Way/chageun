@@ -1,6 +1,6 @@
-# DriveStep · 드라이브스텝
+# 차근 · Chageun
 
-초보 운전자가 조작법을 듣고, 직접 연습하고, 피드백과 기록으로 복습하는 **Pleos / Android Automotive용 운전 코치 프로토타입**입니다. GitHub 저장소 이름은 `chageun`이며, 현재 앱 이름과 Gradle 프로젝트 이름은 **드라이브스텝 / DriveStep**입니다.
+초보 운전자가 조작법을 듣고, 직접 연습하고, 피드백과 기록으로 복습하는 **Pleos / Android Automotive용 운전 코치 프로토타입**입니다. 앱 이름은 **차근(Chageun)**, GitHub 저장소 이름은 `chageun`, Gradle 프로젝트 이름은 `DriveStep`입니다.
 
 현재 버전은 **v0.9.0**입니다. **Pleos Connect 공식 디자인 에셋의 벡터 아이콘·스위치·체크박스**를 앱에 적용하고, 공식 색상 토큰을 사용하는 밝은 네이티브 UI로 바꿨습니다. 사용자가 제공한 상세 플로우차트에 따라 **프로필 → 자세·미러 설정 → 출발 전 확인 → 가상 주행·주차 → 복습 → 재방문 확인**으로 연결했습니다. 대표 차종은 **IONIQ 3 유럽형 일반 차체**, 데모 체격은 **180cm·78kg(75~80kg 범위), 남성·동양인**입니다.
 
@@ -120,7 +120,7 @@ Android Studio가 SDK 위치를 인식하면 루트의 `local.properties`에 `sd
 | JDK / Java·Kotlin 대상 | 17 |
 | Gradle Wrapper / Android Gradle Plugin | 8.10.2 / 8.8.2 |
 | Kotlin Plugin | 2.0.0 |
-| compileSdk / targetSdk / minSdk | 35 / 34 / 28 |
+| compileSdk / targetSdk / minSdk | 35 / 35 / 28 |
 | Vehicle SDK | `ai.pleos.playground:Vehicle:2.3.2` |
 | 앱 ID / 실행 Activity | `kr.drivestep.tutor` / `.MainActivity` |
 | 검증한 실행 이미지 | Pleos Connect 2.1.0, Android 14(API 34) |
@@ -167,7 +167,7 @@ Pleos Maven 저장소는 [settings.gradle.kts](settings.gradle.kts)에 이미 �
 2. Android Studio 상단 실행 구성을 **`app`**, 실행 대상 기기를 **`DriveStep_Pleos`**로 선택합니다.
 3. **Build → Select Build Variant** 또는 **View → Tool Windows → Build Variants**에서 `app`을 **`debug`**로 선택합니다.
 4. **Run ▶**을 누릅니다. 처음에는 의존성 다운로드와 빌드에 시간이 걸립니다.
-5. 차량 화면에 **드라이브스텝 → 운전자 설정**이 나타나면 성공입니다. 기존 기록이 있는 기기에는 **운전자와 차량 확인**이 먼저 나올 수 있습니다.
+5. 차량 화면에 **차근 → 운전자 설정**이 나타나면 성공입니다. 기존 기록이 있는 기기에는 **운전자와 차량 확인**이 먼저 나올 수 있습니다.
 
 APK 경로는 `app/build/outputs/apk/debug/app-debug.apk`입니다. 앱 설치에 성공했는데 화면이 열리지 않으면 아래 터미널 방법의 `am start --user current` 명령으로 **현재 차량 사용자**에서 실행하세요.
 

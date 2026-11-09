@@ -1,5 +1,6 @@
 package kr.drivestep.tutor.ride
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
@@ -12,6 +13,7 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
+import kr.drivestep.tutor.design.PracticeButton
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.Switch
@@ -28,6 +30,8 @@ import java.util.Locale
  * No vehicle API is used here. Inputs are held locally and are released on exit/pause.
  * MainActivity owns the actual P/UX gate and must call setActive(false) on screen exit.
  */
+// Created in code with required host/session arguments; never inflated from XML.
+@SuppressLint("ViewConstructor")
 class DriveCoachView(
     context: Context,
     private val onCue: (CoachCue) -> Unit,
@@ -486,7 +490,7 @@ class DriveCoachView(
         setLineSpacing(dp(3).toFloat(), 1.03f)
     }
 
-    private fun button(value: String, key: String, secondary: Boolean = false, action: () -> Unit) = Button(context).apply {
+    private fun button(value: String, key: String, secondary: Boolean = false, action: () -> Unit) = PracticeButton(context).apply {
         text = value; textSize = 17f; isAllCaps = false; contentDescription = key
         background = rounded(if (secondary) soft else teal); setTextColor(if (secondary) teal else Color.WHITE)
         minHeight = dp(48); setPadding(dp(8), dp(5), dp(8), dp(5))

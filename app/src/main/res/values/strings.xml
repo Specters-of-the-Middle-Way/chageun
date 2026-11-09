@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">차근</string>
+    <string name="app_brand_caption">%1$s   /   내 차 안의 옆자리 코치</string>
+    <string name="journey_slider_value">%1$d %2$s</string>
+</resources>

@@ -95,7 +95,7 @@ def state_summary():
 
 PAGE = """<!doctype html><html lang="ko"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>드라이브스텝 · 에뮬레이터 시험 패널</title>
+<title>차근 · 에뮬레이터 시험 패널</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f3f6f5;color:#182d32;font:18px system-ui,sans-serif}
 main{max-width:940px;margin:32px auto;padding:0 22px}h1{font-size:30px}h2{font-size:21px;margin:0 0 14px}

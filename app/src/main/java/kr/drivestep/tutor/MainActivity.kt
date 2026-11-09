@@ -399,7 +399,7 @@ class MainActivity : Activity() {
             setPadding(dp(28), dp(20), dp(28), dp(24))
         }
         scroll.addView(content)
-        content.addView(text("DRIVESTEP   /   내 차 안의 옆자리 코치", 15, teal, true))
+        content.addView(text(getString(R.string.app_brand_caption, getString(R.string.app_name)), 15, teal, true))
         gap(content, 16)
         if (!parked) {
             val panel = card(content)
@@ -529,7 +529,7 @@ class MainActivity : Activity() {
             setOnClickListener { onBackPressed() }
         }
         bar.addView(back, LinearLayout.LayoutParams(dp(64), dp(64)))
-        bar.addView(text("드라이브스텝", 24, PleosUi.TEXT, true), LinearLayout.LayoutParams(0, dp(64), 1f))
+        bar.addView(text(getString(R.string.app_name), 24, PleosUi.TEXT, true), LinearLayout.LayoutParams(0, dp(64), 1f))
         bar.addView(text("IONIQ 3", 18, PleosUi.SECONDARY), LinearLayout.LayoutParams(dp(110), dp(64)))
         val toggle = PleosSwitch(this).apply {
             text = "음성 안내  "

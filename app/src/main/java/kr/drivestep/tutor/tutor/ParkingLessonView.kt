@@ -1,5 +1,6 @@
 package kr.drivestep.tutor.tutor
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -16,6 +17,8 @@ import android.widget.TextView
 import kr.drivestep.tutor.coach.CoachCue
 
 /** A parked-only explanation/quiz view. The host applies ParkedGate and owns voice playback. */
+// Created in code with required host/session arguments; never inflated from XML.
+@SuppressLint("ViewConstructor")
 class ParkingLessonView(
     context: Context,
     private val session: ParkingLessonSession,
@@ -198,8 +201,11 @@ class ParkingLessonView(
 }
 
 /** Static concept illustration: no moving car, path, distance or success prediction. */
+// Created in code with required host/session arguments; never inflated from XML.
+@SuppressLint("ViewConstructor")
 private class ParkingOverview(context: Context, private val step: Int) : View(context) {
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val bounds = RectF()
     private val teal = Color.rgb(8, 127, 113)
     private val ink = Color.rgb(24, 45, 50)
 
@@ -225,14 +231,17 @@ private class ParkingOverview(context: Context, private val step: Int) : View(co
         canvas.drawLine(inset, bayTop, width - inset, bayTop, paint)
         paint.style = Paint.Style.FILL
         paint.color = Color.rgb(225, 242, 235)
-        canvas.drawRoundRect(RectF(inset + bayWidth + 5f * scale, bayTop + 5f * scale,
-            inset + bayWidth * 2 - 5f * scale, bayBottom - 5f * scale), 7f * scale, 7f * scale, paint)
+        bounds.set(inset + bayWidth + 5f * scale, bayTop + 5f * scale,
+            inset + bayWidth * 2 - 5f * scale, bayBottom - 5f * scale)
+        canvas.drawRoundRect(bounds, 7f * scale, 7f * scale, paint)
         val cx = width / 2f
         val cy = 118f * scale
         paint.color = teal
-        canvas.drawRoundRect(RectF(cx - 19f * scale, cy - 29f * scale, cx + 19f * scale, cy + 29f * scale), 8f * scale, 8f * scale, paint)
+        bounds.set(cx - 19f * scale, cy - 29f * scale, cx + 19f * scale, cy + 29f * scale)
+        canvas.drawRoundRect(bounds, 8f * scale, 8f * scale, paint)
         paint.color = Color.rgb(204, 234, 224)
-        canvas.drawRoundRect(RectF(cx - 13f * scale, cy + 4f * scale, cx + 13f * scale, cy + 17f * scale), 3f * scale, 3f * scale, paint)
+        bounds.set(cx - 13f * scale, cy + 4f * scale, cx + 13f * scale, cy + 17f * scale)
+        canvas.drawRoundRect(bounds, 3f * scale, 3f * scale, paint)
         paint.color = ink
         paint.textSize = 11f * scale
         paint.textAlign = Paint.Align.RIGHT
@@ -241,10 +250,14 @@ private class ParkingOverview(context: Context, private val step: Int) : View(co
         paint.textSize = 13f * scale
         paint.textAlign = Paint.Align.CENTER
         canvas.drawText("주차 공간 예시", cx, 52f * scale, paint)
-        val focus = listOf("주변 확인", "완전히 멈춘 뒤 준비", "앞·뒤·양옆 관찰", "불확실하면 멈춤", "마무리 상태 확인")[step]
+        val focus = FOCUS_LABELS[step]
         paint.textAlign = Paint.Align.LEFT
         val labelX = if (width > 400f * scale) cx + 38f * scale else inset
         val labelY = if (width > 400f * scale) cy + 4f * scale else 166f * scale
         canvas.drawText(focus, labelX, labelY, paint)
+    }
+
+    private companion object {
+        val FOCUS_LABELS = arrayOf("주변 확인", "완전히 멈춘 뒤 준비", "앞·뒤·양옆 관찰", "불확실하면 멈춤", "마무리 상태 확인")
     }
 }
