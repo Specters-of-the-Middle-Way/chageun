@@ -37,7 +37,7 @@ class LessonCoachFlowTest {
 
     @Test(timeout = 120_000)
     fun interactionPreparationObservationReviewAndRecoveryUseOneLessonFlow() {
-        val originalRecords = target.getSharedPreferences("drivestep_journey_v08", Context.MODE_PRIVATE)
+        val originalRecords = target.getSharedPreferences("drivestep_journey_v1", Context.MODE_PRIVATE)
             .getBoolean("record_consent", false)
         val originalVoice = target.getSharedPreferences("coach", Context.MODE_PRIVATE).getBoolean("voice_enabled", true)
         val beforeIds = savedRecords().map { it.getString("id") }.toSet()
@@ -54,6 +54,11 @@ class LessonCoachFlowTest {
             click("lesson_start")
             expectText("시연 데이터 · 정차 중 연수")
             expectText("방향지시등 꺼짐") // First snapshot establishes a baseline, never an action.
+
+            // Starting the lesson itself starts voice input; no lesson_listen click.
+            eventually("lesson entry automatically opens Pleos microphone", 12_000) {
+                hasText("Pleos 듣기 준비됨")
+            }
 
             click("lesson_example_ask")
             expectText("어느 쪽으로 차로를 바꾸고 싶으세요?")

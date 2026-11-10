@@ -17,6 +17,9 @@ class LessonUtteranceParser {
         val value = text.lowercase(Locale.ROOT).replace(Regex("[\\s,.!?~。？！]+"), "").take(300)
         fun result(intent: LessonIntent) = ParsedLessonUtterance(intent)
         if (value.isBlank()) return result(LessonIntent.UNKNOWN)
+        if (value in setOf("대화종료", "대화종료해줘", "대화종료해주세요", "대화그만", "그만듣기", "그만들어", "그만들어줘", "그만들어주세요")) {
+            return result(LessonIntent.PAUSE)
+        }
         if (has(value, "취소", "그만", "중단", "하지마", "가지마", "안할래", "안바꿀", "변경하지", "바꾸지")) return result(LessonIntent.CANCEL)
         if (value in setOf("네", "예", "응", "맞아", "맞아요", "그래", "그래요", "네맞아요", "응맞아")) return result(LessonIntent.CONFIRM)
         if (value in setOf("아니", "아니야", "아니요", "아니오", "아닙니다", "틀렸어", "틀렸어요")) return result(LessonIntent.REJECT)
@@ -25,7 +28,10 @@ class LessonUtteranceParser {
         if (has(value, "조용", "잠깐쉬", "일시정지") || value in setOf("잠깐", "멈춰", "멈춰줘", "잠깐멈춰")) return result(LessonIntent.PAUSE)
 
         val direction = direction(value)
-        val uncertain = has(value, "모르겠", "잘몰라", "잘모르", "확실하지않", "없는건아니", "없는것은아니", "없진않",
+        // Not knowing what to do does not retract a stated observation such as
+        // "차가 많은데 어떻게 해야 될지 모르겠어". Other uncertainty stays intact.
+        val observationText = value.replace(Regex("어떻게(?:해야(?:할지|될지)|할지|하면될지)(?:잘)?모르겠"), "")
+        val uncertain = has(observationText, "모르겠", "잘몰라", "잘모르", "확실하지않", "없는건아니", "없는것은아니", "없진않",
             "많지않은건아니", "많지않은것은아니", "안많은건아니")
         val density = when {
             uncertain -> TrafficDensity.UNKNOWN

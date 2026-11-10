@@ -6,6 +6,14 @@ import org.junit.Test
 class LessonUtteranceParserTest {
     private val parser = LessonUtteranceParser()
 
+    @Test fun endingConversationDoesNotConfuseStoppedTrafficOrRequestCancellation() {
+        listOf("대화 종료", "대화 종료해 줘", "대화 종료해 주세요", "그만 들어 줘").forEach {
+            assertEquals(it, LessonIntent.PAUSE, parser.parse(it).intent)
+        }
+        assertEquals(LessonIntent.REPORT, parser.parse("옆 차가 멈춰 있어").intent)
+        assertEquals(LessonIntent.CANCEL, parser.parse("차로 변경 취소").intent)
+    }
+
     @Test fun synonymsAndShortDirectionAnswers() {
         listOf("왼쪽", "왼편", "좌측", "좌").forEach { assertEquals(LessonDirection.LEFT, parser.parse(it).direction) }
         listOf("오른쪽", "오른편", "우측", "우").forEach { assertEquals(LessonDirection.RIGHT, parser.parse(it).direction) }
@@ -66,5 +74,32 @@ class LessonUtteranceParserTest {
         assertEquals(LessonIntent.TURN, parser.parse("좌회전해야 해").intent)
         assertEquals(LessonIntent.UNKNOWN, parser.parse("음악 틀어줘").intent)
         assertEquals(LessonIntent.UNKNOWN, parser.parse("   ").intent)
+    }
+
+    @Test fun uncertaintyAboutWhatToDoPreservesReportedTraffic() {
+        listOf(
+            "지금 차가 너무 많은데 어떻게 해야 될지 모르겠어",
+            "좌회전으로 끼어들게 할 건데 차가 너무 많아서 어떻게 해야 될지 모르겠어",
+            "차가 많아요 어떻게 해야 할지 모르겠어요",
+        ).forEach { text ->
+            val result = parser.parse(text)
+            assertEquals(text, TrafficDensity.HIGH, result.traffic.density)
+            assertTrue(text, result.hasTrafficReport)
+        }
+        val stopped = parser.parse("차들이 멈춰 있는데 어떻게 해야 할지 모르겠어")
+        assertEquals(TrafficFlow.STOPPED, stopped.traffic.flow)
+        assertEquals(TrafficDensity.LOW, parser.parse("차가 많지 않은데 어떻게 해야 할지 모르겠어").traffic.density)
+    }
+
+    @Test fun actionUncertaintyDoesNotEraseUncertaintyAboutTheObservation() {
+        listOf(
+            "차가 많은지 모르겠어 어떻게 해야 될지 모르겠어",
+            "차가 많은지 잘 모르겠는데 어떻게 해야 할지 모르겠어",
+            "차가 없는 건 아니야 어떻게 해야 될지 모르겠어",
+        ).forEach { text -> assertEquals(text, TrafficDensity.UNKNOWN, parser.parse(text).traffic.density) }
+        assertEquals(TrafficFlow.UNKNOWN, parser.parse("차가 멈춰 있는지 모르겠는데 어떻게 해야 할지 모르겠어").traffic.flow)
+        assertNull(parser.parse("차가 다가오는지 모르겠는데 어떻게 해야 할지 모르겠어").traffic.approaching)
+        assertEquals(LessonIntent.ENTRY_QUESTION,
+            parser.parse("왼쪽으로 들어가도 돼 어떻게 해야 될지 모르겠어").intent)
     }
 }

@@ -43,9 +43,9 @@ def main():
     report.write_text(result.stdout, encoding="utf-8")
     print(result.stdout, flush=True)
     # am instrument may exit 0 even when JUnit fails; inspect the runner result explicitly.
-    if result.returncode or not re.search(r"OK \(5 tests\)", result.stdout) or "FAILURES!!!" in result.stdout or "INSTRUMENTATION_STATUS_CODE: -3" in result.stdout:
-        raise SystemExit(f"Emulator validation did not pass all five tests. Inspect {report}")
-    print("PASS: five SDK/UI tests. This does not certify real microphone accuracy or real-road use.")
+    if result.returncode or not re.search(r"OK \(6 tests\)", result.stdout) or "FAILURES!!!" in result.stdout or "INSTRUMENTATION_STATUS_CODE: -3" in result.stdout:
+        raise SystemExit(f"Emulator validation did not pass all six tests. Inspect {report}")
+    print("PASS: six SDK/UI tests. This does not certify real microphone accuracy or real-road use.")
 
 
 if __name__ == "__main__":

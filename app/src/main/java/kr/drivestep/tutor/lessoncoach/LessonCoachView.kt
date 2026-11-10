@@ -3,6 +3,7 @@ package kr.drivestep.tutor.lessoncoach
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Handler
@@ -57,7 +58,7 @@ class LessonCoachView(
     private var sessionId = ""
     private var spokenRevision = -1L
     private var connection = "차량 연결을 선택하면 신호를 확인해요."
-    private var speechStatus = "듣기를 누르면 Pleos 음성 인식을 시작해요."
+    private var speechStatus = "연수를 시작하면 안내가 끝난 뒤 자동으로 들어요."
     private var storageStatus = ""
     private var records = emptyList<StoredLesson>()
     private var reviewRecord: StoredLesson? = null
@@ -72,6 +73,16 @@ class LessonCoachView(
     private var demoInitial = true
     private var inputText = ""
     private var activeDialog: AlertDialog? = null
+    private val debugBuild = context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
+    private val llmPrefs = context.getSharedPreferences("lesson_llm", Context.MODE_PRIVATE)
+    private var llmEnabled = debugBuild && llmPrefs.getBoolean("enabled", false)
+    private val llm = TutorLlmClient(debugBuild)
+    private val llmGate = TutorLlmRequestGate()
+    private val commandParser = LessonUtteranceParser()
+    private var llmPending: TutorLlmRequestGate.Ticket? = null
+    private var pendingInputLabel: String? = null
+    private var llmStatus = "기본 튜터 · 외부 전송 안 함"
+    private var llmLabel: TextView? = null
 
     private var replyLabel: TextView? = null
     private var directionLabel: TextView? = null
@@ -103,6 +114,7 @@ class LessonCoachView(
     private val speech = TutorSpeechController(context,
         onTranscript = { text -> if (canInput()) acceptText(text, SpeechInputSource.PLEOS_STT) },
         onStatus = { text -> speechStatus = text; refreshLive() },
+        onConversationStopped = { cancelLlm() },
     )
 
     val wantsLiveInputs: Boolean
@@ -158,6 +170,7 @@ class LessonCoachView(
         active = value
         speech.setActive(value)
         if (!value) {
+            cancelLlm()
             dismissDialog()
             main.removeCallbacks(ticker)
             stopReplay()
@@ -206,6 +219,7 @@ class LessonCoachView(
         closed = true
         main.removeCallbacksAndMessages(null)
         speech.close()
+        llm.close()
         io.shutdown()
     }
 
@@ -220,6 +234,7 @@ class LessonCoachView(
         replyLabel = null; directionLabel = null; reportLabel = null; vehicleLabel = null
         navigationLabel = null; speechLabel = null; inputSourceLabel = null; connectionLabel = null
         recordLabel = null; liveCountLabel = null; speedLabel = null; textInput = null
+        llmLabel = null
         pauseButton = null; resumeButton = null; listenButton = null; stopListeningButton = null; brakeButton = null
         reviewTitle = null; reviewDetail = null; reviewVehicle = null; reviewPosition = null
         replayButton = null; reviewSlider = null
@@ -233,7 +248,7 @@ class LessonCoachView(
 
     private fun menu() {
         addView(label("함께하는 연수", 28, bold = true))
-        addView(label("말로 요청하고, 다음 상황을 준비하고, 내 조작을 돌아봐요.", 17, secondary = true))
+        addView(label("연수를 시작하면 자동으로 듣고, 안내가 끝나면 다시 들어요.", 17, secondary = true))
         space(this, 18)
         addView(label("오늘 익힐 한 가지", 19, bold = true))
         val topics = row(this)
@@ -253,6 +268,15 @@ class LessonCoachView(
         addView(label(if (liveInputs) "연결된 차량의 조작 신호와 지원되는 내비 정보를 읽어요. 주변 차량은 감지하지 않아요."
             else "실제 차량은 P·정차 상태로 두세요. 화면의 시험 입력은 실제 차량을 움직이지 않아요.", 15, secondary = true))
         space(this, 12)
+        if (debugBuild) addView(button(if (llmEnabled) "AI 대화 사용 중" else "AI 대화 사용", "lesson_llm_toggle", llmEnabled) {
+            if (llmEnabled) {
+                llmEnabled = false; llmPrefs.edit().putBoolean("enabled", false).apply(); cancelLlm(); render()
+            } else showDialog(AlertDialog.Builder(context).setTitle("AI 대화 사용")
+                .setMessage("현재 연수의 인식 문장·최근 대화와 차량 상태를 설정한 서버를 거쳐 OpenAI에 전송해요. 음성 원본·위치·운전자 신체 정보·지난 연수 파일은 보내지 않아요. 기록 저장 동의와 별개이며 언제든 끌 수 있어요. API 키와 서버 설정이 필요해요.")
+                .setNegativeButton("취소", null).setPositiveButton("AI 대화 켜기") { _, _ ->
+                    llmEnabled = true; llmPrefs.edit().putBoolean("enabled", true).apply(); render()
+                })
+        })
         addView(button("함께 시작하기", "lesson_start", true) { start(selectedTopic) })
         addView(button("이전 메뉴", "lesson_exit") { speech.stop(); onExit() })
         space(this, 20)
@@ -275,12 +299,14 @@ class LessonCoachView(
         coach.addView(label("차근의 안내", 15, secondary = true))
         replyLabel = label(snapshot.reply, 24, bold = true).also { coach.addView(it) }
         speechLabel = label(speechStatus, 14, secondary = true).also { coach.addView(it) }
+        llmLabel = label(llmStatus, 14, secondary = true).also { coach.addView(it) }
         val voiceRow = row(coach)
-        listenButton = button("말하기", "lesson_listen", true, "sound") { if (canInput()) speech.startListening() }
+        listenButton = button("대화 시작", "lesson_listen", true, "sound") { if (canInput()) speech.startConversation() }
             .also { voiceRow.addView(it, weight()); inputControls.add(it) }
-        stopListeningButton = button("듣기 중지", "lesson_stop_listening") { speech.stopListening(); refreshLive() }
+        stopListeningButton = button("대화 종료", "lesson_stop_listening") { cancelLlm(); speech.stopConversation(); refreshLive() }
             .also { voiceRow.addView(it, weight()) }
         voiceRow.addView(button("다시 듣기", "lesson_repeat") { if (canInput()) acceptText("다시 설명해 줘", SpeechInputSource.TEXT_DEMO) }, weight())
+        coach.addView(label("연수를 시작하면 자동으로 들어요. ‘듣기 준비됨’일 때 답해 주세요. 끝내려면 ‘대화 종료’라고 말하거나 눌러 주세요.", 14, secondary = true))
         inputSourceLabel = label("아직 입력한 말이 없어요.", 15, secondary = true).also { coach.addView(it) }
         val state = panel(this)
         directionLabel = label("", 18, bold = true).also { state.addView(it) }
@@ -365,7 +391,8 @@ class LessonCoachView(
                 .setPositiveButton("확인", null))
             return
         }
-        speech.stop(); stopReplay()
+        cancelLlm(); speech.stop(); stopReplay()
+        llmStatus = if (llmEnabled) "AI 대화 · 첫 요청에서 서버 연결을 확인해요" else "기본 튜터 · 외부 전송 안 함"
         selectedTopic = topic; sessionId = UUID.randomUUID().toString(); startedAtMillis = System.currentTimeMillis()
         session = LessonCoachSession(); snapshot = session.start(topic, SystemClock.elapsedRealtime())
         spokenRevision = -1; demoSignal = LessonSignal.OFF; demoSpeed = 20.0; demoBrake = false
@@ -374,6 +401,7 @@ class LessonCoachView(
         render()
         notifyInputMode()
         applySnapshot(snapshot)
+        speech.startConversation()
         main.removeCallbacks(ticker); main.post(ticker)
     }
 
@@ -390,10 +418,69 @@ class LessonCoachView(
 
     private fun acceptText(text: String, source: SpeechInputSource) {
         if (!canInput()) return
-        speech.stopListening()
+        // A final STT callback already closed its input. Preserve the ongoing conversation;
+        // switching to a manual test sentence explicitly leaves automatic microphone mode.
+        if (source != SpeechInputSource.PLEOS_STT) speech.stopConversation()
+        cancelLlm()
+        val local = commandParser.parse(text)
+        if (llmEnabled && local.intent !in setOf(LessonIntent.PAUSE, LessonIntent.CANCEL, LessonIntent.ENTRY_QUESTION)) {
+            requestLlm(text.trim().take(300), source)
+            return
+        }
+        if (llmEnabled) llmStatus = "기본 안내 · 중단과 진입 질문은 앱에서 바로 처리해요"
         applySnapshot(session.acceptUtterance(text, source, SystemClock.elapsedRealtime()))
         if (snapshot.phase == LessonPhase.PAUSED) speech.stop()
         notifyInputMode()
+    }
+
+    private fun requestLlm(text: String, source: SpeechInputSource) {
+        val now = SystemClock.elapsedRealtime()
+        val before = session.tick(now)
+        snapshot = before
+        val ticket = llmGate.begin(before.cueRevision, now)
+        llmPending = ticket
+        llmStatus = "AI 답변 기다리는 중 · 입력은 잠시 쉬어요"
+        pendingInputLabel = "${if (source == SpeechInputSource.PLEOS_STT) "인식한 말" else "시험 입력"} · $text"
+        speech.waitForReply()
+        refreshLive()
+        val body = mapOf("utterance" to text, "context" to TutorLlmContext.build(before, now, liveInputs),
+            "history" to TutorLlmContext.history(before, now))
+        llm.request(llmPrefs.getString("endpoint", "http://127.0.0.1:8765").orEmpty(), body) { result ->
+            val at = SystemClock.elapsedRealtime()
+            if (!canInput() || !llmGate.isCurrent(ticket, snapshot.cueRevision)) {
+                cancelLlm(); speech.completeReplyWait(); return@request
+            }
+            // A deadline callback normally runs just after 10 seconds. Keep its local
+            // fallback, while refusing late model wording even if HTTP completed first.
+            val freshResult = if (llmGate.accepts(ticket, snapshot.cueRevision, at)) result
+                else Result.failure(IllegalStateException("REQUEST_TIMEOUT"))
+            pendingInputLabel = null
+            llmPending = null; llmGate.cancel()
+            freshResult.fold(onSuccess = { response ->
+                session.acceptUtterance(text, source, at, TutorLlmPolicy.interpretation(response))
+                val value = session.applyLlmWording(response, at)
+                llmStatus = if (response.provider == TutorLlmProvider.OPENAI) "OpenAI 응답 · 방향 확인과 조작 판단은 앱에서 검증해요"
+                    else "시험 응답 · 실제 LLM 아님"
+                applySnapshot(value)
+            }, onFailure = { error ->
+                llmStatus = when (error.message) {
+                    "API_KEY_MISSING" -> "OpenAI 키 설정 필요 · 기본 안내로 연결했어요"
+                    "API_AUTH_FAILED", "API_ACCESS_DENIED" -> "OpenAI 키·권한 확인 필요 · 기본 안내로 연결했어요"
+                    "API_RATE_LIMIT" -> "OpenAI 사용 한도 확인 필요 · 기본 안내로 연결했어요"
+                    "REQUEST_TIMEOUT" -> "AI 응답 시간 초과 · 기본 안내로 연결했어요"
+                    else -> "AI 연결 실패 · 기본 안내로 연결했어요"
+                }
+                applySnapshot(session.acceptUtterance(text, source, at))
+            })
+            if (snapshot.phase == LessonPhase.PAUSED) speech.stop() else speech.completeReplyWait()
+            notifyInputMode()
+        }
+    }
+
+    private fun cancelLlm() {
+        if (llmPending != null) llmStatus = "AI 요청을 중단했어요. 이전 답변은 재생하지 않아요."
+        pendingInputLabel = null
+        llmPending = null; llmGate.cancel(); llm.cancel()
     }
 
     private fun observeDemo() {
@@ -415,6 +502,11 @@ class LessonCoachView(
     }
 
     private fun applySnapshot(value: LessonSnapshot) {
+        if (llmPending != null && (value.cueRevision != snapshot.cueRevision || value.vehicle?.source != snapshot.vehicle?.source)) {
+            cancelLlm()
+            // Fresh SDK guidance replaces the pending network response; stale responses cannot speak.
+            speech.completeReplyWait()
+        }
         snapshot = value
         if (value.cueRevision != spokenRevision) {
             spokenRevision = value.cueRevision
@@ -440,7 +532,8 @@ class LessonCoachView(
             ?: "내비 정보 · 아직 확인되지 않았어요")
         vehicleLabel?.show(snapshot.vehicle?.let(::vehicleText) ?: "내 차 상태 · 새 신호를 기다리고 있어요")
         speechLabel?.show(speechStatus)
-        inputSourceLabel?.show(if (snapshot.lastUtterance.isBlank()) "아직 입력한 말이 없어요."
+        llmLabel?.show(llmStatus)
+        inputSourceLabel?.show(pendingInputLabel ?: if (snapshot.lastUtterance.isBlank()) "아직 입력한 말이 없어요."
             else "${if (snapshot.speechInputSource == SpeechInputSource.PLEOS_STT) "인식한 말" else "시험 입력"} · ${snapshot.lastUtterance}")
         liveCountLabel?.show("조작·대화 기록 ${snapshot.events.size}개 · 주변 차량은 관측하지 않아요")
         recordLabel?.show(if (recordEnabled()) "마무리하면 인식 문장과 조작 기록을 이 차량에 저장해요. 음성 원본은 저장하지 않아요."
@@ -451,14 +544,23 @@ class LessonCoachView(
         pauseButton?.visibility = if (snapshot.phase == LessonPhase.ACTIVE) VISIBLE else GONE
         resumeButton?.visibility = if (snapshot.phase == LessonPhase.PAUSED) VISIBLE else GONE
         pauseButton?.isEnabled = active; resumeButton?.isEnabled = active
-        stopListeningButton?.isEnabled = active && speech.isListening
-        listenButton?.show(if (speech.isListening) "듣고 있어요" else "말하기")
-        listenButton?.isEnabled = canInput() && !speech.isListening
+        stopListeningButton?.isEnabled = active && (speech.isConversationActive || speech.isListening || speech.isSpeaking || speech.isWaitingForReply)
+        listenButton?.show(when {
+            speech.isWaitingForReply -> "답변 기다리는 중"
+            speech.isMicrophoneClosing -> "마이크 종료 중"
+            speech.isMicrophoneReady -> "듣고 있어요"
+            speech.isListening -> "연결 중"
+            speech.isConversationActive && speech.isSpeaking -> "안내 후 다시 들어요"
+            speech.isConversationActive -> "다음 말 기다리는 중"
+            else -> "대화 시작"
+        })
+        listenButton?.isEnabled = canInput() && !speech.isConversationActive && !speech.isListening && !speech.isMicrophoneClosing && !speech.isWaitingForReply
         signalButtons.forEach { (signal, view) -> PleosUi.decorate(view, demoSignal == signal) }
     }
 
     private fun pause() {
         if (!active) return
+        cancelLlm()
         speech.stop()
         snapshot = session.pause(SystemClock.elapsedRealtime())
         spokenRevision = snapshot.cueRevision
@@ -469,6 +571,7 @@ class LessonCoachView(
         if (!active) return
         demoInitial = true; demoNav = null
         applySnapshot(session.resume(SystemClock.elapsedRealtime()))
+        speech.startConversation()
         notifyInputMode()
     }
 
@@ -482,6 +585,7 @@ class LessonCoachView(
 
     private fun finish(reflection: LessonReflection) {
         if (!active || page != Page.LESSON) return
+        cancelLlm()
         speech.stop()
         snapshot = session.finish(reflection, SystemClock.elapsedRealtime())
         val record = StoredLesson(sessionId, startedAtMillis, snapshot.topic, liveInputs, reflection,
@@ -504,6 +608,7 @@ class LessonCoachView(
     }
 
     private fun openReview(record: StoredLesson) {
+        cancelLlm()
         speech.stop(); main.removeCallbacks(ticker); stopReplay()
         reviewRecord = record; reviewIndex = 0; page = Page.REVIEW
         notifyInputMode(); render()
@@ -576,6 +681,7 @@ class LessonCoachView(
     }
 
     private fun showMenu() {
+        cancelLlm()
         speech.stop(); stopReplay(); main.removeCallbacks(ticker)
         page = Page.MENU; notifyInputMode(); render()
     }

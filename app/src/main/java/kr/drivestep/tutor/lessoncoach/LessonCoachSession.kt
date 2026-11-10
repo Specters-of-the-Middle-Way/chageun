@@ -54,12 +54,13 @@ class LessonCoachSession(
     }
 
     /** Only a completed STT result, or explicitly labelled test text, belongs here. */
-    fun acceptUtterance(text: String, source: SpeechInputSource, now: Long): LessonSnapshot {
+    fun acceptUtterance(text: String, source: SpeechInputSource, now: Long, interpretation: ParsedLessonUtterance? = null): LessonSnapshot {
         if (now < 0 || state.phase in setOf(LessonPhase.READY, LessonPhase.FINISHED)) return state
         val clean = text.trim().take(300)
         if (clean.isBlank()) return state
         if (clean == state.lastUtterance && source == state.speechInputSource && now >= lastUtteranceAt && now - lastUtteranceAt < 750) return state
-        val parsed = parser.parse(clean)
+        val parsed = interpretation ?: parser.parse(clean)
+        val requiresConfirmation = source == SpeechInputSource.PLEOS_STT || interpretation != null
         if (state.phase == LessonPhase.PAUSED && parsed.intent !in setOf(LessonIntent.RESUME, LessonIntent.CANCEL)) return state
         lastUtteranceAt = now
         state = state.copy(lastUtterance = clean, speechInputSource = source)
@@ -90,6 +91,9 @@ class LessonCoachSession(
                     return reply(now, "확인 시간이 지나 요청을 비웠어요. 원하는 동작과 방향을 다시 알려 주세요.")
             } else {
                 if (parsed.intent == LessonIntent.CONFIRM) {
+                    if (parsed.direction != LessonDirection.UNKNOWN && parsed.direction != candidateDirection) {
+                        return confirmDirection(parsed.direction, parsed.traffic, candidateIntent, now)
+                    }
                     val direction = candidateDirection
                     val traffic = candidateTraffic
                     val intent = candidateIntent
@@ -133,12 +137,12 @@ class LessonCoachSession(
             val traffic = if (parsed.hasTrafficReport) parsed.traffic.copy(atMillis = now) else pendingTraffic
             val intent = if (parsed.intent == LessonIntent.TURN) LessonIntent.TURN else directionQuestionIntent
             directionAskedAt = null; pendingTraffic = ReportedTraffic()
-            return if (source == SpeechInputSource.PLEOS_STT) confirmDirection(parsed.direction, traffic, intent, now)
+            return if (requiresConfirmation) confirmDirection(parsed.direction, traffic, intent, now)
             else acceptDirection(parsed.direction, traffic, intent, now)
         }
         if (parsed.intent == LessonIntent.TURN) {
             if (parsed.direction == LessonDirection.UNKNOWN) return reply(now, "회전 방향을 확인하지 못했어요. 좌회전 또는 우회전으로 다시 알려 주세요.")
-            return if (source == SpeechInputSource.PLEOS_STT) confirmDirection(parsed.direction, ReportedTraffic(), LessonIntent.TURN, now)
+            return if (requiresConfirmation) confirmDirection(parsed.direction, ReportedTraffic(), LessonIntent.TURN, now)
             else acceptDirection(parsed.direction, ReportedTraffic(), LessonIntent.TURN, now)
         }
         if (parsed.intent == LessonIntent.LANE_CHANGE || (parsed.direction != LessonDirection.UNKNOWN && !parsed.hasTrafficReport)) {
@@ -151,7 +155,7 @@ class LessonCoachSession(
                 state = state.copy(awaitingDirection = true)
                 return reply(now, "어느 쪽으로 차로를 바꾸고 싶으세요?")
             }
-            return if (source == SpeechInputSource.PLEOS_STT) confirmDirection(parsed.direction, state.reportedTraffic, LessonIntent.LANE_CHANGE, now)
+            return if (requiresConfirmation) confirmDirection(parsed.direction, state.reportedTraffic, LessonIntent.LANE_CHANGE, now)
             else acceptDirection(parsed.direction, state.reportedTraffic, LessonIntent.LANE_CHANGE, now)
         }
         if (parsed.hasTrafficReport) {
@@ -168,6 +172,17 @@ class LessonCoachSession(
             return reply(now, "말씀하신 주변 상황을 참고할게요. 차로 변경을 원하면 방향도 함께 알려 주세요.")
         }
         return reply(now, "왼쪽 차로 변경처럼 원하는 동작을 짧게 알려 주세요. 다시 설명이나 취소도 말할 수 있어요.")
+    }
+
+    /** Replace the just-computed, not-yet-presented response; preserve one actual spoken reply in history. */
+    fun applyLlmWording(result: TutorLlmReply, now: Long): LessonSnapshot {
+        if (!TutorLlmPolicy.canUseWording(result, state)) return state
+        val last = state.events.lastOrNull()
+        if (last?.kind != LessonEventKind.GUIDANCE) return state
+        val title = if (result.provider == TutorLlmProvider.OPENAI) "AI 튜터 안내 · OpenAI" else "시험 응답 · 실제 LLM 아님"
+        state = state.copy(reply = result.text, cueRevision = ++cueSequence,
+            events = state.events.dropLast(1) + last.copy(atMillis = now, title = title, detail = result.text))
+        return state
     }
 
     fun acceptVehicle(observation: VehicleObservation, now: Long): LessonSnapshot {
@@ -358,6 +373,15 @@ class LessonCoachSession(
     }
     private fun add(now: Long, kind: LessonEventKind, source: LessonEvidence, title: String, detail: String, vehicle: VehicleObservation? = null) {
         val event = LessonEvent(++eventSequence, now, kind, source, title, detail, vehicle)
-        state = state.copy(events = (state.events + event).takeLast(maxEvents))
+        val events = (state.events + event).toMutableList()
+        if (events.size > maxEvents) {
+            // Periodic vehicle samples must not erase the conversation while a learner
+            // listens or pauses to think. Keep the bounded timeline in its original order.
+            val observation = events.indexOfFirst {
+                it.id != event.id && it.kind == LessonEventKind.VEHICLE && it.vehicle != null
+            }
+            events.removeAt(if (observation >= 0) observation else 0)
+        }
+        state = state.copy(events = events.toList())
     }
 }

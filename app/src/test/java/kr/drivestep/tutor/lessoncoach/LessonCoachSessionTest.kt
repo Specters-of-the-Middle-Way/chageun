@@ -4,6 +4,17 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class LessonCoachSessionTest {
+    @Test fun spokenConversationEndPausesAndClearsUnconfirmedDirection() {
+        val s = session()
+        val candidate = s.acceptUtterance("왼쪽으로 차로 변경", SpeechInputSource.PLEOS_STT, 100)
+        assertTrue(candidate.awaitingConfirmation)
+        val ended = s.acceptUtterance("대화 종료", SpeechInputSource.PLEOS_STT, 200)
+        assertEquals(LessonPhase.PAUSED, ended.phase)
+        assertFalse(ended.awaitingConfirmation)
+        assertEquals(LessonDirection.UNKNOWN, ended.direction)
+        assertTrue(ended.events.any { it.kind == LessonEventKind.UTTERANCE && it.detail == "대화 종료" })
+    }
+
     private fun session() = LessonCoachSession().apply { start(LessonTopic.LANE_CHANGE, 0) }
     private fun say(session: LessonCoachSession, text: String, at: Long = 100) =
         session.acceptUtterance(text, SpeechInputSource.TEXT_DEMO, at)
@@ -266,8 +277,62 @@ class LessonCoachSessionTest {
         repeat(30) { index -> s.acceptVehicle(vehicle((index + 1) * 1000L).copy(speedKmh = index.toDouble()), (index + 1) * 1000L) }
         val result = s.snapshot()
         assertEquals(8, result.events.size)
-        assertTrue(result.events.all { it.kind == LessonEventKind.VEHICLE && it.vehicle != null })
+        val observations = result.events.filter { it.kind == LessonEventKind.VEHICLE }
+        assertEquals(6, observations.size)
+        assertTrue(observations.all { it.vehicle != null })
+        assertEquals(listOf(LessonEventKind.START, LessonEventKind.GUIDANCE), result.events.take(2).map { it.kind })
         assertEquals(29.0, result.events.last().vehicle!!.speedKmh!!, 0.001)
+    }
+
+    @Test fun voiceAndReadbackRemainAvailableForReviewAfterLongObservation() {
+        val s = session()
+        val question = s.acceptUtterance("왼쪽 차로 변경 차가 많아", SpeechInputSource.PLEOS_STT, 100)
+        val conversationIds = question.events.map { it.id }.toSet()
+        assertTrue(question.awaitingConfirmation)
+        repeat(200) { index ->
+            val at = (index + 1) * 1000L
+            s.acceptVehicle(vehicle(at), at)
+            s.tick(at)
+        }
+        val result = s.finish(LessonReflection.OKAY, 201_000)
+        assertEquals(160, result.events.size)
+        assertTrue(result.events.map { it.id }.containsAll(conversationIds))
+        assertTrue(result.events.any { it.kind == LessonEventKind.UTTERANCE && it.title == "운전자 음성" })
+        assertTrue(result.events.any { it.kind == LessonEventKind.GUIDANCE && it.detail.contains("왼쪽 차로 변경 준비가 맞나요") })
+        assertTrue(result.events.any { it.kind == LessonEventKind.FINISH })
+        assertTrue(result.events.zipWithNext().all { (before, after) -> before.id < after.id && before.atMillis <= after.atMillis })
+        assertEquals(200_000L, result.events.last { it.vehicle != null }.atMillis)
+    }
+
+    @Test fun conversationOnlyOverflowStillDropsOldestAndStaysBounded() {
+        val s = LessonCoachSession(maxEvents = 5)
+        val firstId = s.start(LessonTopic.LANE_CHANGE, 0).events.first().id
+        repeat(20) { index -> say(s, "다시 설명해 줘", (index + 1) * 1000L) }
+        val events = s.snapshot().events
+        assertEquals(5, events.size)
+        assertTrue(events.all { it.vehicle == null })
+        assertTrue(events.first().id > firstId)
+        assertTrue(events.zipWithNext().all { (before, after) -> after.id == before.id + 1 })
+        assertEquals(20_000L, events.last().atMillis)
+    }
+
+    @Test fun fullConversationRetainsNewestVehicleAndReplacesOnlyItsPreviousSample() {
+        val s = LessonCoachSession(maxEvents = 5)
+        s.start(LessonTopic.LANE_CHANGE, 0)
+        repeat(3) { index -> say(s, "다시 설명해 줘", (index + 1) * 1000L) }
+        val conversationIds = s.snapshot().events.map { it.id }
+        assertEquals(5, conversationIds.size)
+
+        val first = s.acceptVehicle(vehicle(4000), 4000).events
+        assertEquals(5, first.size)
+        assertEquals(conversationIds.drop(1), first.filter { it.vehicle == null }.map { it.id })
+        assertEquals(4000L, first.last().vehicle!!.atMillis)
+
+        val next = s.acceptVehicle(vehicle(5000), 5000).events
+        assertEquals(5, next.size)
+        assertEquals(conversationIds.drop(1), next.filter { it.vehicle == null }.map { it.id })
+        assertEquals(5000L, next.single { it.vehicle != null }.atMillis)
+        assertTrue(next.zipWithNext().all { (before, after) -> before.id < after.id })
     }
 
     @Test fun nextLessonDependsOnExplicitReflectionNotBraking() {
@@ -286,5 +351,22 @@ class LessonCoachSessionTest {
         val result = s.finish(LessonReflection.EASY, 100)
         assertEquals(LessonTopic.TURN_PREP, result.nextLesson)
         assertTrue(result.nextLessonReason.contains("숙련도 인증은 아니에요"))
+    }
+
+    @Test fun realSpokenTrafficWithActionUncertaintySurvivesDirectionAndConfirmation() {
+        val s = session()
+        val request = s.acceptUtterance(
+            "좌회전으로 끼어들게 할 건데 차가 너무 많아서 어떻게 해야 될지 모르겠어",
+            SpeechInputSource.PLEOS_STT, 100)
+        assertTrue(request.awaitingDirection)
+        assertEquals(TrafficDensity.HIGH, request.reportedTraffic.density)
+        val direction = s.acceptUtterance("왼쪽", SpeechInputSource.PLEOS_STT, 1000)
+        assertTrue(direction.awaitingConfirmation)
+        assertEquals(LessonDirection.UNKNOWN, direction.direction)
+        val confirmed = s.acceptUtterance("맞아요", SpeechInputSource.PLEOS_STT, 2000)
+        assertEquals(LessonDirection.LEFT, confirmed.direction)
+        assertEquals(TrafficDensity.HIGH, confirmed.reportedTraffic.density)
+        assertTrue(confirmed.reply.contains("차가 많다고 말씀하셨군요"))
+        assertTrue(confirmed.reply.contains("미러와 사각지대"))
     }
 }
