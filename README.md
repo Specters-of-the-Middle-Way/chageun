@@ -16,6 +16,8 @@ Mac의 실제 마이크를 시험할 때는 실행 앱(Codex·Terminal·Android 
 
 **처음 받은 팀원:** [설치부터 시작](#setup) → [앱 실행](#run) · [터미널 실행](#terminal) · [문제 해결](#troubleshooting)
 
+**기획·개발 에이전트 참고:** [AI 에이전트용 서비스·구현 워크플로우](docs/AI_AGENT_WORKFLOW.md) — 사용자 원문 기반의 기능 흐름, 구현 순서, 수용 테스트를 정리한 제안서입니다. 작성 기준 커밋과 최신 구현의 차이를 구분해 사용합니다.
+
 ![v0.9 공식 Pleos 에셋을 적용한 프로필 화면](docs/screenshots/70-pleos-profile.png)
 
 ## 주요 기능과 사용 흐름
