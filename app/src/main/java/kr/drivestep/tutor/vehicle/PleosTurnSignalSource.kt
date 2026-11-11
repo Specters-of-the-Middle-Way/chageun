@@ -18,6 +18,7 @@ class PleosTurnSignalSource(context: Context) : TurnSignalSource {
     private val appContext = context.applicationContext
     private val main = Handler(Looper.getMainLooper())
     private var vehicle: Vehicle? = null
+    private var vehicleLease: SessionLease<Vehicle>? = null
     private var api: TurnSignal? = null
     private var listener: TurnSignalStateListener? = null
     private var registered = false
@@ -37,9 +38,10 @@ class PleosTurnSignalSource(context: Context) : TurnSignalSource {
             val token = generation
             publishStatus(SourceState.CONNECTING, "Pleos 차량 서비스에 연결하고 있어요.")
             try {
-                val session = Vehicle(appContext)
+                val lease = PleosVehicleSessions.acquire(appContext)
+                vehicleLease = lease
+                val session = lease.value
                 vehicle = session
-                session.initialize()
                 val signals = session.getTurnSignal()
                 api = signals
                 armDeadline(
@@ -190,7 +192,7 @@ class PleosTurnSignalSource(context: Context) : TurnSignalSource {
         registered = false
         listener = null
         api = null
-        runCatching { vehicle?.release() }
+        runCatching { vehicleLease?.close() }; vehicleLease = null
         vehicle = null
         lastReading = null
         updateSequence = 0L

@@ -23,6 +23,8 @@ import kr.drivestep.tutor.parking.ParkingSimulatorView
 import kr.drivestep.tutor.journey.DriverJourneyView
 import kr.drivestep.tutor.journey.JourneyDestination
 import kr.drivestep.tutor.workflow.WorkflowView
+import kr.drivestep.tutor.connected.VehicleReadinessSource
+import kr.drivestep.tutor.connected.LocationNavigationSource
 import kr.drivestep.tutor.lessoncoach.LessonCoachView
 import kr.drivestep.tutor.lessoncoach.LessonInputCoordinator
 import kr.drivestep.tutor.coach.*
@@ -38,6 +40,8 @@ import java.util.concurrent.Executors
 class MainActivity : Activity() {
     private enum class Screen { COACH, WORKFLOW, LESSON, SIMULATOR, PARK_SIM, SITUATION, RIDE, HOME, HOW_TO, PRACTICE, REVIEW, PARKING, STEERING_SETUP, STEERING, GROWTH }
     private lateinit var workflow: WorkflowView
+    private lateinit var readinessSource: VehicleReadinessSource
+    private var vehicleWarningBlocksSpeech = false
     private lateinit var lesson: LessonCoachView
     private lateinit var lessonInputs: LessonInputCoordinator
     private lateinit var growth: GrowthTutorView
@@ -150,7 +154,30 @@ class MainActivity : Activity() {
             onPrepare = { journey.requestPreparation(); screen = Screen.COACH; render() },
             onParking = { openDestination(JourneyDestination.PARKING) },
             onLaneChange = { openDestination(JourneyDestination.DRIVE) },
-            canPractice = { journey.canPractice }, recordEnabled = { journey.recordEnabled })
+            canPractice = { journey.canPractice }, recordEnabled = { journey.recordEnabled },
+            vehicleEnabled = { journey.vehicleDataEnabled },
+            onVehicleSettings = { journey.openProfile(); screen = Screen.COACH; render() },
+            onReconnect = { readinessSource.stop(); syncReadiness() },
+            onLocationPermission = { requestPermissions(arrayOf(LocationNavigationSource.LOCATION_PERMISSION),32) })
+        readinessSource = VehicleReadinessSource(this) { snapshot, changed ->
+            val invalidated = journey.acceptVehicle(snapshot,changed)
+            workflow.acceptVehicle(snapshot)
+            if (invalidated) {
+                workflow.preparationChanged()
+                if (screen in setOf(Screen.SIMULATOR,Screen.PARK_SIM)) {
+                    simulator.setActive(false); parkingSimulator.setActive(false)
+                    journey.requestPreparation(); screen = Screen.COACH; render()
+                }
+            }
+            if (vehicleWarningBlocksSpeech != snapshot.speechBlocked) {
+                vehicleWarningBlocksSpeech = snapshot.speechBlocked
+                if (snapshot.speechBlocked) { voice.stop(); currentCue = null }
+                voice.setEnabled(voiceEnabled && !snapshot.speechBlocked)
+                journey.setSpeechEnabled(voiceEnabled && !snapshot.speechBlocked)
+                workflow.setSpeechEnabled(voiceEnabled && !snapshot.speechBlocked)
+                lesson.setSpeechEnabled(voiceEnabled && !snapshot.speechBlocked)
+            }
+        }
         render()
         io.execute {
             try {
@@ -178,6 +205,7 @@ class MainActivity : Activity() {
             gateMessage = message
             voice.setActive(allowed && foreground && (screen !in setOf(Screen.SIMULATOR, Screen.PARK_SIM) || resumed))
             if (!allowed) {
+                if (::readinessSource.isInitialized) readinessSource.stop()
                 workflow.setActive(false)
                 lesson.setActive(false)
                 lessonInputs.stop()
@@ -207,6 +235,8 @@ class MainActivity : Activity() {
 
     override fun onPause() {
         resumed = false
+        if (::readinessSource.isInitialized) readinessSource.stop()
+        voice.stop(); currentCue = null
         workflow.setActive(false)
         lesson.setActive(false)
         lessonInputs.stop()
@@ -221,6 +251,7 @@ class MainActivity : Activity() {
 
     override fun onStop() {
         foreground = false
+        if (::readinessSource.isInitialized) readinessSource.stop()
         workflow.setActive(false)
         lesson.setActive(false)
         lessonInputs.stop()
@@ -242,6 +273,7 @@ class MainActivity : Activity() {
     }
 
     override fun onDestroy() {
+        if (::readinessSource.isInitialized) readinessSource.close()
         lessonInputs.close()
         workflow.close()
         lesson.close()
@@ -400,6 +432,12 @@ class MainActivity : Activity() {
         try { renderContent() } finally { rendering = false }
     }
 
+    private fun syncReadiness() {
+        if (!::readinessSource.isInitialized) return
+        if (foreground && resumed && parked && journey.vehicleDataEnabled) readinessSource.start()
+        else readinessSource.stop()
+    }
+
     private fun syncLessonInputs() {
         if (!::lesson.isInitialized || !::lessonInputs.isInitialized) return
         if (foreground && resumed && parked && screen == Screen.LESSON && lesson.wantsLiveInputs && journey.vehicleDataEnabled) {
@@ -414,10 +452,11 @@ class MainActivity : Activity() {
     private fun renderContent() {
         if (isDestroyed) return
         if (!::emulatorControls.isInitialized || !::steering.isInitialized || !::growth.isInitialized || !::ride.isInitialized || !::situation.isInitialized || !::simulator.isInitialized || !::parkingSimulator.isInitialized || !::journey.isInitialized || !::lesson.isInitialized || !::workflow.isInitialized) return
-        journey.setSpeechEnabled(voiceEnabled)
-        workflow.setSpeechEnabled(voiceEnabled)
+        syncReadiness()
+        journey.setSpeechEnabled(voiceEnabled && !vehicleWarningBlocksSpeech)
+        workflow.setSpeechEnabled(voiceEnabled && !vehicleWarningBlocksSpeech)
         workflow.setActive(foreground && resumed && parked && screen == Screen.WORKFLOW)
-        lesson.setSpeechEnabled(voiceEnabled)
+        lesson.setSpeechEnabled(voiceEnabled && !vehicleWarningBlocksSpeech)
         lesson.setActive(foreground && resumed && parked && screen == Screen.LESSON)
         syncLessonInputs()
         growth.setActive(foreground && parked && screen == Screen.GROWTH)
@@ -436,7 +475,7 @@ class MainActivity : Activity() {
                 (screen == Screen.PARK_SIM && parkingSimulator.isAttachedToWindow) ||
                 (screen == Screen.COACH && journey.isAttachedToWindow))) {
             voiceStatusView?.text = voiceStatus
-            voiceRepeatButton?.isEnabled = voiceEnabled && currentCue != null
+            voiceRepeatButton?.isEnabled = voiceEnabled && !vehicleWarningBlocksSpeech && currentCue != null
             return
         }
         if (!foreground || !parked || screen !in setOf(Screen.HOW_TO, Screen.PRACTICE, Screen.STEERING_SETUP, Screen.STEERING) ||
@@ -553,12 +592,12 @@ class MainActivity : Activity() {
             setOnCheckedChangeListener { _, checked ->
                 voiceEnabled = checked
                 getSharedPreferences("coach", MODE_PRIVATE).edit().putBoolean("voice_enabled", checked).apply()
-                voice.setEnabled(checked)
+                voice.setEnabled(checked && !vehicleWarningBlocksSpeech)
                 render()
             }
         }
         bar.addView(toggle, LinearLayout.LayoutParams(dp(196), dp(64)))
-        val repeat = button("다시 듣기", "replay_voice", voiceEnabled && currentCue != null, secondary = true) {
+        val repeat = button("다시 듣기", "replay_voice", voiceEnabled && !vehicleWarningBlocksSpeech && currentCue != null, secondary = true) {
             voice.stop(); currentCue?.let(voice::speak)
         }
         PleosUi.decorate(repeat)
@@ -785,6 +824,7 @@ class MainActivity : Activity() {
     }
 
     private fun offerCue(cue: CoachCue) {
+        if (vehicleWarningBlocksSpeech) return
         currentCue = cue
         if (foreground && parked) voice.speak(cue)
     }
@@ -812,12 +852,12 @@ class MainActivity : Activity() {
             setOnCheckedChangeListener { _, checked ->
                 voiceEnabled = checked
                 getSharedPreferences("coach", MODE_PRIVATE).edit().putBoolean("voice_enabled", checked).apply()
-                voice.setEnabled(checked)
+                voice.setEnabled(checked && !vehicleWarningBlocksSpeech)
                 render()
             }
         }
         row.addView(toggle, LinearLayout.LayoutParams(0, dp(50), 1f))
-        val repeat = button("다시 듣기", "replay_voice", voiceEnabled && currentCue != null, secondary = true) {
+        val repeat = button("다시 듣기", "replay_voice", voiceEnabled && !vehicleWarningBlocksSpeech && currentCue != null, secondary = true) {
             voice.stop()
             currentCue?.let(voice::speak)
         }
@@ -864,6 +904,7 @@ class MainActivity : Activity() {
             render()
         }
         if (requestCode == 31) { syncLessonInputs(); render() }
+        if (requestCode == 32) { workflow.locationPermissionResult() }
     }
 
     private fun steeringSetup(parent: LinearLayout) {

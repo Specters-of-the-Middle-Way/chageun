@@ -185,6 +185,13 @@ class JourneyState(
             ?: setup.indexOfFirst { !it }.takeIf { it >= 0 } ?: 0
         page = JourneyStep.SETUP
     }
+    fun invalidateVehiclePreparation(steps: Set<Int>): Boolean {
+        val changed = steps.any { it in setup.indices && setup[it] }
+        steps.filter { it in setup.indices }.forEach { setup[it] = false }
+        if (steps.isNotEmpty()) preflight.fill(false)
+        return changed
+    }
+
     fun confirmSetupStep() {
         if (page != JourneyStep.SETUP || !profileConfirmed) return
         setup[setupIndex] = true

@@ -3,6 +3,12 @@
     <uses-feature android:name="android.hardware.type.automotive" android:required="true" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <uses-permission android:name="pleos.car.permission.CAR_LIGHTS" />
+    <uses-permission android:name="pleos.car.permission.CAR_SEATS" />
+    <uses-permission android:name="pleos.car.permission.CAR_SAFETY" />
+    <!-- Public SDK telltale APIs; normal permission on the contest Pleos 2.1.0 image. -->
+    <uses-permission android:name="pleos.car.permission.PRIVATE_CAR_SAFETY" />
+    <uses-permission android:name="pleos.car.permission.FUSED_LOCATION" />
+    <uses-permission android:name="pleos.car.permission.NAVI_ROUTE_SEARCH" />
     <uses-permission android:name="pleos.car.permission.CAR_DRIVE" />
     <uses-permission android:name="android.car.permission.CAR_POWERTRAIN" />
     <uses-permission android:name="android.car.permission.CAR_SPEED" />
@@ -10,6 +16,7 @@
     <uses-permission android:name="pleos.car.permission.TTS_SERVICE" />
     <uses-permission android:name="pleos.car.permission.NAVI_ROUTE" />
     <queries>
+        <package android:name="ai.pleos.playground.service.location.fused" />
         <package android:name="ai.pleos.playground.caas" />
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />

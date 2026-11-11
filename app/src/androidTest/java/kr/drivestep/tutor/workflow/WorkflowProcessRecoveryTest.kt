@@ -73,7 +73,7 @@ class WorkflowProcessRecoveryTest {
         captureOriginal()
         activity=ActivityScenario.launch(MainActivity::class.java)
         try {
-            click("journey_nav_profile");checked("journey_consent_records",false);checked("voice_toggle",false)
+            click("journey_nav_profile");checked("journey_consent_records",false);checked("journey_consent_vehicle",false);checked("voice_toggle",false)
             click("journey_profile_continue");repeat(12){if(!has("journey_preflight_0"))click("journey_setup_confirm")};preflight()
             click("journey_nav_profile");checked("journey_consent_records",true)
             click("coach_workflow");click("workflow_tasks");click("workflow_task_D03");click("workflow_resume")

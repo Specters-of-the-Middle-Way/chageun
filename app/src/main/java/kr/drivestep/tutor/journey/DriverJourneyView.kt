@@ -16,6 +16,8 @@ import android.widget.ScrollView
 import android.widget.SeekBar
 import android.widget.TextView
 import kr.drivestep.tutor.speech.TutorSpeechController
+import kr.drivestep.tutor.connected.ReadinessSnapshot
+import kr.drivestep.tutor.workflow.InputValidity
 import kr.drivestep.tutor.R
 import kr.drivestep.tutor.design.PleosUi
 import kr.drivestep.tutor.design.PleosSwitch
@@ -55,6 +57,8 @@ class DriverJourneyView(
     private var content: LinearLayout? = null
     private var lastPage: JourneyStep? = null
     private var speechContext: String? = null
+    private var sdkLabel: TextView? = null
+    private var readiness: ReadinessSnapshot? = null
     private var setupSpeechLabel: TextView? = null
     private var setupSpeechStatus = "음성으로 듣기를 누르면 현재 단계의 안내를 읽어요."
     private val setupSpeech = TutorSpeechController(context, onTranscript = {}, onStatus = {
@@ -79,6 +83,21 @@ class DriverJourneyView(
         setupSpeech.setActive(value)
         if (!value) { dialog?.dismiss(); dialog = null }
         updateEnabled()
+    }
+
+    fun openProfile() { state.enterProfile(); render() }
+    fun acceptVehicle(value: ReadinessSnapshot, changed: Set<Int>): Boolean {
+        readiness = value
+        val invalidated = state.invalidateVehiclePreparation(changed)
+        if (invalidated) { persist(); render() }
+        sdkLabel?.text = sdkSummary()
+        return invalidated
+    }
+    private fun sdkSummary(): String {
+        val value = readiness ?: return "차량 SDK 상태 미확인 · 직접 확인을 계속할 수 있어요."
+        val positions = value.seats.entries.joinToString(" · ") { (axis,field) -> "${axis.title} ${field.value?.raw ?: "미확인"}" }
+        val belt = if (value.belt.quality != InputValidity.VALID) "미확인" else if (value.belt.value == true) "체결 신호 수신" else "미체결 신호 수신"
+        return "앞좌석 왼쪽 SDK: $positions · 버클 $belt\nSDK 위치 단위이며 자세·벨트 꼬임·미러 시야는 직접 확인해 주세요."
     }
 
     fun requestPreparation() { state.enterPreflight(); render() }
@@ -111,7 +130,7 @@ class DriverJourneyView(
     private fun render() {
         val nextSpeechContext = "${state.page}:${state.setupIndex}"
         if (speechContext != nextSpeechContext) { setupSpeech.stop(); speechContext = nextSpeechContext }
-        setupSpeechLabel = null
+        setupSpeechLabel = null; sdkLabel = null
         removeAllViews(); enabledControls.clear()
         val side = LinearLayout(context).apply {
             orientation = VERTICAL; setPadding(dp(16), dp(20), dp(16), dp(16))
@@ -273,7 +292,8 @@ class DriverJourneyView(
         val guideView = PostureGuideView(context).apply { update(index, state.profile, state.calibration) }
         val info = LinearLayout(context).apply { orientation = VERTICAL }
         row.addView(info, LayoutParams(0, -1, 1f))
-        info.addView(label(step.second, 23, white), full(132))
+        info.addView(label(step.second, 23, white), full(100))
+        sdkLabel = label(sdkSummary(),14,grey).also { info.addView(it,full(60)) }
         divider(info)
         gap(info, 20)
         val axis = when (index) { 0 -> CalibrationAxis.FORE_AFT; 1 -> CalibrationAxis.HEIGHT; 2 -> CalibrationAxis.BACKREST; 4 -> CalibrationAxis.STEERING; else -> null }
@@ -299,7 +319,9 @@ class DriverJourneyView(
             showMessage(step.first, step.second + "\n\n확인하지 못한 항목은 완료로 바꾸지 않아요. 불편한 부분을 다시 조절한 뒤 확인하거나 정차 교육을 선택하세요.")
         }, full(64))
         info.addView(button("조절 및 확인 완료", "journey_setup_confirm", selected = true) {
-            state.confirmSetupStep(); persist(); render()
+            if (index == 8 && readiness?.belt?.quality == InputValidity.VALID && readiness?.belt?.value == false) {
+                showMessage("버클 미체결 신호를 받았어요", "버클 상태를 다시 확인해 주세요. SDK 값만으로 벨트 꼬임이나 올바른 착용 자세를 판정하지 않아요.")
+            } else { state.confirmSetupStep(); persist(); render() }
         }, full(64).apply { topMargin = dp(12) })
         gap(parent, 24)
         val steps = horizontal(parent, 64)

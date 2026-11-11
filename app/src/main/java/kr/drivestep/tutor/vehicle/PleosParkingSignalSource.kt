@@ -31,6 +31,7 @@ class PleosParkingSignalSource(context: Context) : ParkingSignalSource {
     private val main = Handler(Looper.getMainLooper())
     private var generation = 0L
     private var vehicle: Vehicle? = null
+    private var vehicleLease: SessionLease<Vehicle>? = null
     private var steering: SteeringWheel? = null
     private var brake: Brake? = null
     private var car: Car? = null
@@ -79,9 +80,10 @@ class PleosParkingSignalSource(context: Context) : ParkingSignalSource {
             fail(token, SourceState.ERROR, "필수 차량 신호 확인 시간이 초과됐습니다. 다시 연결해 주세요.")
         }.also { main.postDelayed(it, CONNECT_TIMEOUT_MS) }
         try {
-            val sdk = Vehicle(app)
+            val lease = PleosVehicleSessions.acquire(app)
+            vehicleLease = lease
+            val sdk = lease.value
             vehicle = sdk
-            sdk.initialize()
             steering = sdk.getSteeringWheel()
             brake = sdk.getBrake()
             setupSteering(token)
@@ -357,7 +359,7 @@ class PleosParkingSignalSource(context: Context) : ParkingSignalSource {
         car = null
         steering = null
         brake = null
-        runCatching { vehicle?.release() }
+        runCatching { vehicleLease?.close() }; vehicleLease = null
         vehicle = null
         worker?.shutdownNow()
         worker = null

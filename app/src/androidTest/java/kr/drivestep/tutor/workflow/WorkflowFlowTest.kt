@@ -64,7 +64,7 @@ class WorkflowFlowTest {
         assertTrue(checkpoints.commit())
     }
     private fun prepare() {
-        click("journey_nav_profile");click("journey_profile_continue")
+        click("journey_nav_profile");checked("journey_consent_vehicle",false);click("journey_profile_continue")
         repeat(12){if(!has("journey_preflight_0"))click("journey_setup_confirm")}
         for(i in 0..6){val key="journey_preflight_$i";if(all().filterIsInstance<TextView>().none{it.contentDescription?.toString()==key&&it.text.contains("✓")})click(key)}
     }
@@ -100,7 +100,7 @@ class WorkflowFlowTest {
             click("workflow_course_start")
             eventually("Missing preparation gate"){has("journey_nav_profile")}
             assertFalse(has("workflow_gas"))
-            click("journey_nav_profile");click("journey_profile_continue")
+            click("journey_nav_profile");checked("journey_consent_vehicle",false);click("journey_profile_continue")
             repeat(12){if(!has("journey_preflight_0"))click("journey_setup_confirm")}
             assertTrue(has("journey_preflight_0"))
             for(i in 0..6){

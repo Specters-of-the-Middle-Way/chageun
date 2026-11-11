@@ -4,4 +4,8 @@
     <string name="journey_slider_value">%1$d %2$s</string>
     <string name="journey_setup_progress">운전 환경 %1$d/9  ·  %2$d개 확인</string>
     <string name="journey_setup_step">%1$d%2$s</string>
+    <string name="connected_belt_state">안전벨트 버클: %1$s</string>
+    <string name="connected_destination_state">목적지: %1$s · %2$s</string>
+    <string name="connected_turn_state">다음 안내: %1$s · %2$s m · %3$s</string>
+    <string name="connected_navigation_state">%1$s\n%2$s\n%3$s\n내비 정보는 수신 시각 기준이며 실제 차로·통행 가능 판정이 아니에요.</string>
 </resources>

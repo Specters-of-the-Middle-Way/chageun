@@ -13,6 +13,8 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
+import kr.drivestep.tutor.connected.ConnectedVehicleView
+import kr.drivestep.tutor.connected.ReadinessSnapshot
 import kr.drivestep.tutor.design.PleosUi
 import kr.drivestep.tutor.design.PracticeButton
 import kr.drivestep.tutor.speech.TutorSpeechController
@@ -23,8 +25,10 @@ import java.util.UUID
 @SuppressLint("ViewConstructor")
 class WorkflowView(context: Context, private val onExit: () -> Unit, private val onPrepare: () -> Unit,
     private val onParking: () -> Unit, private val onLaneChange: () -> Unit,
-    private val canPractice: () -> Boolean, private val recordEnabled: () -> Boolean) : LinearLayout(context) {
-    private enum class Page { HOME, WEATHER, MANUAL, COURSES, TASKS, SCENARIO, REVIEW, HISTORY }
+    private val canPractice: () -> Boolean, private val recordEnabled: () -> Boolean,
+    vehicleEnabled: () -> Boolean, onVehicleSettings: () -> Unit, onReconnect: () -> Unit, onLocationPermission: () -> Unit) : LinearLayout(context) {
+    private enum class Page { HOME, CONNECTED, WEATHER, MANUAL, COURSES, TASKS, SCENARIO, REVIEW, HISTORY }
+    private val connected = ConnectedVehicleView(context,vehicleEnabled,onVehicleSettings,onReconnect,onLocationPermission)
     private val main = Handler(Looper.getMainLooper())
     private val settings = context.getSharedPreferences("workflow_ui_v1", Context.MODE_PRIVATE)
     private val store = WorkflowStore(context, recordEnabled)
@@ -78,6 +82,7 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
         override fun run() {
             val s = scenario ?: return
             if (!active || closed || page != Page.SCENARIO || s.snapshot().paused) return
+            if (!canPractice()) { pause("차량 준비 상태 변경"); stopVoice(); return }
             val now = SystemClock.elapsedRealtime()
             s.tick(((now - lastTick) / 1000.0).coerceIn(0.0, .1)); lastTick = now
             val snapshot = s.snapshot()
@@ -94,6 +99,7 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
     fun setActive(value: Boolean) {
         if (closed || active == value) return
         active = value
+        connected.setActive(value && page == Page.CONNECTED)
         speech.setActive(value)
         if (!value) { dialog?.dismiss(); dialog = null; pause("화면 이탈·플랫폼 제한"); stopVoice() }
         else render()
@@ -105,7 +111,7 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
         else { stopVoice(); page = Page.HOME; render() }
         return true
     }
-    fun close() { if (closed) return; pause("앱 종료"); closed = true; dialog?.dismiss(); main.removeCallbacksAndMessages(null); speech.close() }
+    fun close() { if (closed) return; pause("앱 종료"); closed = true; dialog?.dismiss(); connected.close(); main.removeCallbacksAndMessages(null); speech.close() }
     override fun onDetachedFromWindow() { pause("화면 분리"); stopVoice(); super.onDetachedFromWindow() }
     private fun stopVoice() { pendingAdvice = null; speech.stop() }
     private fun say(text: String, advice: PendingAdvice? = null) {
@@ -122,7 +128,11 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
         scenario?.takeIf { page == Page.SCENARIO && !it.snapshot().paused }?.let { val point = it.snapshot(); it.pause(reason); store.checkpoint(point) }
         scenario?.snapshot()?.let(::updateScene)
     }
+    fun acceptVehicle(value: ReadinessSnapshot) = connected.acceptVehicle(value)
+    fun locationPermissionResult() = connected.permissionResult()
+    fun preparationChanged() { pause("시트·벨트 상태 변경"); stopVoice() }
     private fun render() {
+        connected.setActive(active && page == Page.CONNECTED)
         removeAllViews(); stats = null; guidance = null; surface = null; resumeButton = null
         val header = row()
         header.addView(text("준비와 연습", 28, true), LayoutParams(0, dp(56), 1f))
@@ -136,6 +146,7 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
         if (page != Page.HOME) addView(button("기능 선택으로", "workflow_home") { pause("기능 선택"); stopVoice(); page = Page.HOME; render() }, full(52))
         when (page) {
             Page.HOME -> home()
+            Page.CONNECTED -> addView(connected,LayoutParams(-1,0,1f))
             Page.WEATHER -> weatherPage()
             Page.MANUAL -> manualPage()
             Page.COURSES -> coursePage()
@@ -148,7 +159,8 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
     }
     private fun home() {
         addView(text("날씨 확인 → 차량 기능 학습 → 가상 코스 → 조작 연습 → 복습", 22, true), full())
-        addView(text("실제 차량은 P·정차 상태로 두세요. 실제 도로 코칭·카메라·거리 센서는 연결되지 않았어요."), full())
+        addView(text("실제 차량은 P·정차 상태로 두세요. 시트·벨트·경고·위치·내비는 별도 연결 화면에서 확인해요. 주변 인식은 향후 계획이에요."), full())
+        addView(button("차량 상태 · 위치와 내비", "workflow_connected") { page = Page.CONNECTED; render() }, full(72))
         addView(button("날씨와 출발 준비", "workflow_weather") { page = Page.WEATHER; render() }, full(72))
         addView(button("차량 기능 배우기", "workflow_manual") { page = Page.MANUAL; render() }, full(72))
         addView(button("목표별 가상 코스 추천", "workflow_courses") { loadCourses(); page = Page.COURSES; render() }, full(72))
@@ -169,7 +181,7 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
     private fun weatherPage() {
         addView(text("날씨 · 앱 세션 시작 기준", 26, true), full())
         val input = weather.result
-        addView(text(if (input?.value == null) "현재 날씨 미확인 · 날씨 제공자와 위치 권한은 아직 연결되지 않았어요. 준비는 계속할 수 있어요."
+        addView(text(if (input?.value == null) "현재 날씨 미확인 · 날씨 제공자는 아직 연결되지 않았어요. 위치 연결은 별도 화면에서 선택할 수 있어요. 준비는 계속할 수 있어요."
             else "가상 날씨 예시: ${input.value!!.condition.name} · ${input.value!!.region}\n출처 SIMULATION · 실제 관측이 아니에요."), full())
         addView(button("현재 날씨 다시 확인", "workflow_weather_retry") {
             stopVoice(); weather.accept(UnavailableWeatherProvider().read("미선택", weather.contextId, SystemClock.elapsedRealtime()), SystemClock.elapsedRealtime()); render()
@@ -237,7 +249,7 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
             if (current == null) { render(); return@button }
             courseTasks = current.tasks; courseIndex = 0; startTask(courseTasks.first(), true)
         }, full(64))
-        addView(text("실제 내비 경로 설정: 미지원. 후보 경로·내비 접수 API 검증 전에는 실제 도로 코스를 생성하지 않아요."), full())
+        addView(text("실제 위치·내비 목적지 요청은 ‘차량 상태 · 위치와 내비’에서 별도로 이용해요. 이 화면의 코스와 접수는 가상 연습 전용이에요."), full())
     }
     private fun taskPage() {
         addView(text("상황별 조작 연습", 26, true), full())

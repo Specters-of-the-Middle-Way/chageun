@@ -1,6 +1,12 @@
 # DriveStep — 내 차 안의 개인 운전 코치
 
-제품 방향 / 최종 목표 갱신: 2026-11-10 / 기존 세 장면의 구현 설명은 v0.5 기준
+제품 방향 / 최종 목표 갱신: 2026-11-11 / 기존 세 장면의 구현 설명은 v0.5 기준
+
+## 2026-11-11 공모전 범위 갱신
+
+운영사무국의 11월 11일 회신에 따라 **ADAS SDK는 이번 공모전에서 사용 불가**다. 추가 API·비공개 자료·특수 권한 승인을 받아 구현한다는 전제는 두지 않는다. 공개 SDK의 시트·버클·차량 경고·위치·내비를 먼저 연결하고, 차량 카메라 원본·주변 객체·거리 기반 자동 상황 인식은 향후 계획으로 분리한다. 사진·녹화·웹캠 대체 입력 시연은 실제 차량 입력과 구분한다. [공모전 범위와 향후 계획](CONTEST_SCOPE.md), [최신 워크플로우](AI_AGENT_WORKFLOW.md#03-2026-11-11-운영사무국-회신에-따른-공모전-실행-범위)를 따른다.
+
+아래 자동 주변 인식은 장기 제품 목표다. 공모전 구현 완료 범위는 아니다.
 
 ## 2026-11-10 사용자 확정 방향과 후속 작업 기준
 
@@ -30,7 +36,7 @@ LLM 없이 차량 검출·추적 모델과 규칙 기반 코칭을 구성할 수
 | Pleos Vehicle·NaviHelper·TTS | 공개 SDK 제공 확인. 현재 앱은 자차 신호·내비 연결·음성 안내를 일부 사용한다. 완성된 옆 차로 인식 기능을 제공한다는 뜻은 아니다. |
 | `PRIVATE_CAR_SAFETY` | 사용자가 제공한 주최 측 회신은 개발 중 사용 가능, 출시 심사는 별도라고 안내한다. 현재 Vehicle 2.3.2의 `Safety.registerTelltales()`에 해당 권한 요구를 확인했다. 카메라 프레임 접근 권한으로 해석하지 않는다. |
 | `LCA_LEFT/RIGHT` | SDK 상수 존재 확인. 정확한 신호 의미, 저속 발동 조건, 경고 없음과 감지 불가의 구분은 주최 측·대상 차량에서 확인해야 한다. |
-| Pleos 카메라·주변 객체·VLM SDK | 확인한 공개 SDK 목록과 Vehicle 2.3.2에서 차량 영상·주변 객체·VLM을 앱에 제공하는 공개 경로는 확보하지 못했다. 추가 제공 가능성을 불가능으로 확정하지 않는다. |
+| Pleos 카메라·주변 객체·VLM SDK | 확인한 공개 SDK 목록과 Vehicle 2.3.2에서 차량 영상·주변 객체·VLM을 앱에 제공하는 공개 경로는 확보하지 못했다. 공모전에서는 공개 경로가 없는 기능을 향후 계획으로 분리한다. |
 | MediaPipe Object Detector | Android의 이미지·비디오·라이브 스트림 객체 검출 API 제공. 영상 확보 후 검출 프로토타입 후보이며 차로별 추적·거리 판정까지 자동 제공하는 완성 모듈은 아니다. |
 | LiteRT / ONNX Runtime Mobile | Android 기기 내 모델 실행 도구. Pleos에서 사용할 ABI·메모리·GPU/NPU·발열·지연과 대상 모델을 따로 검증해야 한다. |
 | LiteRT-LM + 이미지 입력 지원 모델 | Android Kotlin에서 이미지와 텍스트 입력 지원. 예로 Gemma 3n이 문서에 있다. Pleos 기본 탑재 VLM 또는 실시간 운전 판단 성능이 확인된 모델로 소개하지 않는다. |
@@ -56,7 +62,7 @@ LLM 없이 차량 검출·추적 모델과 규칙 기반 코칭을 구성할 수
 4. **자동 안내 연결:** 검증된 관측 이벤트에 맞는 짧은 문장을 선택하고 Pleos TTS로 자동 출력한다. 차량 기본 경고와 내비 음성을 우선하며, 중단되거나 오래된 안내는 재생하지 않는다. 이 단계는 외부 LLM 키 없이 시험할 수 있다.
 5. **실차 연결과 평가:** 영상 API/권한 또는 OEM 객체 데이터가 확보되면 실제 입력을 연결한다. 검출·누락·잘못된 차로 배정, 촬영부터 발화까지의 지연, 지속 실행 시 발열·메모리, 초보 운전자에게 도움이 되는지 검증한다. 그 전에는 실제 진입 허가나 실차 연수 대체 성능을 주장하지 않는다.
 
-주최 측에 남은 핵심 확인은 카메라별 프레임 접근 API·권한 부여 절차, 저속·동시 스트림 제공 조건, 영상 보정 정보·타임스탬프, 주변 객체의 위치·상대 속도 제공 여부, 주행 중 연수 안내 허용 범위다. 모델을 APK에 넣을 수 있다는 사실만으로 이 데이터와 권한이 생기지는 않는다.
+11월 11일 회신 이후에는 카메라 프레임·주변 객체를 추가 승인받는 절차를 공모전 선행 조건으로 두지 않는다. 해당 입력과 실시간 자동 주변 판단은 향후 계획으로 분리하고, 주행 중 사용은 공개 정책을 따른다. 모델을 APK에 넣을 수 있다는 사실만으로 이 데이터와 권한이 생기지는 않는다.
 
 확인 근거: [Pleos SDK 목록](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/), [Vehicle 권한](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/Vehicle/vehicle-permission), [FusedLocation](https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/FusedLocation/intro), [MediaPipe 객체 검출](https://developers.google.com/edge/mediapipe/solutions/vision/object_detector), [LiteRT](https://developers.google.com/edge/litert/overview), [ONNX Runtime Mobile](https://onnxruntime.ai/docs/get-started/with-mobile.html), [LiteRT-LM Android 이미지 입력](https://developers.google.com/edge/litert-lm/android). API 상수·필드·함수는 프로젝트가 설치한 Vehicle 2.3.2, NaviHelper 3.0.5, navi-data 3.0.4의 클래스 선언도 대조했다. 모델의 Pleos 실행 성능이나 실제 카메라 접근을 시험한 결과는 아니다.
 
@@ -101,7 +107,7 @@ DriveStep은 문제를 풀어 운전 지식을 확인하는 시험 앱이 아니
 ## 기술 근거와 미확인 사항
 
 - **현재 공개 범위:** 최신 라이브 SDK 개요는 Vehicle·NaviHelper·STT·TTS·FusedLocation을 안내한다. Vehicle SDK는 차종별 `checkXXXCapabilities`와 필요한 권한 확인을 전제로 하며, 권한 사용은 Pleos App Market과 협의·승인된 범위여야 한다. [SDK 개요](https://document.pleos.ai/en/docs/pleos-only/connect-sdk-pleos/), [Vehicle SDK 2.3.2 가이드](https://document.pleos.ai/en/docs/pleos-only/connect-sdk-pleos/Vehicle/intro)
-- **ADAS는 현재 사용 가능 여부 미확인:** 과거 검색 색인에는 ADAS의 차선·주변 객체 구독 API가 남아 있지만, 확인일에 해당 [기존 ADAS API 주소](https://document.pleos.ai/en/api-reference/connect-sdk-pleos/Adas/adas/ai.pleos.playground.adas/adas/entry)는 Page Not Found였다. 현재 확보한 Vehicle 2.3.2 소스에도 영상 스트림·차선·주변 객체 목록 API를 확인하지 못했다. 과거 색인을 구현 가능 근거로 사용하지 않으며, 향후 별도 제공 가능성까지 불가능하다고 단정하지 않는다.
+- **ADAS는 이번 공모전 사용 불가(11월 11일 회신 반영):** 과거 검색 색인에는 ADAS의 차선·주변 객체 구독 API가 남아 있지만, 확인일에 해당 [기존 ADAS API 주소](https://document.pleos.ai/en/api-reference/connect-sdk-pleos/Adas/adas/ai.pleos.playground.adas/adas/entry)는 Page Not Found였다. 현재 확보한 Vehicle 2.3.2 소스에도 영상 스트림·차선·주변 객체 목록 API를 확인하지 못했다. 과거 색인을 구현 가능 근거로 사용하지 않으며, 공모전 구현에 사용하지 않으며, 공모전 밖의 향후 연계는 별도로 정의한다.
 - **주행 중 동작은 별도 조건:** DO(주행 중 사용을 고려한 설계)를 선언하더라도 `CarUxRestrictions`와 `ActiveRestrictions`에 맞게 기능을 제한해야 한다. 운전 코칭의 허용 범위를 확인해야 하며, 선언만으로 승인이 보장되지 않는다. [주행 제한 개발 가이드](https://document.pleos.ai/en/docs/pleos-only/vehicle-app-developer-guide/driving-restriction-development-guide), [앱 카테고리 정책](https://document.pleos.ai/en/docs/pleos-only/vehicle-app-planning-guide/app-category)
 - **카메라·시스템 권한:** 차량의 시스템 카메라는 일반 설치 앱이 접근할 수 없을 수 있다. OEM 앱의 화면에 영상이 보인다는 사실만으로 우리 앱의 영상 접근을 보장할 수 없다. 제공되지 않는 특수 차량 속성은 기술지원팀에 검토를 요청한다. [Android 시스템 카메라](https://source.android.com/docs/core/camera/system-cameras), [Pleos API 가용성](https://document.pleos.ai/en/docs/pleos-only/vehicle-app-planning-guide/api-compatibility-availability)
 
