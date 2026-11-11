@@ -1,5 +1,6 @@
 package kr.drivestep.tutor.tutor
 
+import kr.drivestep.tutor.design.PleosUi
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
@@ -243,11 +244,11 @@ private class ParkingOverview(context: Context, private val step: Int) : View(co
         bounds.set(cx - 13f * scale, cy + 4f * scale, cx + 13f * scale, cy + 17f * scale)
         canvas.drawRoundRect(bounds, 3f * scale, 3f * scale, paint)
         paint.color = ink
-        paint.textSize = 11f * scale
+        paint.textSize = PleosUi.canvasTextSize(context, 11f * scale)
         paint.textAlign = Paint.Align.RIGHT
         canvas.drawText("뒤", cx - 27f * scale, cy - 15f * scale, paint)
         canvas.drawText("앞", cx - 27f * scale, cy + 25f * scale, paint)
-        paint.textSize = 13f * scale
+        paint.textSize = PleosUi.canvasTextSize(context, 13f * scale)
         paint.textAlign = Paint.Align.CENTER
         canvas.drawText("주차 공간 예시", cx, 52f * scale, paint)
         val focus = FOCUS_LABELS[step]

@@ -90,7 +90,7 @@ class GrowthTutorView(
         val links = row(this)
         links.addView(button("체격·운전자세 다시 확인", "growth_profile", secondary = true) { openProfile() }, weight())
         links.addView(button("성장 기록 · 연습 순위", "growth_progress", secondary = true) { page = Page.PROGRESS; stopVoice(); render() }, weight())
-        links.addView(button("실제 SDK 조작 실습", "growth_sdk", secondary = true) { stopVoice(); onSdk() }, weight())
+        links.addView(button("차량 조작 연습", "growth_sdk", secondary = true) { stopVoice(); onSdk() }, weight())
         addView(button(if (preview) "미리보기 종료 · 순서대로 학습" else "모든 상황 미리보기 · 점수 미반영", "growth_preview", secondary = true) { preview = !preview; render() })
         if (preview) addView(label("미리보기 모드 · 기본 세팅과 과정 순서에 관계없이 체험합니다. 학습 기록과 포인트는 바뀌지 않아요.", 15, amber, true))
         gap(this, 16)
@@ -266,7 +266,7 @@ class GrowthTutorView(
         }
         backButton()
         addView(button("성장 기록 초기화", "growth_reset", secondary = true) {
-            AlertDialog.Builder(context).setTitle("성장 연습 기록을 초기화할까요?").setMessage("체격 선택, 기본 세팅 확인, 가상 연습 점수와 기록을 지웁니다. 기존 SDK 실습 기록은 유지됩니다.")
+            AlertDialog.Builder(context).setTitle("성장 연습 기록을 초기화할까요?").setMessage("체격 선택, 기본 설정 확인, 가상 연습 점수와 기록을 삭제해요. 차량 조작 연습 기록은 유지돼요.")
                 .setNegativeButton("취소", null).setPositiveButton("초기화") { _, _ -> progress.reset(); page = Page.HUB; render() }.show()
         })
     }

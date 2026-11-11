@@ -70,7 +70,7 @@ class ConnectedSdkTest {
         lateinit var source:LocationNavigationSource
         instrumentation.runOnMainSync { source=LocationNavigationSource(instrumentation.targetContext,last::set);source.start() }
         try {
-            waitFor("No navigation state for scoped cleanup") { last.get()?.navigation?.startsWith("NaviHelper 수신")==true }
+            waitFor("No navigation state for scoped cleanup") { last.get()?.navigation?.startsWith("내비게이션 ·")==true }
             if (last.get()?.navigation?.contains("설정된 경로 없음")!=true) {
                 waitFor("No destination for scoped cleanup") { last.get()?.destination?.quality==InputValidity.VALID || last.get()?.navigation?.contains("설정된 경로 없음")==true }
             }
@@ -154,7 +154,7 @@ class ConnectedSdkTest {
         instrumentation.runOnMainSync { source = LocationNavigationSource(instrumentation.targetContext,last::set); source.start() }
         try {
             waitFor("FusedLocation did not return current data") { last.get()?.location?.quality == InputValidity.VALID }
-            waitFor("NaviHelper connected without an actual route-state response: ${last.get()?.navigation}") { last.get()?.navigation?.startsWith("NaviHelper 수신") == true }
+            waitFor("NaviHelper connected without an actual route-state response: ${last.get()?.navigation}") { last.get()?.navigation?.startsWith("내비게이션 ·") == true }
             val value = last.get()
             assertTrue(value.location.value!!.point.valid)
             assertEquals(RequestPhase.IDLE,value.phase)

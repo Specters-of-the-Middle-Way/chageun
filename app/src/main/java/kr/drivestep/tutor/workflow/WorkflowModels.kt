@@ -37,7 +37,7 @@ class AdviceArbiter {
 enum class WeatherCondition { CLEAR, RAIN, SNOW, FOG, COLD }
 data class WeatherReading(val region: String, val condition: WeatherCondition, val temperatureC: Double?)
 data class WeatherPolicy(val ttlMillis: Long = 30 * 60_000L, val coldThresholdC: Double = 3.0,
-    val policySource: String = "교육용 모의 정책 v1 · 실제 날씨 제공자 미선정")
+    val policySource: String = "날씨별 연습 안내 기준")
 interface WeatherProvider { fun read(region: String, context: String, now: Long): InputEnvelope<WeatherReading> }
 class UnavailableWeatherProvider : WeatherProvider {
     override fun read(region: String, context: String, now: Long) = InputEnvelope<WeatherReading>(null,

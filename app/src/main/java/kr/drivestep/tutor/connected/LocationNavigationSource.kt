@@ -64,7 +64,7 @@ class LocationNavigationSource(context: Context, private val onUpdate: (Location
         }
         try {
             val service = FusedLocation(app)
-            if (!service.isSupported()) { location = Observed(quality = InputValidity.UNSUPPORTED,detail = "FusedLocation 서비스 미지원"); publish(); return }
+            if (!service.isSupported()) { location = Observed(quality = InputValidity.UNSUPPORTED,detail = "이 차량에서는 현재 위치를 확인할 수 없어요"); publish(); return }
             fused = service; service.initialize()
             arm("location",10_000,token) {
                 location = Observed(quality = InputValidity.ERROR,detail = "위치 응답 시간 초과 · 다시 연결해 주세요")
@@ -102,7 +102,7 @@ class LocationNavigationSource(context: Context, private val onUpdate: (Location
                         navigationPosition=Observed(quality=InputValidity.DENIED,detail="위치 권한 없음 · 내비 기준 위치도 표시하지 않아요");publish();return@navigationEvent
                     }
                     val point=GeoPoint(currentLocationInfo.latitude,currentLocationInfo.longitude)
-                    navigationPosition = if (point.valid) Observed(point,InputValidity.VALID,now(),"NaviHelper 위치 · 수신 시각 기준")
+                    navigationPosition = if (point.valid) Observed(point,InputValidity.VALID,now(),"내비에서 확인한 최근 위치")
                         else Observed(quality=InputValidity.ERROR,detail="내비 위치 값 오류")
                     publish()
                 }
@@ -112,7 +112,7 @@ class LocationNavigationSource(context: Context, private val onUpdate: (Location
                     // the provider's route-search operation and is not a guidance receipt.
                     hasRoute = routeStateInfo.naviMode in setOf(NaviMode.ROUTE_GUIDING,NaviMode.SIMULATION_GUIDING)
                     request.activeRoute(hasRoute == true,now())
-                    navigation = "NaviHelper 수신 · " + when (routeStateInfo.naviMode) {
+                    navigation = "내비게이션 · " + when (routeStateInfo.naviMode) {
                         NaviMode.ROUTE_GUIDING -> "경로 안내 중"
                         NaviMode.SIMULATION_GUIDING -> "내비 모의 안내 중"
                         NaviMode.SAFE_GUIDING -> if (routeStateInfo.isRouting) "경로 탐색 중" else "설정된 경로 없음"
@@ -135,7 +135,7 @@ class LocationNavigationSource(context: Context, private val onUpdate: (Location
                     clear("turn")
                     val next = tbtInfoList.firstOrNull()
                     turn = if (hasRoute == true && next != null && next.distance.isFinite() && next.distance >= 0)
-                        Observed(NavigationTurn(next.type.name,next.distance,next.description),InputValidity.VALID,now(),"NaviHelper TBT 수신")
+                        Observed(NavigationTurn(next.type.name,next.distance,next.description),InputValidity.VALID,now(),"내비에서 받은 다음 안내")
                     else Observed(detail = "다음 안내 없음 · 통행 가능 판단이 아니에요")
                     publish()
                 }
@@ -152,12 +152,12 @@ class LocationNavigationSource(context: Context, private val onUpdate: (Location
                     hasRoute = false; destination = Observed(detail = "경로 취소 수신"); turn = Observed(); request.cancelled()
                     navigation = "내비 경로 취소 수신"; publish()
                 }
-                override fun onError(errorCode: NaviErrorCode) = navigationEvent(token) { invalidate("내비 오류 · ${errorCode.name}") }
+                override fun onError(errorCode: NaviErrorCode) = navigationEvent(token) { invalidate("내비에 연결하지 못했어요. 내비를 열어 상태를 확인해 주세요.") }
             }
             naviListener = listener; helper.addListener(listener)
             arm("connect",10_000,token) { navigation = "내비 연결 시간 초과"; stopNavigation() }
             helper.initialize(onConnected = { navigationEvent(token) {
-                clear("connect"); naviReady = true; navigation = "내비 서비스 연결됨 · 실제 정보 대기"; queryNavigation(); publish()
+                clear("connect"); naviReady = true; navigation = "내비에 연결했어요. 경로 정보를 확인하고 있어요."; queryNavigation(); publish()
             } },onFailed = { navigationEvent(token) { clear("connect"); invalidate("내비 서비스 연결 실패"); stopNavigation(); publish() } })
         } catch (_: Exception) { navigation = "내비 권한 또는 서비스 연결 오류"; stopNavigation(); publish() }
     }

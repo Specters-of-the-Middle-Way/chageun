@@ -46,7 +46,7 @@ class PleosTurnSignalSource(context: Context) : TurnSignalSource {
                 api = signals
                 armDeadline(
                     token,
-                    "차량 서비스의 기능 확인 응답이 없습니다. Pleos 에뮬레이터를 확인하고 다시 연결해 주세요.",
+                    "차량 응답이 늦어지고 있어요. 차량 연결 상태를 확인한 뒤 다시 연결해 주세요.",
                     VehicleTimeoutPolicy.PARKED_CONNECT_TIMEOUT_MS,
                 )
                 signals.checkTurnSignalStateCapabilities(

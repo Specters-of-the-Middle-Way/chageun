@@ -1,5 +1,6 @@
 package kr.drivestep.tutor.contextcoach
 
+import kr.drivestep.tutor.design.PleosUi
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
@@ -117,7 +118,7 @@ class SituationCoachView(
             updateReplay(index)
             if (elapsed >= span) {
                 stopReplay()
-                replayLabel?.text = "재현을 마쳤어요. 아래 기록에서 코치가 반응한 근거를 다시 볼 수 있어요."
+                replayLabel?.text = "다시 보기를 마쳤어요. 아래에서 차근의 안내를 살펴보세요."
             } else main.postDelayed(this, 100)
         }
     }
@@ -176,7 +177,7 @@ class SituationCoachView(
 
     private fun livePage() {
         addView(label("상황이 생기면 먼저 도와주는 코치", 27, ink, true))
-        addView(label("가상 신호 시험 · 실제 차량은 P·정차 · 아래 D·속도·경고는 모두 가상 입력", 14, amber))
+        addView(label("가상 상황 연습 · 실제 차량은 P에 놓고 멈춰 주세요. 아래 조작은 화면 속 차량에만 적용돼요.", 14, amber))
         val demos = row(this)
         listOf(
             Triple("왼쪽 깜빡이 → 감속", "situation_demo_decelerate", Preset.DROP),
@@ -186,12 +187,12 @@ class SituationCoachView(
             val view = button(title, key) { startPreset(demo) }
             presetControls.add(view); demos.addView(view, weight(52))
         }
-        presetLabel = label("시연을 누르면 입력값이 시간에 따라 바뀌고, 코치가 그 변화를 관찰해요.", 14, muted).also { addView(it) }
+        presetLabel = label("상황을 선택하면 화면 속 차량이 움직이고, 차근이 대응 방법을 안내해요.", 14, muted).also { addView(it) }
         gap(this, 8)
         val columns = row(this)
         val inputs = card(columns, asColumn = true)
         val coach = card(columns, asColumn = true)
-        inputs.addView(label("가상 입력을 직접 바꿔보기", 20, teal, true))
+        inputs.addView(label("연습 상황 직접 설정", 20, teal, true))
         inputs.addView(label("방향지시등", 15, ink, true))
         val signals = row(inputs)
         signalChoice(signals, "꺼짐", "situation_off", SituationSignal.OFF)
@@ -225,7 +226,7 @@ class SituationCoachView(
         steeringLabel = label("가상 전륜 조향각 0° · 핸들 회전각 아님", 14, teal).also { inputs.addView(it) }
         steeringSlider = slider(40, 20, "situation_steering") { value -> manualChange { steering = (value - 20).toDouble() } }
             .also { inputs.addView(it, LayoutParams(-1, dp(36))) }
-        inputs.addView(label("도로 문맥 · 이 화면에서 입력한 가정", 14, ink, true))
+        inputs.addView(label("연습할 도로", 14, ink, true))
         val roads = row(inputs)
         listOf("미확인" to SituationRoad.UNKNOWN, "직선" to SituationRoad.STRAIGHT,
             "교차로" to SituationRoad.INTERSECTION, "주차" to SituationRoad.PARKING).forEach { (title, value) ->
@@ -251,8 +252,8 @@ class SituationCoachView(
         gap(coach, 8)
         chart = ObservationChart(context).also { coach.addView(it, LayoutParams(-1, dp(120))) }
         observationLabel = label("속도 관측을 시작하기 전이에요.", 14, teal).also { coach.addView(it) }
-        statusLabel = label("가상 신호 받기를 시작하거나 위의 시연을 선택해 주세요.", 15, ink).also { coach.addView(it) }
-        lastReviewButton = button("해당 상황 복습 · 저장 신호 재현", "situation_review_last", secondary = true) {
+        statusLabel = label("연습을 시작하거나 위에서 상황을 선택해 주세요.", 15, ink).also { coach.addView(it) }
+        lastReviewButton = button("이번 상황 복습 · 다시 보기", "situation_review_last", secondary = true) {
             records.firstOrNull()?.let(::openReview)
         }.also { coach.addView(it) }
         coach.addView(label("안전한 끼어들기 간격·충돌 가능성·법규 위반을 판정하는 기능은 아닙니다.", 13, muted))
@@ -302,7 +303,7 @@ class SituationCoachView(
         if (!canInput()) return
         preset = null
         change()
-        presetLabel?.setIfChanged("직접 바꾼 가상 입력을 관찰하고 있어요.")
+        presetLabel?.setIfChanged("설정한 연습 상황에 맞춰 안내하고 있어요.")
         observe(SystemClock.elapsedRealtime())
     }
 
@@ -386,12 +387,12 @@ class SituationCoachView(
         eventTitle?.setIfChanged(event?.title ?: "필요한 순간을 기다리고 있어요")
         eventCue?.setIfChanged(event?.cue?.text ?: "시연 중 속도와 깜빡이·경고를 직접 바꿔 보세요.")
         reasonLabel?.setIfChanged(event?.reason ?: "신호 하나로 차로 변경을 확정하지 않아요. 방향지시와 속도 변화 또는 입력한 차량 경고를 함께 살펴요.")
-        evidenceLabel?.setIfChanged(event?.evidence?.take(6)?.joinToString("\n") ?: "기어 ${gear.name} · ${roadLabel(road)} · 경고 ${warningLabel(warning)}\n모두 이 화면의 가상 입력이에요.")
+        evidenceLabel?.setIfChanged(event?.evidence?.take(6)?.joinToString("\n") ?: "기어 ${gear.name} · ${roadLabel(road)} · 경고 ${warningLabel(warning)}\n화면 속 차량의 상태예요.")
         chart?.show(liveSamples.toList())
         val result = lastResult
         observationLabel?.setIfChanged("최근 관측 변화 ${result?.speedDeltaKmh?.let { String.format(Locale.KOREA, "%+.1f km/h", it) } ?: "수집 중"}" +
             if ((result?.cooldownRemainingMs ?: 0L) > 0) " · 추가 발화 대기 ${(result!!.cooldownRemainingMs + 999) / 1000}초" else "")
-        statusLabel?.setIfChanged(if (!running) "입력을 멈췄어요. 준비되면 신호 받기를 명시적으로 시작해 주세요." else result?.status ?: "가상 입력을 관찰하고 있어요.")
+        statusLabel?.setIfChanged(if (!running) "연습을 멈췄어요. 준비되면 다시 시작해 주세요." else result?.status ?: "화면 속 상황을 살펴보고 있어요.")
         if (event?.speechSuppressed == true) {
             statusLabel?.setIfChanged("차량 경고음 우선: 추가 음성은 재생하지 않고 기록만 남겼어요. 나중에 자동 재생하지 않습니다.")
         }
@@ -413,7 +414,7 @@ class SituationCoachView(
         engine.reset(); latestInputAt = -1L; liveSamples.clear(); lastResult = null; latestEvent = null
         signal = SituationSignal.OFF; speed = 0.0; warning = SituationWarning.UNKNOWN
         gear = SituationGear.D; brake = false; steering = 0.0; road = SituationRoad.UNKNOWN; vehicleWarningActive = false
-        presetLabel?.text = "가상 입력을 초기화했어요. 저장한 상황 기록은 남아 있어요."
+        presetLabel?.text = "연습 상황을 처음으로 돌렸어요. 저장한 기록은 그대로예요."
         updateLiveControls(); updateLivePresentation()
     }
 
@@ -470,10 +471,10 @@ class SituationCoachView(
         header.addView(label(record.optString("reason"), 17, ink))
         header.addView(label(if (record.optBoolean("speechSuppressed")) "당시 차량 경고음 우선으로 추가 음성을 재생하지 않았어요." else "당시 코치: ${record.optString("cueText")}", 16, muted))
         chart = ObservationChart(context).also { header.addView(it, LayoutParams(-1, dp(170))) }
-        replayLabel = label("재현을 누르면 저장된 순서대로 가상 입력을 다시 보여드려요.", 16, teal).also { header.addView(it) }
+        replayLabel = label("다시 보기를 누르면 연습했던 상황을 순서대로 보여드려요.", 16, teal).also { header.addView(it) }
         val actions = row(this)
-        replayButton = button("저장 신호 재현", "situation_replay") { startReplay() }.also { actions.addView(it, weight(48)) }
-        actions.addView(button("가상 입력으로 돌아가기", "situation_review_back", secondary = true) { goBack() }, weight(48))
+        replayButton = button("연습 다시 보기", "situation_replay") { startReplay() }.also { actions.addView(it, weight(48)) }
+        actions.addView(button("상황 연습으로 돌아가기", "situation_review_back", secondary = true) { goBack() }, weight(48))
         actions.addView(button("이전 메뉴", "situation_exit", secondary = true) { exit() }, weight(48))
         gap(this, 10)
         addView(label("반응에 사용한 변수", 21, ink, true))
@@ -567,8 +568,8 @@ class SituationCoachView(
         SituationWarning.LEFT -> "왼쪽"; SituationWarning.RIGHT -> "오른쪽"; SituationWarning.BOTH -> "양쪽"
     }
     private fun roadLabel(value: SituationRoad) = when (value) {
-        SituationRoad.UNKNOWN -> "도로 미확인"; SituationRoad.STRAIGHT -> "직선 가정"
-        SituationRoad.INTERSECTION -> "교차로 가정"; SituationRoad.PARKING -> "주차 가정"
+        SituationRoad.UNKNOWN -> "도로 미확인"; SituationRoad.STRAIGHT -> "직선 도로"
+        SituationRoad.INTERSECTION -> "교차로"; SituationRoad.PARKING -> "주차장"
     }
     private fun row(parent: LinearLayout) = LinearLayout(context).apply { orientation = HORIZONTAL; gravity = Gravity.TOP; parent.addView(this, LayoutParams(-1, -2)) }
     private fun card(parent: LinearLayout, asColumn: Boolean = false) = LinearLayout(context).apply {
@@ -616,7 +617,7 @@ private class ObservationChart(context: Context) : View(context) {
         val density = resources.displayMetrics.density
         val left = 40f * density; val right = (width - 10f * density).coerceAtLeast(left + 1)
         val top = 23f * density; val bottom = (height - 24f * density).coerceAtLeast(top + 1)
-        paint.style = Paint.Style.FILL; paint.textSize = 12f * density; paint.color = Color.rgb(89, 111, 113)
+        paint.style = Paint.Style.FILL; paint.textSize = PleosUi.canvasTextSize(context, 12f * density); paint.color = Color.rgb(89, 111, 113)
         c.drawText("가상 속도 변화 · km/h", 4f * density, 15f * density, paint)
         paint.strokeWidth = density
         for (i in 0..2) {
@@ -635,7 +636,7 @@ private class ObservationChart(context: Context) : View(context) {
         paint.style = Paint.Style.STROKE; paint.strokeWidth = 3f * density; paint.color = Color.rgb(8, 127, 113); c.drawPath(path, paint)
         val index = if (selected in samples.indices) selected else samples.lastIndex
         paint.style = Paint.Style.FILL; paint.color = Color.rgb(214, 139, 42); c.drawCircle(x(index), y(index), 5f * density, paint)
-        paint.textSize = 12f * density; paint.color = Color.rgb(89, 111, 113)
+        paint.textSize = PleosUi.canvasTextSize(context, 12f * density); paint.color = Color.rgb(89, 111, 113)
         c.drawText("0초", left, height - 5f * density, paint)
         c.drawText(String.format(Locale.KOREA, "%.1f초", span / 1000.0), (right - 44f * density).coerceAtLeast(left), height - 5f * density, paint)
     }

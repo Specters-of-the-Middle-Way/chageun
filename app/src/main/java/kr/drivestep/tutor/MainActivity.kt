@@ -2,6 +2,10 @@ package kr.drivestep.tutor
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
+import android.content.Intent
+import kr.drivestep.tutor.gleo.*
+import kr.drivestep.tutor.parking.ParkingCourse
 import android.content.res.Configuration
 import android.content.pm.PackageManager
 import kr.drivestep.tutor.debug.EmulatorControls
@@ -23,6 +27,8 @@ import kr.drivestep.tutor.parking.ParkingSimulatorView
 import kr.drivestep.tutor.journey.DriverJourneyView
 import kr.drivestep.tutor.journey.JourneyDestination
 import kr.drivestep.tutor.workflow.WorkflowView
+import kr.drivestep.tutor.workflow.StartupWeatherController
+import kr.drivestep.tutor.workflow.StartupWeatherCard
 import kr.drivestep.tutor.connected.VehicleReadinessSource
 import kr.drivestep.tutor.connected.LocationNavigationSource
 import kr.drivestep.tutor.lessoncoach.LessonCoachView
@@ -38,8 +44,22 @@ import java.util.UUID
 import java.util.concurrent.Executors
 
 class MainActivity : Activity() {
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(newBase)
+        // Enlarge this app while retaining the driver's system font preference.
+        applyOverrideConfiguration(Configuration().apply {
+            fontScale = newBase.resources.configuration.fontScale * PleosUi.TEXT_SCALE
+        })
+    }
+
     private enum class Screen { COACH, WORKFLOW, LESSON, SIMULATOR, PARK_SIM, SITUATION, RIDE, HOME, HOW_TO, PRACTICE, REVIEW, PARKING, STEERING_SETUP, STEERING, GROWTH }
     private lateinit var workflow: WorkflowView
+    private lateinit var gleo: GleoBridge
+    private lateinit var gleoWeather: GleoWeatherRequest
+    private lateinit var gleoStatus: GleoStatusView
+    private var gleoInteraction = false
+    private lateinit var startupWeather: StartupWeatherController
+    private lateinit var startupWeatherCard: StartupWeatherCard
     private lateinit var readinessSource: VehicleReadinessSource
     private var vehicleWarningBlocksSpeech = false
     private lateinit var lesson: LessonCoachView
@@ -146,10 +166,14 @@ class MainActivity : Activity() {
         lesson = LessonCoachView(this, onExit = {
             lessonInputs.stop(); screen = Screen.COACH; render()
         }, recordEnabled = { journey.recordEnabled }, vehicleEnabled = { journey.vehicleDataEnabled },
-            onInputModeChanged = { live ->
-                if (live && !hasSpeedPermission()) requestPermissions(arrayOf("android.car.permission.CAR_SPEED"), 31)
-                syncLessonInputs()
-            })
+            onEnableVehicleData = { journey.setVehicleDataEnabled(true) },
+            ensureVehiclePermission = {
+                if (hasSpeedPermission()) true else {
+                    requestPermissions(arrayOf("android.car.permission.CAR_SPEED"), 31)
+                    false
+                }
+            },
+            onInputModeChanged = { syncLessonInputs() })
         workflow = WorkflowView(this, onExit = { screen = Screen.COACH; render() },
             onPrepare = { journey.requestPreparation(); screen = Screen.COACH; render() },
             onParking = { openDestination(JourneyDestination.PARKING) },
@@ -159,6 +183,11 @@ class MainActivity : Activity() {
             onVehicleSettings = { journey.openProfile(); screen = Screen.COACH; render() },
             onReconnect = { readinessSource.stop(); syncReadiness() },
             onLocationPermission = { requestPermissions(arrayOf(LocationNavigationSource.LOCATION_PERMISSION),32) })
+        startupWeatherCard = StartupWeatherCard(this) {
+            workflow.openWeather(startupWeather.currentReading); screen = Screen.WORKFLOW; render()
+        }
+        startupWeather = StartupWeatherController(this,
+            savedInstanceState?.getBoolean("startup_weather_attempted") == true, startupWeatherCard::show)
         readinessSource = VehicleReadinessSource(this) { snapshot, changed ->
             val invalidated = journey.acceptVehicle(snapshot,changed)
             workflow.acceptVehicle(snapshot)
@@ -176,8 +205,19 @@ class MainActivity : Activity() {
                 journey.setSpeechEnabled(voiceEnabled && !snapshot.speechBlocked)
                 workflow.setSpeechEnabled(voiceEnabled && !snapshot.speechBlocked)
                 lesson.setSpeechEnabled(voiceEnabled && !snapshot.speechBlocked)
+                startupWeather.setActive(foreground && resumed && parked && screen == Screen.COACH && !gleoInteraction,
+                    voiceEnabled && !snapshot.speechBlocked)
             }
         }
+        gleoStatus = GleoStatusView(this)
+        gleoWeather = GleoWeatherRequest(this)
+        gleo = GleoBridge(this, { voiceEnabled && !vehicleWarningBlocksSpeech }, ::executeGleo,
+            { gleoWeather.cancel() }, { message ->
+                if (screen == Screen.LESSON && lesson.isGleoConversation) gleoStatus.visibility = View.GONE
+                else gleoStatus.show(message)
+            })
+        gleoInteraction = savedInstanceState?.getBoolean("gleo_interaction") == true || GleoAction.from(intent.action) != null
+        if (savedInstanceState == null) gleo.receive(intent)
         render()
         io.execute {
             try {
@@ -231,10 +271,19 @@ class MainActivity : Activity() {
         resumed = true
         voice.setActive(foreground && parked)
         render()
+        gleo.availability(true, parked)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (GleoAction.from(intent.action) != null) gleoInteraction = true
+        gleo.receive(intent)
     }
 
     override fun onPause() {
         resumed = false
+        gleo.availability(false, parked)
+        startupWeather.setActive(false, voiceEnabled)
         if (::readinessSource.isInitialized) readinessSource.stop()
         voice.stop(); currentCue = null
         workflow.setActive(false)
@@ -272,7 +321,15 @@ class MainActivity : Activity() {
         super.onStop()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("startup_weather_attempted", startupWeather.attempted)
+        outState.putBoolean("gleo_interaction", gleoInteraction)
+        super.onSaveInstanceState(outState)
+    }
+
     override fun onDestroy() {
+        gleo.close(); gleoWeather.close()
+        startupWeather.close()
         if (::readinessSource.isInitialized) readinessSource.close()
         lessonInputs.close()
         workflow.close()
@@ -453,6 +510,7 @@ class MainActivity : Activity() {
         if (isDestroyed) return
         if (!::emulatorControls.isInitialized || !::steering.isInitialized || !::growth.isInitialized || !::ride.isInitialized || !::situation.isInitialized || !::simulator.isInitialized || !::parkingSimulator.isInitialized || !::journey.isInitialized || !::lesson.isInitialized || !::workflow.isInitialized) return
         syncReadiness()
+        if (::gleo.isInitialized) gleo.availability(foreground && resumed, parked)
         journey.setSpeechEnabled(voiceEnabled && !vehicleWarningBlocksSpeech)
         workflow.setSpeechEnabled(voiceEnabled && !vehicleWarningBlocksSpeech)
         workflow.setActive(foreground && resumed && parked && screen == Screen.WORKFLOW)
@@ -465,6 +523,8 @@ class MainActivity : Activity() {
         simulator.setActive(foreground && resumed && parked && screen == Screen.SIMULATOR)
         parkingSimulator.setActive(foreground && resumed && parked && screen == Screen.PARK_SIM)
         journey.setActive(foreground && resumed && parked && screen == Screen.COACH)
+        startupWeather.setActive(foreground && resumed && parked && screen == Screen.COACH && !gleoInteraction,
+            voiceEnabled && !vehicleWarningBlocksSpeech)
         // Keep the direct-manipulation surface mounted during speech/sensor updates.
         // Replacing it would cancel a held pedal or restart its simulation ticker.
         if (foreground && parked && renderedScreen == screen &&
@@ -501,7 +561,7 @@ class MainActivity : Activity() {
             gap(panel, 12)
             panel.addView(text(gateMessage, 19))
             gap(panel, 10)
-            if (emulatorTest) panel.addView(text("에뮬레이터에서 R·N·D로 바꾸면 제한될 수 있어요. PC 조작 패널에서 P로 복귀한 뒤 다시 시작해 주세요.", 17, teal))
+            if (emulatorTest) panel.addView(text("연습용 차량의 기어를 P에 놓고 다시 시작해 주세요.", 17, teal))
             gap(panel, 10)
             panel.addView(text("이 실습은 정차 중에만 사용할 수 있어요. 주행 상태로 바뀌면 진행 중인 실습은 중단 기록으로 남습니다.", 17, muted))
             setContentView(scroll)
@@ -534,11 +594,11 @@ class MainActivity : Activity() {
         }
         gap(content, 16)
         val footer = when (screen) {
-            Screen.COACH -> "현대자동차 기본 탑재를 제안하는 개발 프로토타입입니다. 현재 공식 기본 앱은 아닙니다."
+            Screen.COACH -> "차근과 함께, 출발 전 준비부터 운전의 기본까지 익혀요."
             Screen.SIMULATOR, Screen.PARK_SIM -> "정차 중 가상 연습"
-            Screen.SITUATION -> "상황 감지 검증용 가상 입력 · 실제 주행 중 화면 실행과 주변 인식은 구현되지 않았습니다."
+            Screen.SITUATION -> "화면 속 상황으로 대응 방법을 연습해요. 실제 주변 상황을 감지하지는 않아요."
             Screen.RIDE -> "정차 중 가상 주행 체험 · 실제 도로 인식이나 차량 제어를 하지 않습니다."
-            Screen.GROWTH -> "완료한 가상 연습만 학습 점수로 저장해요. 실제 SDK 실습 기록과 구분됩니다."
+            Screen.GROWTH -> "완료한 가상 연습을 학습 기록으로 남겨요. 차량 조작 연습 기록은 따로 확인할 수 있어요."
             Screen.PARKING -> "이해 확인은 현재 과정에서만 유지돼요. 실제 주차 기록은 수집하지 않습니다."
             Screen.STEERING, Screen.STEERING_SETUP -> steering.storageError ?: "기어·조향 실습 기록은 이 차량 안에 저장돼요. 실제 주차 성공을 판정하지 않습니다."
             Screen.HOW_TO -> "레버형 예시이며, 해당 차량의 사용설명서가 우선입니다."
@@ -572,7 +632,7 @@ class MainActivity : Activity() {
         bar.addView(text(getString(R.string.app_name), 24, PleosUi.TEXT, true).apply {
             gravity = Gravity.START or Gravity.CENTER_VERTICAL
         }, LinearLayout.LayoutParams(0, dp(64), 1f))
-        bar.addView(text("IONIQ 3", 18, PleosUi.SECONDARY).apply {
+        bar.addView(text(TrainingVehicle.NAME, 18, PleosUi.SECONDARY).apply {
             gravity = Gravity.CENTER
         }, LinearLayout.LayoutParams(dp(110), dp(64)))
         if (screen == Screen.COACH) {
@@ -606,6 +666,14 @@ class MainActivity : Activity() {
         if (screen in setOf(Screen.LESSON, Screen.WORKFLOW)) repeat.visibility = View.GONE
         bar.addView(repeat, LinearLayout.LayoutParams(dp(164), dp(64)))
         content.addView(bar)
+        if (::gleoStatus.isInitialized) {
+            (gleoStatus.parent as? android.view.ViewGroup)?.removeView(gleoStatus)
+            content.addView(gleoStatus, LinearLayout.LayoutParams(-1, -2))
+        }
+        if (screen == Screen.COACH) {
+            (startupWeatherCard.parent as? android.view.ViewGroup)?.removeView(startupWeatherCard)
+            content.addView(startupWeatherCard, LinearLayout.LayoutParams(-1, -2))
+        }
         val surface = when (screen) { Screen.COACH -> journey; Screen.WORKFLOW -> workflow; Screen.LESSON -> lesson; Screen.PARK_SIM -> parkingSimulator; else -> simulator }
         (surface.parent as? android.view.ViewGroup)?.removeView(surface)
         if (screen in setOf(Screen.LESSON, Screen.WORKFLOW)) {
@@ -632,7 +700,7 @@ class MainActivity : Activity() {
         if ((sdk && (!journey.vehicleDataEnabled || !journey.recordEnabled)) ||
             (destination in setOf(JourneyDestination.LEGACY, JourneyDestination.CONTEXT) && !journey.recordEnabled)) {
             AlertDialog.Builder(this).setTitle("설정 확인")
-                .setMessage("기존 SDK 실습은 조작 신호와 실습 기록 동의가 필요해요. 프로필에서 설정하거나 화면 속 가상 연습을 이용해 주세요.")
+                .setMessage("차량 조작 연습을 하려면 운전자 설정에서 차량 정보 연결과 기록 저장을 켜 주세요. 가상 연습은 차량 연결 없이도 이용할 수 있어요.")
                 .setPositiveButton("확인", null).show()
             return
         }
@@ -649,6 +717,51 @@ class MainActivity : Activity() {
             JourneyDestination.LEGACY -> { growth.openLibrary(); Screen.GROWTH }
         }
         render()
+    }
+
+    private fun executeGleo(request: GleoRequest, complete: (GleoReply) -> Unit) {
+        if (!parked || !resumed) return
+        voice.stop(); currentCue = null
+        when (request.action) {
+            GleoAction.TALK_WITH_DRIVING_COACH -> {
+                val conversation = request.conversation ?: GleoLessonRequest()
+                if (conversation.operation == GleoLessonOperation.PREPARATION) {
+                    journey.requestPreparation(); screen = Screen.COACH; render()
+                    complete(journey.preparationForGleo())
+                } else {
+                    screen = Screen.LESSON; render()
+                    complete(lesson.answerGleo(conversation))
+                }
+            }
+            GleoAction.CHECK_DEPARTURE_READINESS -> {
+                journey.requestPreparation(); screen = Screen.COACH; render()
+                complete(journey.preparationForGleo())
+            }
+            GleoAction.GET_WEATHER_DRIVING_ADVICE -> {
+                val cached = startupWeather.currentReading
+                workflow.openWeather(cached); screen = Screen.WORKFLOW; render()
+                gleoWeather.request(cached) { reading, reply ->
+                    if (parked && resumed && screen == Screen.WORKFLOW && workflow.showingWeather) {
+                        reading?.let { workflow.openWeather(it) }
+                        complete(reply)
+                    }
+                }
+            }
+            GleoAction.START_PARKING_PRACTICE -> {
+                val missing = GleoActionPolicy.parkingReady(journey.canPractice)
+                if (missing != null) {
+                    journey.requestPreparation(); screen = Screen.COACH; render(); complete(missing)
+                } else {
+                    openDestination(JourneyDestination.PARKING)
+                    val course = request.course ?: ParkingCourse.REVERSE_BAY
+                    val started = parkingSimulator.startFromGleo(course)
+                    complete(if (started) GleoReply("success", "Virtual parking practice started. The physical vehicle is not controlled.",
+                        "${course.title} 연습을 시작했어요. 화면 속 차량으로 연습해요.", mapOf("course" to course.name, "source" to "SIMULATION"), voiceResponse = false)
+                    else GleoReply("asking", "An existing practice or review is open. Finish it on screen before starting another attempt.",
+                        "진행 중인 연습이나 복습이 있어요. 화면에서 마친 뒤 새 연습을 시작해 주세요."))
+                }
+            }
+        }
     }
 
     private fun home(parent: LinearLayout) {
@@ -811,7 +924,7 @@ class MainActivity : Activity() {
             })
         }
         gap(parent, 14)
-        parent.addView(text("이 기록은 Pleos SDK가 알려준 조작 상태예요. 거울 확인·양보 판단·실제 운전 숙련도를 평가한 결과는 아닙니다.", 15, muted))
+        parent.addView(text("차량에서 확인한 조작을 기록했어요. 미러 확인이나 양보 판단, 실제 운전 실력을 평가한 결과는 아니에요.", 15, muted))
         gap(parent, 16)
         parent.addView(button("홈으로", "home") { goHome() })
         gap(parent, 8)
@@ -878,7 +991,7 @@ class MainActivity : Activity() {
         gap(panel, 8)
         panel.addView(text("차종마다 조작부가 달라요. 내 차의 표시와 설명서를 먼저 확인하세요.", 15, muted))
         gap(panel, 8)
-        if (emulatorTest) panel.addView(text("에뮬레이터에서는 옆의 ‘← 왼쪽 / 끄기 / 오른쪽 →’ 버튼을 누르세요. 실습을 시작한 다음 안내 순서에 맞춰 조작하면 돼요.", 17, teal))
+        if (emulatorTest) panel.addView(text("연습용 조작 패널에서 ‘← 왼쪽 / 끄기 / 오른쪽 →’을 눌러 안내 순서를 따라 해보세요.", 17, teal))
         column.addView(button("이제 방향지시등 실습하기", "guide_start", databaseReady && !lastWriteError && sourceStatus.state == SourceState.READY) { begin() })
         column.addView(button("홈으로", "home", secondary = true) { goHome() })
     }
@@ -915,8 +1028,8 @@ class MainActivity : Activity() {
         panel.addView(text("어떻게 조작하나요?", 21, teal, true))
         panel.addView(text("① P단과 정지를 확인해요. 주차 브레이크와 주변 안전은 직접 확인하세요.\n② 먼저 중앙 상태에서 시작해요.\n③ 안내에 따라 왼쪽 → 중앙 → 오른쪽 → 중앙으로 조작해요.", 19, ink))
         gap(panel, 10)
-        if (emulatorTest) panel.addView(text("에뮬레이터: 옆의 −8°(왼쪽), 0°(중앙), +8°(오른쪽) 버튼을 눌러요. 이 숫자는 시험 입력값이며 실차 권장 각도가 아닙니다.", 16, teal))
-        panel.addView(text("실차에서는 핸들을 손으로 조작합니다. 현재 버전은 에뮬레이터 검증용이며, 차종별 신호·조향 조건 확인이 먼저 필요해요.", 15, muted))
+        if (emulatorTest) panel.addView(text("연습용 조작 패널에서 왼쪽·중앙·오른쪽을 선택해요. 표시된 각도는 연습용 값이에요.", 16, teal))
+        panel.addView(text("실제 차량에서는 차량별 조작 방법과 사용설명서를 먼저 확인해 주세요.", 15, muted))
         gap(panel, 8)
         panel.addView(text("R·D 조작과 차량 이동은 이번 실습에 포함하지 않아요. 기어가 P를 벗어나거나 정지 상태를 확인하지 못하면 멈춥니다.", 15, muted))
         gap(column, 10)
@@ -940,7 +1053,7 @@ class MainActivity : Activity() {
         val values = steering.readings
         val gear = values[ParkingSignalField.GEAR]?.gear?.takeUnless { it == ParkingGear.UNKNOWN }?.name ?: "미확인"
         fun format(value: Double?) = value?.let { String.format(Locale.KOREA, "%.1f", it) } ?: "미확인"
-        return "기어 $gear  ·  속도 ${format(values[ParkingSignalField.SPEED]?.speedMps?.times(3.6))} km/h\nSDK 전륜 조향각 ${format(values[ParkingSignalField.STEERING]?.angleDegrees)}° (핸들 회전각 아님)"
+        return "기어 $gear  ·  속도 ${format(values[ParkingSignalField.SPEED]?.speedMps?.times(3.6))} km/h\n앞바퀴 조향각 ${format(values[ParkingSignalField.STEERING]?.angleDegrees)}° (핸들을 돌린 각도와 달라요)"
     }
 
     private fun steeringPractice(parent: LinearLayout) {

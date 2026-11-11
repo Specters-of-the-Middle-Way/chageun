@@ -1,5 +1,6 @@
 package kr.drivestep.tutor.simulator
 
+import kr.drivestep.tutor.design.PleosUi
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -315,10 +316,10 @@ class CockpitRoadView(context: Context) : View(context) {
             PointF(bodyEdge - side * 2f, bounds.top + 40f),
             PointF(bodyEdge + side * 24f, bounds.bottom), PointF(bodyEdge, bounds.bottom)),
             Color.rgb(68, 85, 97))
-        gradientRect(c, bounds.left, bounds.top, bounds.right, bounds.top + 27f,
+        gradientRect(c, bounds.left, bounds.top, bounds.right, bounds.top + 38f,
             Color.argb(160, 18, 29, 39), Color.TRANSPARENT)
-        text(c, if (side < 0) "가상 좌측 미러" else "가상 우측 미러", bounds.left + 13f,
-            bounds.top + 18f, 11f, Color.rgb(232, 241, 244))
+        text(c, if (side < 0) "왼쪽 미러" else "오른쪽 미러", bounds.left + 13f,
+            bounds.top + 29f, 16f, Color.rgb(242, 247, 250))
         c.restore()
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = if (warned) 3.5f else 1.2f
@@ -375,24 +376,22 @@ class CockpitRoadView(context: Context) : View(context) {
         line(c, 42f, 412f, 298f, 393f, 1.2f, Color.rgb(65, 83, 95))
         line(c, 902f, 393f, 1158f, 412f, 1.2f, Color.rgb(65, 83, 95))
         val speed = (s?.speedKmh ?: 0.0).toInt().coerceAtLeast(0)
-        text(c, speed.toString(), 600f, 397f, 35f, Color.rgb(241, 247, 249), Paint.Align.CENTER, true)
-        text(c, "가상 속도 · km/h", 600f, 417f, 11f, Color.rgb(155, 177, 192), Paint.Align.CENTER)
+        text(c, speed.toString(), 600f, 392f, 35f, Color.rgb(241, 247, 249), Paint.Align.CENTER, true)
+        text(c, "가상 속도 · km/h", 600f, 423f, 16f, Color.rgb(212, 226, 235), Paint.Align.CENTER)
         val blinkOn = ((s?.elapsedSeconds ?: 0.0) * 1.7).toInt() % 2 == 0
         turnArrow(c, 514f, 388f, -1, s?.signal == SimulationSignal.LEFT && blinkOn)
         turnArrow(c, 686f, 388f, 1, s?.signal == SimulationSignal.RIGHT && blinkOn)
     }
 
     private fun drawSceneLabel(c: Canvas) {
-        round(c, 24f, 20f, 126f, 49f, 14f, Color.argb(100, 30, 56, 72))
-        dot(c, 40f, 34f, 3f, Color.rgb(211, 229, 241))
-        text(c, "가상 주행", 52f, 39f, 13f, Color.rgb(244, 249, 251))
+        round(c, 24f, 16f, 232f, 66f, 18f, Color.argb(170, 30, 56, 72))
+        dot(c, 42f, 41f, 4f, Color.rgb(211, 229, 241))
+        text(c, "가상 주행", 58f, 50f, 18f, Color.rgb(244, 249, 251))
     }
 
     private fun drawPause(c: Canvas) {
-        round(c, 526f, 200f, 674f, 248f, 23f, Color.argb(225, 22, 35, 46))
-        rect(c, 548f, 216f, 552f, 232f, pale)
-        rect(c, 556f, 216f, 560f, 232f, pale)
-        text(c, "일시정지", 612f, 231f, 17f, pale, Paint.Align.CENTER)
+        round(c, 474f, 192f, 726f, 256f, 23f, Color.argb(225, 22, 35, 46))
+        text(c, "일시정지", 600f, 236f, 22f, pale, Paint.Align.CENTER)
     }
 
     private fun turnArrow(c: Canvas, x: Float, y: Float, direction: Int, active: Boolean) {
@@ -480,7 +479,7 @@ class CockpitRoadView(context: Context) : View(context) {
         paint.shader = null
         paint.color = color
         paint.style = Paint.Style.FILL
-        paint.textSize = size
+        paint.textSize = PleosUi.canvasTextSize(context, size)
         paint.textAlign = align
         paint.typeface = if (bold) Typeface.create("sans-serif-medium", Typeface.NORMAL) else Typeface.create("sans-serif", Typeface.NORMAL)
         c.drawText(value, x, y, paint)

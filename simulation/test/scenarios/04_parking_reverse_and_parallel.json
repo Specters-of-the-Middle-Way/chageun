@@ -7,11 +7,13 @@
     "kr.drivestep.tutor.parking.ParkingSceneView"
   ],
   "vehicleSpec": {
-    "model": "IONIQ 3 European Standard Body",
-    "lengthM": 4.43,
-    "widthM": 1.87,
-    "wheelbaseM": 2.74,
-    "minTurningRadiusM": 5.32
+    "model": "AVANTE CN7 Smartstream gasoline 1.6 standard body",
+    "lengthM": 4.710,
+    "widthM": 1.825,
+    "heightM": 1.420,
+    "wheelbaseM": 2.720,
+    "maxRoadWheelAngleDegrees": 32.0,
+    "steeringModel": "Educational assumption; not manufacturer steering calibration"
   },
   "requiredManeuverSequence": [
     "Hold brake pedal (brakeHold = true)",

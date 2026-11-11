@@ -54,12 +54,12 @@ class ConnectedFlowTest {
         try {
             click("journey_nav_profile"); checked("journey_consent_records",false); checked("journey_consent_vehicle",true); checked("voice_toggle",true)
             click("coach_workflow");click("workflow_connected")
-            waitFor("Seat receipt missing") { text("connected_seats").contains("SDK 범위") }
-            waitFor("Belt receipt missing") { text("connected_belt").contains("체결 신호 수신") }
-            waitFor("Warning receipt missing") { text("connected_warnings").contains("이번 SDK 응답") || text("connected_warnings").contains("켜진 차량 표시") }
+            waitFor("Seat receipt missing") { text("connected_seats").contains("조절 범위") }
+            waitFor("Belt receipt missing") { text("connected_belt").contains("채워짐") || text("connected_belt").contains("채워지지 않음") }
+            waitFor("Warning receipt missing") { text("connected_warnings").contains("현재 전달된 차량 경고가 없어요") || text("connected_warnings").contains("차량에 경고 표시가 있어요") }
             checked("connected_location_consent",true)
-            waitFor("Actual location missing") { text("connected_location").contains("FusedLocation 수신") }
-            waitFor("Actual navigation response missing") { text("connected_navigation").contains("NaviHelper 수신") }
+            waitFor("Actual location missing") { text("connected_location").contains("내 위치:") }
+            waitFor("Actual navigation response missing") { text("connected_navigation").contains("내비게이션 ·") }
             click("connected_destination_send")
             assertTrue(text("connected_request_status").contains("올바른"))
             input("connected_destination_name","UI 확인 · 전송 안 함")
@@ -75,13 +75,13 @@ class ConnectedFlowTest {
             activity.moveToState(Lifecycle.State.CREATED)
             assertFalse(panel!!.hasLocationConnection);SystemClock.sleep(500);assertFalse(panel!!.hasLocationConnection)
             activity.moveToState(Lifecycle.State.RESUMED)
-            waitFor("Read-only reconnect failed") { text("connected_location").contains("FusedLocation 수신") }
+            waitFor("Read-only reconnect failed") { text("connected_location").contains("내 위치:") }
             checked("connected_location_consent",false);assertFalse(panel!!.hasLocationConnection)
-            assertFalse(text("connected_location").contains("FusedLocation 수신"))
+            assertFalse(text("connected_location").contains("내 위치:"))
             click("workflow_home")
             if (all().filterIsInstance<TextView>().any { it.contentDescription?.toString()=="workflow_mute" && it.text.contains("안내 재개") }) click("workflow_mute")
             EmulatorWarningFixture().use { warning ->
-                click("workflow_weather");click("workflow_weather_rain");click("workflow_weather_speak")
+                click("workflow_weather");click("workflow_weather_practice");click("workflow_weather_rain");click("workflow_weather_speak")
                 waitFor("No real TTS start") { all().filterIsInstance<TextView>().any { it.isShown && it.text.contains("음성 안내 중") } }
                 var workflow:kr.drivestep.tutor.workflow.WorkflowView?=null
                 activity.onActivity { a -> workflow=views(a.window.decorView).filterIsInstance<kr.drivestep.tutor.workflow.WorkflowView>().single() }

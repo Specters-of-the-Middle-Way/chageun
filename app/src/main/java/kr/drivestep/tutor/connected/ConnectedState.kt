@@ -8,7 +8,7 @@ data class Observed<T>(val value: T? = null, val quality: InputValidity = InputV
     val receivedAt: Long = -1, val detail: String = "연결 전") {
     fun at(now: Long, ttl: Long = 3_000): Observed<T> =
         if (quality == InputValidity.VALID && (receivedAt < 0 || now < receivedAt || now - receivedAt > ttl))
-            copy(value = null, quality = InputValidity.STALE, detail = "수신이 오래되어 현재 상태 미확인") else this
+            copy(value = null, quality = InputValidity.STALE, detail = "최근 상태를 확인하지 못했어요. 다시 연결해 주세요.") else this
 }
 enum class SeatAxis(val step: Int, val title: String) { FORE_AFT(0,"시트 앞뒤"), HEIGHT(1,"시트 높이"), BACKREST(2,"등받이") }
 data class SeatPosition(val raw: Int, val min: Int, val max: Int)
@@ -30,9 +30,9 @@ class VehicleReadinessState {
     fun seat(axis: SeatAxis, raw: Int?, min: Int, max: Int, now: Long): Set<Int> {
         val previous = knownSeatPositions[axis]
         seats[axis] = when {
-            raw == null -> Observed(detail = "SDK 위치 값 미확인")
-            min > max || raw !in min..max -> Observed(quality = InputValidity.ERROR, detail = "SDK 범위와 위치 값 불일치")
-            else -> Observed(SeatPosition(raw,min,max),InputValidity.VALID,now,"SDK 수신 · 위치 단위")
+            raw == null -> Observed(detail = "시트 위치를 확인하지 못했어요")
+            min > max || raw !in min..max -> Observed(quality = InputValidity.ERROR, detail = "시트 위치를 다시 확인해 주세요")
+            else -> Observed(SeatPosition(raw,min,max),InputValidity.VALID,now,"차량의 시트 설정값")
         }
         val valid = seats.getValue(axis).value ?: return emptySet()
         knownSeatPositions[axis] = valid.raw
@@ -41,11 +41,11 @@ class VehicleReadinessState {
     }
     fun belt(value: Boolean?, now: Long): Set<Int> {
         val previous = belt.at(now).value
-        belt = if (value == null) Observed(detail = "버클 상태 미확인") else Observed(value,InputValidity.VALID,now,"SDK 버클 상태")
+        belt = if (value == null) Observed(detail = "버클 상태 미확인") else Observed(value,InputValidity.VALID,now,"차량에서 확인한 안전벨트 상태")
         return if (value == false && previous != false) setOf(8) else emptySet()
     }
     fun warnings(value: List<VehicleWarning>?, now: Long) {
-        warnings = if (value == null) Observed(detail = "차량 경고 미확인") else Observed(value,InputValidity.VALID,now,"SDK 경고 조회")
+        warnings = if (value == null) Observed(detail = "차량 경고 미확인") else Observed(value,InputValidity.VALID,now,"차량 경고 표시 확인")
         if (value != null) warningHold = value.any { it.interruptsSpeech }
     }
     fun unavailable(channel: String, quality: InputValidity, detail: String) {
@@ -68,17 +68,17 @@ data class GeoPoint(val latitude: Double, val longitude: Double) {
 }
 data class LocationFix(val point: GeoPoint, val timestampMillis: Long, val confidence: Float)
 fun locationObservation(fix: LocationFix?, receivedElapsed: Long, wallNow: Long): Observed<LocationFix> = when {
-    fix == null -> Observed(detail = "위치 데이터 없음")
+    fix == null -> Observed(detail = "현재 위치를 확인하지 못했어요")
     !fix.point.valid || !fix.confidence.isFinite() -> Observed(quality = InputValidity.ERROR,detail = "위치 값 오류")
     fix.timestampMillis <= 0 || fix.timestampMillis > wallNow + 1_000 -> Observed(quality = InputValidity.UNKNOWN,detail = "출처 시각 확인 필요")
     wallNow - fix.timestampMillis > 30_000 -> Observed(quality = InputValidity.STALE,detail = "마지막 위치가 30초 이상 지났어요")
-    else -> Observed(fix,InputValidity.VALID,receivedElapsed,"FusedLocation SDK · 출처 시각 확인됨")
+    else -> Observed(fix,InputValidity.VALID,receivedElapsed,"최근 위치를 확인했어요")
 }
 data class NavigationDestination(val name: String, val point: GeoPoint, val remainingMeters: Int?, val remainingSeconds: Int?)
 fun navigationDestination(name: String, point: GeoPoint, meters: Int, seconds: Int, now: Long): Observed<NavigationDestination> = when {
     !point.valid -> Observed(quality=InputValidity.ERROR,detail="내비 목적지 좌표 오류")
     name.isBlank() -> Observed(detail="목적지 정보 미확인 · 빈 응답을 0m 목적지로 표시하지 않아요")
-    else -> Observed(NavigationDestination(name,point,meters.takeIf { it >= 0 },seconds.takeIf { it >= 0 }),InputValidity.VALID,now,"NaviHelper 목적지 응답")
+    else -> Observed(NavigationDestination(name,point,meters.takeIf { it >= 0 },seconds.takeIf { it >= 0 }),InputValidity.VALID,now,"내비에 설정된 목적지를 확인했어요")
 }
 data class NavigationGoal(val name: String, val point: GeoPoint) {
     val valid get() = name.isNotBlank() && name.length <= 80 && point.valid
@@ -101,14 +101,14 @@ class NavigationRequestState {
         if (!next.valid || phase == RequestPhase.WAITING) return false
         goal = next; requestedAt = now; routed = false; matched = false; activeRoute = false; started = false; phase = RequestPhase.WAITING
         activeRouteAt = -1; destinationAt = -1
-        message = "내비 응답 대기 · 요청 전송을 성공으로 처리하지 않아요."; return true
+        message = "목적지를 보냈어요. 내비에서 경로를 확인하고 있어요."; return true
     }
     fun routingStarted(now: Long) { if (pending(now)) { started = true; complete(now) } }
     fun cancelled() {
         if (phase == RequestPhase.WAITING) {
             routed = false; matched = false; activeRoute = false; started = false
             activeRouteAt = -1; destinationAt = -1
-            message = "경로 취소 수신 · 새 경로의 시작·완료·목적지 확인을 기다려요."
+            message = "이전 경로가 취소됐어요. 새 목적지와 경로를 확인하고 있어요."
         } else fail("내비 경로가 취소됐어요")
     }
     fun activeRoute(value: Boolean, now: Long) {
@@ -130,7 +130,7 @@ class NavigationRequestState {
     }
     private fun complete(now: Long) {
         if ((routed || started) && activeRoute && matched && fresh(activeRouteAt,now) && fresh(destinationAt,now)) {
-            phase = RequestPhase.CONFIRMED; message = "내비의 활성 경로와 요청 목적지 일치를 확인했어요."
+            phase = RequestPhase.CONFIRMED; message = "내비에 목적지와 경로가 설정됐어요."
         }
     }
     private fun fresh(at: Long, now: Long) = at >= 0 && now >= at && now-at <= NAVIGATION_FRESHNESS_MS

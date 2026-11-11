@@ -1,6 +1,7 @@
 package kr.drivestep.tutor.parking
 
 import kr.drivestep.tutor.coach.CoachCue
+import kr.drivestep.tutor.vehicle.TrainingVehicle
 import kotlin.math.*
 
 enum class ParkingCourse(val title: String) { REVERSE_BAY("후진 주차"), PARALLEL("평행 주차"), T_BAY("T자 후진 직각주차"), FRONT_BAY("전면 주차") }
@@ -14,17 +15,17 @@ data class ParkingPose(val x: Double, val y: Double, val headingRadians: Double)
 data class ParkingRect(val id: String, val x: Double, val y: Double, val widthM: Double, val lengthM: Double, val headingRadians: Double = 0.0)
 
 /**
- * Body dimensions/wheelbase: Hyundai Europe IONIQ 3 base specification, 2026.
+ * Body dimensions/wheelbase: Hyundai AVANTE CN7 gasoline 1.6 standard body; see TrainingVehicle.
  * 32° maximum road-wheel angle and equal front/rear body-overhang split are EDUCATIONAL
  * ASSUMPTIONS, not Hyundai calibration. Mirror width, tire contact patches, steering ratio,
  * suspension, tyre slip and actuator limits are not reproduced by this planar model.
  */
 data class ParkingVehicleSpec(
-    val name: String = "IONIQ 3 · Base",
-    val lengthM: Double = 4.155,
-    val widthM: Double = 1.800,
-    val wheelbaseM: Double = 2.680,
-    val heightM: Double = 1.505,
+    val name: String = TrainingVehicle.NAME,
+    val lengthM: Double = TrainingVehicle.LENGTH_MM / 1000.0,
+    val widthM: Double = TrainingVehicle.WIDTH_MM / 1000.0,
+    val wheelbaseM: Double = TrainingVehicle.WHEELBASE_MM / 1000.0,
+    val heightM: Double = TrainingVehicle.HEIGHT_MM / 1000.0,
     val maxRoadWheelAngleDegrees: Double = 32.0,
 )
 

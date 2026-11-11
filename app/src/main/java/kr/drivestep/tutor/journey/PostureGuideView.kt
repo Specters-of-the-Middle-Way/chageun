@@ -8,6 +8,9 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.Typeface
+import android.text.Layout
+import android.text.StaticLayout
+import android.text.TextPaint
 import android.view.View
 import kr.drivestep.tutor.R
 import kr.drivestep.tutor.design.PleosUi
@@ -33,6 +36,11 @@ class PostureGuideView(context: Context) : View(context) {
         resources.getFont(R.font.asta_sans)
     }.getOrDefault(Typeface.DEFAULT)
     private val boldTypeface = Typeface.create(regularTypeface, Typeface.BOLD)
+    private val captionPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { typeface = boldTypeface; color = PleosUi.TEXT }
+    private val rangePaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { typeface = regularTypeface; color = PleosUi.SECONDARY }
+    private var captionLayout: StaticLayout? = null
+    private var rangeLayout: StaticLayout? = null
+    private var footerHeight = dp(64f)
 
     private val guideTint = Color.rgb(34, 139, 126)
     private val guideBandFill = Color.argb(46, 34, 139, 126)
@@ -93,7 +101,25 @@ class PostureGuideView(context: Context) : View(context) {
             rangeText = "${profile.heightCm}cm · ${profile.weightKg}kg 기준 시각 가이드"
         }
         contentDescription = "운전 자세 및 미러 시각 가이드. $captionText"
+        updateCaptionLayouts()
         invalidate()
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        updateCaptionLayouts()
+    }
+
+    private fun updateCaptionLayouts() {
+        val textWidth = (width - dp(48f)).roundToInt()
+        if (textWidth <= 0) return
+        captionPaint.textSize = PleosUi.canvasTextSize(context, dp(18f))
+        rangePaint.textSize = PleosUi.canvasTextSize(context, dp(16f))
+        captionLayout = StaticLayout.Builder.obtain(captionText, 0, captionText.length, captionPaint, textWidth)
+            .setAlignment(Layout.Alignment.ALIGN_CENTER).setIncludePad(true).build()
+        rangeLayout = StaticLayout.Builder.obtain(rangeText, 0, rangeText.length, rangePaint, textWidth)
+            .setAlignment(Layout.Alignment.ALIGN_CENTER).setIncludePad(true).build()
+        footerHeight = (captionLayout?.height ?: 0) + (rangeLayout?.height ?: 0) + dp(12f)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -125,7 +151,7 @@ class PostureGuideView(context: Context) : View(context) {
         val left = cardRect.left + dp(14f)
         val right = cardRect.right - dp(14f)
         val top = cardRect.top + dp(12f)
-        val diagramBottom = cardRect.bottom - dp(76f)
+        val diagramBottom = cardRect.bottom - footerHeight - dp(26f)
         innerRect.set(left, top, right, diagramBottom)
 
         paint.style = Paint.Style.FILL
@@ -315,7 +341,7 @@ class PostureGuideView(context: Context) : View(context) {
         // Labels inside mirror zones
         paint.style = Paint.Style.FILL
         paint.typeface = boldTypeface
-        paint.textSize = dp(18f)
+        paint.textSize = PleosUi.canvasTextSize(context, dp(18f))
         paint.color = PleosUi.TEXT
         paint.textAlign = Paint.Align.CENTER
         val bodyCenterX = bandRect.centerX()
@@ -330,7 +356,7 @@ class PostureGuideView(context: Context) : View(context) {
 
     private fun fitMirrorBounds(aspectRatio: Float) {
         val availableWidth = cardRect.width() - dp(32f)
-        val availableHeight = cardRect.height() - dp(80f)
+        val availableHeight = cardRect.height() - footerHeight - dp(16f)
         val mirrorWidth = minOf(availableWidth, availableHeight * aspectRatio)
         val mirrorHeight = mirrorWidth / aspectRatio
         val centerY = cardRect.top + dp(16f) + availableHeight * 0.5f
@@ -342,7 +368,7 @@ class PostureGuideView(context: Context) : View(context) {
         val left = cardRect.left + dp(16f)
         val right = cardRect.right - dp(16f)
         val top = cardRect.top + dp(14f)
-        val bottom = cardRect.bottom - dp(64f)
+        val bottom = cardRect.bottom - footerHeight - dp(8f)
         innerRect.set(left, top, right, bottom)
 
         paint.style = Paint.Style.FILL
@@ -376,20 +402,12 @@ class PostureGuideView(context: Context) : View(context) {
     }
 
     private fun drawFooterCaption(canvas: Canvas) {
-        paint.pathEffect = null
-        paint.style = Paint.Style.FILL
-        paint.textAlign = Paint.Align.CENTER
-        val cx = cardRect.centerX()
-
-        paint.typeface = boldTypeface
-        paint.textSize = dp(16f)
-        paint.color = PleosUi.TEXT
-        canvas.drawText(captionText, cx, cardRect.bottom - dp(30f), paint)
-
-        paint.typeface = regularTypeface
-        paint.textSize = dp(14f)
-        paint.color = PleosUi.SECONDARY
-        canvas.drawText(rangeText, cx, cardRect.bottom - dp(10f), paint)
+        val saved = canvas.save()
+        canvas.translate(dp(24f), cardRect.bottom - footerHeight + dp(4f))
+        captionLayout?.draw(canvas)
+        canvas.translate(0f, (captionLayout?.height ?: 0) + dp(4f))
+        rangeLayout?.draw(canvas)
+        canvas.restoreToCount(saved)
     }
 
     private fun dp(value: Float): Float = value * resources.displayMetrics.density

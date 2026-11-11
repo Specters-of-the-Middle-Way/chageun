@@ -87,7 +87,7 @@ class TutorLlmStateTest {
         val after = s.applyLlmWording(r, 110)
         assertEquals(before, after.events.size)
         assertEquals(r.text, after.reply)
-        assertEquals("시험 응답 · 실제 LLM 아님", after.events.last().title)
+        assertEquals("연습용 예시 답변", after.events.last().title)
         assertEquals("시험 문장 입력", after.events[after.events.lastIndex - 1].title)
     }
 }

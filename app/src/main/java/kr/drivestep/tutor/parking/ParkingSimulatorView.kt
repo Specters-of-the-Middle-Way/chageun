@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
@@ -19,8 +18,14 @@ import kr.drivestep.tutor.design.PracticeButton
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
+import android.widget.ScrollView
+import android.graphics.drawable.RippleDrawable
+import kr.drivestep.tutor.journey.PreparationStyle
+import kr.drivestep.tutor.journey.PreparationColumns
 import kr.drivestep.tutor.coach.CoachCue
 import kr.drivestep.tutor.design.PleosUi
+import kr.drivestep.tutor.R
+import kr.drivestep.tutor.vehicle.TrainingVehicle
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat
@@ -44,11 +49,9 @@ class ParkingSimulatorView(
     private val prefs = context.getSharedPreferences("drivestep_parking_simulator_v1", Context.MODE_PRIVATE)
     private val bg = PleosUi.BACKGROUND
     private val panel = PleosUi.SURFACE
-    private val raised = PleosUi.RAISED
-    private val line = PleosUi.LINE
     private val ink = PleosUi.TEXT
     private val muted = PleosUi.SECONDARY
-    private val accent = PleosUi.SELECTED
+    private val accent = PreparationStyle.accent
     private val amber = Color.rgb(132, 83, 18)
     private var page = Page.COURSES
     private var selected = runCatching { ParkingCourse.valueOf(prefs.getString("course", "REVERSE_BAY")!!) }.getOrDefault(ParkingCourse.REVERSE_BAY)
@@ -114,7 +117,7 @@ class ParkingSimulatorView(
     init {
         orientation=VERTICAL
         setBackgroundColor(bg)
-        setPadding(dp(12),dp(6),dp(12),dp(8))
+        setPadding(dp(24),dp(18),dp(24),dp(18))
         render()
     }
 
@@ -169,164 +172,173 @@ class ParkingSimulatorView(
     }
 
     private fun coursePage() {
-        records=readRecords()
-        val head=row(this,if(compact)48 else 56)
-        head.addView(label("주차 연습",26,ink,true),weight())
-        head.addView(label("IONIQ 3  ·  4,155 × 1,800 mm",14,muted),fixed(290,48))
-        head.addView(button("닫기","park_exit",true){exit()},fixed(76,48))
-        val courses=row(this,if(compact)54 else 64)
-        courses.addView(button("후진 주차","park_course_reverse",selected!=ParkingCourse.REVERSE_BAY){ select(ParkingCourse.REVERSE_BAY) },weight(if(compact)48 else 56))
-        courses.addView(button("평행 주차","park_course_parallel",selected!=ParkingCourse.PARALLEL){ select(ParkingCourse.PARALLEL) },weight(if(compact)48 else 56))
-        courses.addView(button("T자 주차","park_course_t_bay",selected!=ParkingCourse.T_BAY){ select(ParkingCourse.T_BAY) },weight(if(compact)48 else 56))
-        courses.addView(button("전면 주차","park_course_front_bay",selected!=ParkingCourse.FRONT_BAY){ select(ParkingCourse.FRONT_BAY) },weight(if(compact)48 else 56))
-
-        addView(label("이중 주차: 의미·장소 조건 미확정 · 조작 안내는 제공하지 않아요. 후·측방 실제 거리 센서: 미지원.",12,muted),full(28))
-        val body=LinearLayout(context).apply { orientation=HORIZONTAL }
-        addView(body,LayoutParams(-1,0,1f).apply { topMargin=dp(8);bottomMargin=dp(10) })
-        val preview=ParkingSceneView(context).apply { update(ParkingSimulationSession(selected).snapshot(),false) }
-        body.addView(preview,LayoutParams(0,-1,1f).apply { marginEnd=dp(14) })
-        val info=column(body,if(compact)270 else 298)
-        info.addView(label(courseName(selected),12,accent,true),full(if(compact)24 else 30))
-        info.addView(label(if(selected==ParkingCourse.REVERSE_BAY)"기어와 속도 조절" else "조향과 위치 조절",if(compact)21 else 25,ink,true),full(if(compact)58 else 84))
-        info.addView(label(when(selected){
-            ParkingCourse.REVERSE_BAY -> "브레이크로 멈추고 R을 선택합니다. 후진하며 위치를 맞춘 뒤 P로 마무리해요."
+        records = readRecords()
+        val head = row(this, -2)
+        val words = LinearLayout(context).apply { orientation = VERTICAL }
+        head.addView(words, weight(-2))
+        words.addView(label("주차 연습", 32, ink, true), full(-2))
+        words.addView(label("기어와 속도, 핸들을 천천히 조작하며 위치를 맞춰요.", 20, muted), full(-2).apply { topMargin = dp(8) })
+        head.addView(button("나가기", "park_exit", true) { exit() }, fixed(116, -2))
+        val pageBody = scrollBody()
+        val columns = PreparationColumns(context, 1.2f, 1f, 1_100)
+        pageBody.addView(columns, full(-2))
+        val preview = card()
+        columns.addView(preview)
+        preview.addView(label("주차 공간 미리 보기", 24, ink, true), full(-2))
+        preview.addView(ParkingSceneView(context).apply {
+            update(ParkingSimulationSession(selected).snapshot(), false)
+            background = PreparationStyle.surface(context); clipToOutline = true
+        }, full(if (compact) 340 else 460).apply { topMargin = dp(18); bottomMargin = dp(16) })
+        preview.addView(label(context.getString(R.string.vehicle_parking_dimensions,
+            TrainingVehicle.NAME, TrainingVehicle.LENGTH_MM, TrainingVehicle.WIDTH_MM), 18, muted), full(-2))
+        val choices = card()
+        columns.addView(choices)
+        choices.addView(label("연습할 주차 방식", 24, ink, true), full(-2).apply { bottomMargin = dp(18) })
+        val first = PreparationColumns(context, breakpoint = 480)
+        choices.addView(first, full(-2).apply { bottomMargin = dp(12) })
+        first.addView(button("후진 주차", "park_course_reverse", selected != ParkingCourse.REVERSE_BAY) { select(ParkingCourse.REVERSE_BAY) })
+        first.addView(button("평행 주차", "park_course_parallel", selected != ParkingCourse.PARALLEL) { select(ParkingCourse.PARALLEL) })
+        val second = PreparationColumns(context, breakpoint = 480)
+        choices.addView(second, full(-2))
+        second.addView(button("T자 주차", "park_course_t_bay", selected != ParkingCourse.T_BAY) { select(ParkingCourse.T_BAY) })
+        second.addView(button("전면 주차", "park_course_front_bay", selected != ParkingCourse.FRONT_BAY) { select(ParkingCourse.FRONT_BAY) })
+        choices.addView(label(courseName(selected), 26, accent, true), full(-2).apply { topMargin = dp(24); bottomMargin = dp(12) })
+        choices.addView(label(when (selected) {
+            ParkingCourse.REVERSE_BAY -> "브레이크로 멈추고 R을 선택해요. 천천히 후진하며 위치를 맞춘 뒤 P로 마무리해요."
             ParkingCourse.PARALLEL -> "R·D와 핸들을 직접 조작하며 두 차량 사이의 목표 구역에 위치를 맞춰요."
-            ParkingCourse.T_BAY -> "T자를 후진 직각주차로 해석한 가상 코스예요. R과 조향으로 방향을 바꾸고 후진 정렬해요."
-            ParkingCourse.FRONT_BAY -> "D와 조향으로 가상 주차 구역을 향해 전진해요. 전진 진입·정렬 후 정지·P로 마무리해요."
-        },if(compact)14 else 16,muted).apply { maxLines=5 },full(if(compact)68 else 106))
-        info.addView(divider(),full(1))
-        if(!compact)listOf("기어 변경은 정지 + 브레이크","핸들 입력은 중앙 버튼으로 복귀","속도는 화면 속 최대 5 km/h").forEachIndexed { i,text ->
-            val r=row(info,46);r.addView(label("0${i+1}",13,accent,true),fixed(30,40));r.addView(label(text,14,ink),weight())
+            ParkingCourse.T_BAY -> "후진 직각주차 코스예요. R과 핸들로 방향을 바꾸고 목표 구역 안에 정렬해요."
+            ParkingCourse.FRONT_BAY -> "D와 핸들로 목표 구역에 전진해요. 위치를 맞춘 뒤 멈추고 P로 마무리해요."
+        }, 21, ink), full(-2))
+        listOf("기어 변경 전 정지하고 브레이크 유지", "핸들 중앙 버튼으로 조향 되돌리기", "가상 속도는 최대 5 km/h").forEachIndexed { i, text ->
+            choices.addView(label("${i + 1}  $text", 19, muted), full(-2).apply { topMargin = dp(18) })
         }
-        info.addView(label("차량 제원은 공개 자료 기준입니다.\n조향·노면 반응은 교육용 가상 모델입니다.",12,muted),full(if(compact)38 else 46))
-
-        val bottom=row(this,if(compact)54 else 62)
-        startButton=button("${courseName(selected)} 시작","park_start"){begin()}.also { bottom.addView(it,weight(if(compact)48 else 56,1.5f)) }
-        if(records.isNotEmpty()) {
-            bottom.addView(button("지난 연습","park_history",true){historyIndex=0;review=records.first();historyReview=true;page=Page.REFLECTION;render()},weight(if(compact)48 else 56))
-            bottom.addView(button("주차 기록 삭제","park_delete_history",true){confirmDeleteHistory()},fixed(132,if(compact)48 else 56))
+        pageBody.addView(label("화면 속 가상 연습이에요. 실제 차량은 P·정차를 유지하고 주변 거리는 직접 확인해 주세요.", 18, muted), full(-2).apply { topMargin = dp(18) })
+        pageBody.addView(label(statusMessage ?: if (recordEnabled()) "연습 후 소감과 함께 저장할 수 있어요." else "기록 저장이 꺼져 있어요. 저장 없이 연습할 수 있어요.", 18, muted), full(-2).apply { topMargin = dp(10) })
+        if (records.isNotEmpty()) {
+            val history = row(pageBody, -2)
+            history.addView(button("지난 연습", "park_history", true) { historyIndex = 0; review = records.first(); historyReview = true; page = Page.REFLECTION; render() }, weight(-2))
+            history.addView(button("주차 기록 삭제", "park_delete_history", true) { confirmDeleteHistory() }, weight(-2))
         }
-        addView(label(statusMessage?:if(recordEnabled())"정차 중 가상 연습  ·  연습 후 저장 여부를 선택할 수 있어요" else "정차 중 가상 연습  ·  현재 기록 저장 동의가 꺼져 있어요",12,muted),full(24))
+        startButton = button("${courseName(selected)} 시작", "park_start") { begin() }.also {
+            addView(it, full(-2).apply { topMargin = dp(16) })
+        }
     }
 
     private fun drivePage() {
-        val head=row(this,if(compact)48 else 54)
-        head.addView(label(courseName(selected),22,ink,true),weight())
-        head.addView(label("가상 주차  ·  실제 차량 P·정차",12,muted),fixed(225,48))
-        pauseButton=button("일시정지","park_pause",true){pause()}.also { head.addView(it,fixed(98,48)) }
-        resumeButton=button("이어하기","park_resume"){resume()}.also {head.addView(it,fixed(98,48))}
-        finishButton=button("주차 마침","park_finish"){if(canInput())session?.finish()?.let(::consume)}.also {head.addView(it,fixed(105,48))}
-        head.addView(button("종료","park_exit",true){endAttempt("중간에 마침")},fixed(76,48))
-
-        val body=LinearLayout(context).apply{orientation=HORIZONTAL}
-        addView(body,LayoutParams(-1,0,1f).apply{topMargin=dp(6);bottomMargin=dp(10)})
-        scene=ParkingSceneView(context).also{body.addView(it,LayoutParams(0,-1,1f).apply{marginEnd=dp(14)})}
-        val aside=column(body,if(compact)238 else 262)
-        phaseText=label("기어를 준비하세요",if(compact)14 else 16,ink,true).also{aside.addView(it,full(if(compact)24 else 32))}
-        if(!compact)aside.addView(label("가상 기어",12,muted),full(22))
-        val gears=row(aside,if(compact)52 else 64)
-        for(gear in listOf(ParkingGear.P,ParkingGear.R,ParkingGear.D)) {
-            val b=button(gear.name,"park_gear_${gear.name.lowercase()}",true){if(canInput())session?.setGear(gear)?.let(::consume)}.apply{textSize=23f}
-            gears.addView(b,weight(if(compact)48 else 58));gearButtons[gear]=b;inputs.add(b)
+        val head = row(this, -2)
+        head.addView(label(courseName(selected), 28, ink, true), weight(-2))
+        pauseButton = button("잠시 멈춤", "park_pause", true) { pause() }.also { head.addView(it, fixed(128, -2)) }
+        resumeButton = button("이어하기", "park_resume") { resume() }.also { head.addView(it, fixed(128, -2)) }
+        finishButton = button("주차 마침", "park_finish") { if (canInput()) session?.finish()?.let(::consume) }.also { head.addView(it, fixed(140, -2)) }
+        head.addView(button("마치기", "park_exit", true) { endAttempt("중간에 마침") }, fixed(108, -2))
+        val pageBody = scrollBody()
+        val body = PreparationColumns(context, 2.4f, 1f, 1_100)
+        pageBody.addView(body, full(-2))
+        val sceneCard = card(12)
+        body.addView(sceneCard)
+        scene = ParkingSceneView(context).also {
+            it.background = PreparationStyle.surface(context); it.clipToOutline = true
+            sceneCard.addView(it, full(if (compact) 340 else 460))
         }
-        brakeHold=button("브레이크 유지","park_brake_hold",true){if(canInput()){brakeHeld=!brakeHeld;applyPedals()}}.also{aside.addView(it,full(if(compact)48 else 52));inputs.add(it)}
-        if(!compact)aside.addView(label("마우스 하나로 기어를 바꿀 때 사용",11,muted),full(24))
-        aside.addView(divider(),full(1))
-        val speed=row(aside,if(compact)44 else 70)
-        speedText=label("0.0",if(compact)29 else 42,ink,true).also{speed.addView(it,weight())}
-        speed.addView(label("km/h",14,muted),fixed(55,48))
-        alignmentText=label("목표 구역 밖",if(compact)13 else 15,muted).also{aside.addView(it,full(if(compact)22 else 30))}
-        if(!compact){
-            distanceText=label("",13,muted).also{aside.addView(it,full(28))}
-            aside.addView(label("완료 순서\n정지 → 브레이크 → P → 주차 마침",13,muted),full(42))
+        val aside = card(20)
+        body.addView(aside)
+        phaseText = label("기어를 준비하세요", 23, accent, true).also { it.contentDescription = "park_phase"; aside.addView(it, full(-2)) }
+        aside.addView(label("가상 기어", 19, muted), full(-2).apply { topMargin = dp(18); bottomMargin = dp(10) })
+        val gears = row(aside, -2)
+        for (gear in listOf(ParkingGear.P, ParkingGear.R, ParkingGear.D)) {
+            val control = button(gear.name, "park_gear_${gear.name.lowercase()}", true) { if (canInput()) session?.setGear(gear)?.let(::consume) }.apply { textSize = 26f }
+            gears.addView(control, weight(-2)); gearButtons[gear] = control; inputs.add(control)
         }
+        brakeHold = button("브레이크 유지", "park_brake_hold", true) { if (canInput()) { brakeHeld = !brakeHeld; applyPedals() } }.also {
+            aside.addView(it, full(-2).apply { topMargin = dp(12) }); inputs.add(it)
+        }
+        aside.addView(label("기어를 바꿀 때 브레이크를 유지해요.", 18, muted), full(-2).apply { topMargin = dp(10) })
+        val speed = row(aside, -2).apply { setPadding(0, dp(14), 0, dp(12)) }
+        speedText = label("0.0", 40, ink, true).also { it.contentDescription = "park_speed"; speed.addView(it, weight(-2)) }
+        speed.addView(label("km/h", 20, muted), fixed(78, -2))
+        alignmentText = label("가상 목표 구역 밖", 20, ink, true).also { aside.addView(it, full(-2)) }
+        distanceText = label("", 18, muted).also { aside.addView(it, full(-2).apply { topMargin = dp(10) }) }
+        aside.addView(label("정지 → 브레이크 → P → 주차 마침", 18, muted), full(-2).apply { topMargin = dp(14) })
+        val coaching = card(18, PreparationStyle.softAccent)
+        pageBody.addView(coaching, full(-2).apply { topMargin = dp(16) })
+        val cueRow = row(coaching, -2)
+        cueText = label("", 23, ink, true).also { it.contentDescription = "park_guidance"; cueRow.addView(it, weight(-2)) }
+        repeatButton = button("다시 듣기", "park_repeat", true) { if (canInput()) snapshot?.coachCue?.let { stopVoice(); onCue(it) } }.also { cueRow.addView(it, fixed(132, -2)) }
 
-        val coaching=row(this,if(compact)54 else 68).apply{background=shape(panel,10);setPadding(dp(16),0,dp(8),0)}
-        coaching.addView(label("안내",16,ink,true),fixed(62,48))
-        cueText=label("",if(compact)16 else 18,ink,true).apply{maxLines=2}.also{coaching.addView(it,weight())}
-        repeatButton=button("다시 듣기","park_repeat",true){if(canInput())snapshot?.coachCue?.let{stopVoice();onCue(it)}}.also{coaching.addView(it,fixed(92,48))}
-
-        val controls=row(this,if(compact)90 else 108)
-        val wheel=LinearLayout(context).apply{orientation=VERTICAL;setPadding(0,dp(6),dp(12),0)}
-        controls.addView(wheel,weight(-1,1.25f))
-        val wheeltop=row(wheel,if(compact)28 else 36)
-        wheeltop.addView(PleosUi.image(context,"steering",28),fixed(36,32))
-        steeringText=label("가상 핸들  /  중앙",16,ink,true).also{wheeltop.addView(it,weight())}
-        val wheelline=row(wheel,56)
-        steeringSlider=SeekBar(context).apply{
-            max=200;progress=100;contentDescription="park_steering";tag="park_steering"
-            progressTintList=ColorStateList.valueOf(accent);thumbTintList=ColorStateList.valueOf(accent)
-            setPadding(dp(16),0,dp(16),0)
-            setOnSeekBarChangeListener(object:SeekBar.OnSeekBarChangeListener{
-                override fun onStartTrackingTouch(v:SeekBar?)=Unit
-                override fun onStopTrackingTouch(v:SeekBar?)=Unit
-                override fun onProgressChanged(v:SeekBar?,p:Int,fromUser:Boolean){if(fromUser&&!syncing&&canInput())session?.setSteering((p-100)/100.0)?.let(::consume)}
+        val controls = PreparationColumns(context, 1.2f, 1f, 1_050)
+        pageBody.addView(controls, full(-2).apply { topMargin = dp(14) })
+        val wheel = card(16); controls.addView(wheel)
+        steeringText = label("가상 핸들 · 중앙", 20, ink, true).also { wheel.addView(it, full(-2).apply { bottomMargin = dp(10) }) }
+        val wheelRow = row(wheel, -2)
+        steeringSlider = SeekBar(context).apply {
+            max = 200; progress = 100; contentDescription = "park_steering"; tag = "park_steering"
+            progressTintList = ColorStateList.valueOf(accent); thumbTintList = progressTintList
+            setPadding(dp(16), 0, dp(16), 0)
+            setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onStartTrackingTouch(v: SeekBar?) = Unit
+                override fun onStopTrackingTouch(v: SeekBar?) = Unit
+                override fun onProgressChanged(v: SeekBar?, p: Int, fromUser: Boolean) { if (fromUser && !syncing && canInput()) session?.setSteering((p - 100) / 100.0)?.let(::consume) }
             })
-        }.also{wheelline.addView(it,weight(54));inputs.add(it)}
-        val center=button("중앙","park_center",true){if(canInput())session?.setSteering(0.0)?.let(::consume)}
-        wheelline.addView(center,fixed(76,52));inputs.add(center)
-        val pedals=LinearLayout(context).apply{orientation=VERTICAL;setPadding(dp(6),dp(6),0,0)}
-        controls.addView(pedals,weight(-1,1f))
-        pedals.addView(label("가상 페달  /  누르는 동안 조작",12,muted),full(if(compact)28 else 36))
-        val pedalrow=row(pedals,56)
-        brakeButton=pedal("브레이크","park_brake",false).also{pedalrow.addView(it,weight(54))}
-        gasButton=pedal("가속","park_gas",true).also{pedalrow.addView(it,weight(54))}
-        addView(label("공개 전장·전폭·축거를 반영한 가상 공간  ·  실제 주변 거리나 주차 성공을 판정하지 않습니다",11,muted),full(if(compact)16 else 20))
+        }.also { wheelRow.addView(it, weight(64)); inputs.add(it) }
+        val center = button("핸들 중앙", "park_center", true) { if (canInput()) session?.setSteering(0.0)?.let(::consume) }
+        wheelRow.addView(center, fixed(140, -2)); inputs.add(center)
+        val pedals = card(16); controls.addView(pedals)
+        pedals.addView(label("가상 페달 · 누르는 동안 조작", 19, muted), full(-2).apply { bottomMargin = dp(10) })
+        val pedalRow = row(pedals, -2)
+        brakeButton = pedal("브레이크", "park_brake", false).also { pedalRow.addView(it, weight(-2)) }
+        gasButton = pedal("가속", "park_gas", true).also { pedalRow.addView(it, weight(-2)) }
         snapshot?.let(::updateScene)
     }
 
     private fun reflectionPage() {
-        val record=review
-        val head=row(this,if(compact)48 else 56)
-        head.addView(label("주차 연습 돌아보기",24,ink,true),weight())
-        head.addView(button("닫기","park_exit",true){exit()},fixed(76,48))
-        if(record==null){addView(label("다음 연습에서 한 동작씩 확인해요.",20,ink),full(90));return}
-        addView(label("${record.optString("courseTitle")}  ·  ${record.optString("outcome")}",16,accent,true),full(if(compact)32 else 38))
-        addView(label("${date(record.optLong("startedAt"))}  ·  가상 주행 ${record.optDouble("elapsedSeconds").roundToInt()}초",12,muted),full(if(compact)24 else 28))
-        val body=LinearLayout(context).apply{orientation=HORIZONTAL}
-        addView(body,LayoutParams(-1,0,1f).apply{topMargin=dp(12);bottomMargin=dp(12)})
-        val left=LinearLayout(context).apply{orientation=VERTICAL;background=shape(panel,12);setPadding(dp(22),dp(if(compact)8 else 18),dp(22),dp(if(compact)8 else 18))}
-        body.addView(left,LayoutParams(0,-1,1.25f).apply{marginEnd=dp(14)})
-        left.addView(label("조작 기록",17,ink,true),full(if(compact)28 else 40))
-        val notes=record.optJSONArray("reflections")?:JSONArray()
-        val noteScroll=android.widget.ScrollView(context).apply{isFillViewport=true}
-        left.addView(noteScroll,LayoutParams(-1,0,1f))
-        val notesColumn=LinearLayout(context).apply{orientation=VERTICAL};noteScroll.addView(notesColumn)
-        for(i in 0 until minOf(notes.length(),4)) {
-            val row=row(notesColumn,if(compact)56 else 70)
-            row.addView(label("0${i+1}",14,accent,true),fixed(34,48))
-            row.addView(label(notes.optString(i),if(compact)14 else 16,ink).apply{maxLines=3},weight())
+        val record = review
+        val head = row(this, -2)
+        head.addView(label("주차 연습 돌아보기", 32, ink, true), weight(-2))
+        head.addView(button("나가기", "park_exit", true) { exit() }, fixed(116, -2))
+        val pageBody = scrollBody()
+        if (record == null) { pageBody.addView(label("다음 연습에서 한 동작씩 확인해요.", 23, ink), full(-2)); return }
+        val summary = card(22, PreparationStyle.softAccent)
+        pageBody.addView(summary, full(-2))
+        summary.addView(label("${record.optString("courseTitle")} · ${record.optString("outcome")}", 26, accent, true), full(-2))
+        summary.addView(label("${date(record.optLong("startedAt"))} · 가상 주행 ${record.optDouble("elapsedSeconds").roundToInt()}초", 19, muted), full(-2).apply { topMargin = dp(12) })
+        val columns = PreparationColumns(context, 1.25f, 1f, 1_050)
+        pageBody.addView(columns, full(-2).apply { topMargin = dp(20) })
+        val left = card(); columns.addView(left)
+        left.addView(label("이번에 확인한 조작", 24, ink, true), full(-2).apply { bottomMargin = dp(12) })
+        val notes = record.optJSONArray("reflections") ?: JSONArray()
+        for (i in 0 until minOf(notes.length(), 4)) {
+            val note = row(left, -2).apply { setPadding(0, dp(14), 0, dp(14)) }
+            note.addView(label("0${i + 1}", 21, accent, true), fixed(48, -2))
+            note.addView(label(notes.optString(i), 21, ink), weight(-2))
         }
-        left.addView(label("화면 속 조작의 결과입니다. 실차 숙련도는 평가하지 않습니다.",12,muted),full(if(compact)32 else 58))
-        val right=LinearLayout(context).apply{orientation=VERTICAL;background=shape(panel,12);setPadding(dp(22),dp(if(compact)8 else 18),dp(22),dp(if(compact)8 else 18))}
-        body.addView(right,LayoutParams(0,-1,1f))
-        right.addView(label("어땠나요?",20,ink,true),full(if(compact)28 else 44))
-        right.addView(label("내 느낌은 조작 기록과 따로 남겨요.",13,muted),full(if(compact)24 else 36))
-        if(!historyReview&&!stored){
-            right.addView(button("조금 편해졌어요","park_feel_good",assessment!="조금 편해졌어요"){assessment="조금 편해졌어요";render()},full(if(compact)48 else 58))
-            gap(right,if(compact)4 else 8)
-            right.addView(button("아직 어려웠어요","park_feel_hard",assessment!="아직 어려웠어요"){assessment="아직 어려웠어요";render()},full(if(compact)48 else 58))
-            gap(right,if(compact)4 else 14)
-            right.addView(button(if(recordEnabled())"이번 연습 저장" else "저장 없이 마침","park_save"){
-                if(assessment=="미응답"){statusMessage="먼저 오늘의 느낌을 골라주세요.";render()}
-                else {storeReview();render()}
-            },full(if(compact)48 else 56))
-        }else{
-            right.addView(label(record.optString("selfAssessment","응답 없음"),21,ink,true),full(60))
-            right.addView(label(if(historyReview||stored&&recordEnabled())"이 기기에 저장한 연습이에요." else "동의 범위에 따라 기록을 저장하지 않았어요.",14,muted),full(66))
+        left.addView(label("화면 속 조작의 결과예요. 실제 운전 실력 평가와는 구분해요.", 18, muted), full(-2).apply { topMargin = dp(12) })
+        val right = card(); columns.addView(right)
+        right.addView(label("이번 연습은 어땠나요?", 24, ink, true), full(-2))
+        right.addView(label("내 느낌은 조작 기록과 따로 남겨요.", 19, muted), full(-2).apply { topMargin = dp(10); bottomMargin = dp(20) })
+        if (!historyReview && !stored) {
+            right.addView(button("조금 편해졌어요", "park_feel_good", assessment != "조금 편해졌어요") { assessment = "조금 편해졌어요"; render() }, full(-2))
+            right.addView(button("아직 어려웠어요", "park_feel_hard", assessment != "아직 어려웠어요") { assessment = "아직 어려웠어요"; render() }, full(-2).apply { topMargin = dp(12) })
+            right.addView(button(if (recordEnabled()) "이번 연습 저장" else "저장 없이 마침", "park_save") {
+                if (assessment == "미응답") { statusMessage = "먼저 오늘의 느낌을 골라주세요."; render() }
+                else { storeReview(); render() }
+            }, full(-2).apply { topMargin = dp(22) })
+        } else {
+            right.addView(label(record.optString("selfAssessment", "응답 없음"), 23, accent, true), full(-2))
+            right.addView(label(if (historyReview || stored && recordEnabled()) "이 기기에 저장한 연습이에요." else "기록을 저장하지 않았어요.", 19, muted), full(-2).apply { topMargin = dp(14) })
         }
-        statusMessage?.let{right.addView(label(it,13,amber),full(56))}
-        if(historyReview&&records.size>1){
-            val history=row(this,52)
-            history.addView(label("기록 ${historyIndex+1} / ${records.size}",13,muted),weight())
-            history.addView(button("이전 기록","park_history_older",true){if(historyIndex+1<records.size){historyIndex++;review=records[historyIndex];render()}},fixed(110,48))
-            history.addView(button("다음 기록","park_history_newer",true){if(historyIndex>0){historyIndex--;review=records[historyIndex];render()}},fixed(110,48))
+        statusMessage?.let { right.addView(label(it, 19, amber), full(-2).apply { topMargin = dp(16) }) }
+        if (historyReview && records.size > 1) {
+            pageBody.addView(label("기록 ${historyIndex + 1} / ${records.size}", 19, muted), full(-2).apply { topMargin = dp(18) })
+            val history = row(pageBody, -2)
+            history.addView(button("이전 기록", "park_history_older", true) { if (historyIndex + 1 < records.size) { historyIndex++; review = records[historyIndex]; render() } }, weight(-2))
+            history.addView(button("다음 기록", "park_history_newer", true) { if (historyIndex > 0) { historyIndex--; review = records[historyIndex]; render() } }, weight(-2))
         }
-        val actions=row(this,if(compact)56 else 62)
-        startButton=button("같은 코스 다시 연습","park_retry"){
-            selected=runCatching{ParkingCourse.valueOf(record.optString("course"))}.getOrDefault(selected);begin()
-        }.also{actions.addView(it,weight(if(compact)48 else 56))}
-        actions.addView(button("코스 선택","park_courses",true){courses()},weight(if(compact)48 else 56))
+        val actions = PreparationColumns(context, breakpoint = 800)
+        addView(actions, full(-2).apply { topMargin = dp(16) })
+        startButton = button("같은 코스 다시 연습", "park_retry") {
+            selected = runCatching { ParkingCourse.valueOf(record.optString("course")) }.getOrDefault(selected); begin()
+        }.also { actions.addView(it) }
+        actions.addView(button("코스 선택", "park_courses", true) { courses() })
     }
 
     private fun select(course:ParkingCourse){selected=course;if(recordEnabled())prefs.edit().putString("course",course.name).apply();render()}
@@ -350,6 +362,13 @@ class ParkingSimulatorView(
         dialog.show()
     }
     private fun dismissDeleteDialog(){deleteDialog?.dismiss();deleteDialog=null}
+    /** Called only after the host's parked and preparation gates. Never resets an existing attempt. */
+    fun startFromGleo(course: ParkingCourse): Boolean {
+        if (!active || closed || page != Page.COURSES) return false
+        selected = course
+        begin()
+        return page == Page.DRIVE && running
+    }
     private fun begin(){
         if(!active||closed)return
         stopVoice();main.removeCallbacks(ticker)
@@ -472,37 +491,35 @@ class ParkingSimulatorView(
     }
     private fun readRecords():List<JSONObject> =runCatching{val a=JSONArray(prefs.getString("records","[]"));(0 until minOf(a.length(),20)).mapNotNull{a.optJSONObject(it)}}.getOrDefault(emptyList())
 
-    private fun column(parent:LinearLayout,width:Int)=LinearLayout(context).apply{
-        orientation=VERTICAL;background=shape(panel,12);setPadding(dp(18),dp(if(compact)8 else 12),dp(18),dp(if(compact)8 else 12));parent.addView(this,LayoutParams(dp(width),-1))
+    private fun card(padding: Int = 24, fill: Int = panel) = LinearLayout(context).apply {
+        orientation = VERTICAL; background = PreparationStyle.surface(context, fill)
+        setPadding(dp(padding), dp(padding), dp(padding), dp(padding))
     }
+    private fun scrollBody(): LinearLayout {
+        val scroll = ScrollView(context).apply { isFillViewport = true; clipToPadding = false }
+        addView(scroll, LayoutParams(-1, 0, 1f).apply { topMargin = dp(18) })
+        return LinearLayout(context).apply { orientation = VERTICAL; scroll.addView(this) }
+    }
+
     private fun label(text:String,size:Int,color:Int,bold:Boolean=false)=TextView(context).apply{
         this.text=text;textSize=size.toFloat();setTextColor(color);includeFontPadding=false;gravity=Gravity.CENTER_VERTICAL
         if(bold)setTypeface(typeface,Typeface.BOLD)
     }
     private fun button(title:String,key:String,secondary:Boolean=false,action:()->Unit)=PracticeButton(context).apply{
-        text=title;textSize=18f;isAllCaps=false;gravity=Gravity.CENTER;minWidth=0;minimumWidth=0;minHeight=0;minimumHeight=0
-        setPadding(dp(10),0,dp(10),0);contentDescription=key;tag=key;setTypeface(typeface,Typeface.BOLD)
-        style(this,!secondary)
-        val sourceIcon = when(key) {
-            "park_course_reverse", "park_course_parallel" -> "vehicle"
-            "park_start" -> "steering"
-            "park_history" -> "menu"
-            "park_center" -> "steering"
-            else -> null
-        }
-        if(sourceIcon != null && key != "park_center") PleosUi.prefix(this, sourceIcon, 24)
+        text=title;textSize=20f;isAllCaps=false;gravity=Gravity.CENTER;minWidth=0;minimumWidth=0;minHeight=dp(64);minimumHeight=dp(64)
+        setPadding(dp(18),dp(12),dp(18),dp(12));contentDescription=key;tag=key;setTypeface(typeface,Typeface.BOLD)
+        style(this,!secondary,force=true)
         setOnClickListener{action()}
     }
-    private fun style(b:Button,selected:Boolean){
-        PleosUi.decorate(b, selected)
+    private fun style(b:Button,selected:Boolean,force:Boolean=false){
+        if (!force && b.background is RippleDrawable && b.isSelected == selected) return
+        b.isSelected = selected
+        PreparationStyle.button(b, selected)
     }
-    private fun shape(color:Int,radius:Int)=GradientDrawable().apply{setColor(color);cornerRadius=dp(radius).toFloat()}
-    private fun divider()=View(context).apply{setBackgroundColor(line)}
-    private fun row(parent:LinearLayout,height:Int)=LinearLayout(context).apply{orientation=HORIZONTAL;gravity=Gravity.CENTER_VERTICAL;parent.addView(this,full(height))}
+    private fun row(parent:LinearLayout,height:Int)=LinearLayout(context).apply{orientation=HORIZONTAL;gravity=Gravity.CENTER_VERTICAL;isBaselineAligned=false;parent.addView(this,full(height))}
     private fun weight(height:Int=-1,w:Float=1f)=LayoutParams(0,if(height<0)height else dp(height),w).apply{marginEnd=dp(7)}
-    private fun fixed(width:Int,height:Int)=LayoutParams(dp(width),dp(height)).apply{marginEnd=dp(7)}
+    private fun fixed(width:Int,height:Int)=LayoutParams(dp(width),if(height<0)height else dp(height)).apply{marginEnd=dp(7)}
     private fun full(height:Int)=LayoutParams(-1,if(height<0)height else dp(height))
-    private fun gap(parent:LinearLayout,height:Int){parent.addView(View(context),full(height))}
     private fun dp(v:Int)=(v*resources.displayMetrics.density).roundToInt()
     private fun courseName(c:ParkingCourse)=c.title
     private fun date(millis:Long)=SimpleDateFormat("M월 d일 HH:mm",Locale.KOREA).format(Date(millis))

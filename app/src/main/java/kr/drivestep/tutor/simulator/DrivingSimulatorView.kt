@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
@@ -18,6 +17,13 @@ import kr.drivestep.tutor.design.PracticeButton
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
+import android.widget.ScrollView
+import android.graphics.drawable.RippleDrawable
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.RelativeSizeSpan
+import kr.drivestep.tutor.journey.PreparationStyle
+import kr.drivestep.tutor.journey.PreparationColumns
 import kr.drivestep.tutor.coach.CoachCue
 import kr.drivestep.tutor.design.PleosUi
 import org.json.JSONArray
@@ -48,9 +54,8 @@ class DrivingSimulatorView(
     private val prefs = context.getSharedPreferences("drivestep_driving_simulator_v1", Context.MODE_PRIVATE)
     private val ink = PleosUi.TEXT
     private val muted = PleosUi.SECONDARY
-    private val teal = PleosUi.SELECTED
-    private val tealSoft = PleosUi.SURFACE
-    private val line = PleosUi.LINE
+    private val teal = PreparationStyle.accent
+    private val tealSoft = PreparationStyle.softAccent
     private val amber = Color.rgb(114, 77, 24)
     private var page = Page.BRIEF
     private var selected = runCatching {
@@ -110,7 +115,7 @@ class DrivingSimulatorView(
     init {
         orientation = VERTICAL
         setBackgroundColor(PleosUi.BACKGROUND)
-        setPadding(dp(8), dp(3), dp(8), dp(6))
+        setPadding(dp(24), dp(18), dp(24), dp(18))
         render()
     }
 
@@ -176,50 +181,63 @@ class DrivingSimulatorView(
     }
 
     private fun briefPage() {
-        val heading = horizontal(this, 52)
-        heading.addView(label("차로 변경 연습", 23, ink, true), weighted())
-        heading.addView(badge(), LayoutParams(dp(240), dp(30)))
-        heading.addView(button("나가기", "sim_exit", secondary = true) { exit() }, fixed(82, 48))
+        val heading = horizontal(this, -2)
+        val words = LinearLayout(context).apply { orientation = VERTICAL }
+        heading.addView(words, weighted(-2))
+        words.addView(label("차로 변경 연습", 32, ink, true), full(-2))
+        words.addView(label("방향지시등부터 미러 확인, 부드러운 조향까지 익혀요.", 20, muted), full(-2).apply { topMargin = dp(8) })
+        heading.addView(button("나가기", "sim_exit", true) { exit() }, fixed(116, -2))
 
-        val preview = CockpitRoadView(context)
-        preview.update(DrivingSimulationSession(selected).snapshot(), false)
-        addView(preview, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f).apply {
-            topMargin = dp(6); bottomMargin = dp(10)
-        })
-        addView(label("신호를 켜고, 미러를 본 뒤, 핸들로 차로를 옮겨 봐요.", 20, ink, true), full(36))
-        addView(label("화면 속 차는 40 km/h로 출발해요. 페달에서 손을 떼면 현재 가상 속도를 유지해요.", 14, muted), full(27))
-        val choices = horizontal(this, 72)
+        val pageBody = scrollBody()
+        val columns = PreparationColumns(context, 1.3f, 1f, 1_100)
+        pageBody.addView(columns, full(-2))
+        val preview = card()
+        columns.addView(preview)
+        preview.addView(label("운전석에서 미리 보기", 24, ink, true), full(-2))
+        preview.addView(CockpitRoadView(context).apply {
+            update(DrivingSimulationSession(selected).snapshot(), false)
+            background = PreparationStyle.surface(context); clipToOutline = true
+        }, full(380).apply { topMargin = dp(18); bottomMargin = dp(18) })
+        preview.addView(label("방향 알리기  →  미러와 옆 공간 확인  →  차로 이동", 20, teal, true), full(-2))
+        preview.addView(label("가상 속도 40 km/h로 시작해요. 페달에서 손을 떼면 현재 속도를 유지해요.", 18, muted), full(-2).apply { topMargin = dp(12) })
+
+        val choices = card()
+        columns.addView(choices)
+        choices.addView(label("연습할 상황", 24, ink, true), full(-2).apply { bottomMargin = dp(18) })
         listOf(
-            Triple(SimulationScenario.LEFT_LANE, "왼쪽 차로 변경\n신호 · 왼쪽 미러 · 핸들", "sim_start_left"),
-            Triple(SimulationScenario.RIGHT_LANE, "오른쪽 차로 변경\n신호 · 오른쪽 미러 · 핸들", "sim_start_right"),
-            Triple(SimulationScenario.BLIND_SPOT, "옆 차를 기다린 뒤 변경\n미러 관찰 · 기다림 · 핸들", "sim_start_blindspot"),
+            Triple(SimulationScenario.LEFT_LANE, "왼쪽 차로 변경\n왼쪽 방향지시등과 미러부터 확인해요.", "sim_start_left"),
+            Triple(SimulationScenario.RIGHT_LANE, "오른쪽 차로 변경\n오른쪽 방향지시등과 미러부터 확인해요.", "sim_start_right"),
+            Triple(SimulationScenario.BLIND_SPOT, "옆 차 기다리기\n옆 차가 지나간 뒤 차로를 옮겨요.", "sim_start_blindspot"),
         ).forEach { (scenario, title, key) ->
-            val choice = button(title, key, secondary = selected != scenario) {
+            choices.addView(button(title, key, selected != scenario) {
                 selected = scenario
                 if (recordEnabled()) prefs.edit().putString("selected", selected.name).apply()
                 render()
-            }.apply { textSize = 16f }
-            choices.addView(choice, weighted(62))
-        }
-        val actions = horizontal(this, 52)
-        startButton = button("${scenarioTitle(selected)} 시작", "sim_begin") { begin() }.also {
-            actions.addView(it, weighted(48, 1.5f))
-        }
-        if (records.isNotEmpty()) {
-            actions.addView(button("지난 회고 · ${records.size}회", "sim_history", secondary = true) {
-                reviewIndex = 0; reviewRecord = records.first(); page = Page.REFLECTION; render()
-            }, weighted(48))
-            actions.addView(button("주행 기록 삭제", "sim_delete_history", secondary = true) {
-                confirmDeleteHistory()
-            }, fixed(132, 48))
+            }.apply {
+                textSize = 23f; gravity = Gravity.START or Gravity.CENTER_VERTICAL
+                text = SpannableString(title).apply { setSpan(RelativeSizeSpan(.8f), title.indexOf('\n') + 1, length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE) }
+                setLineSpacing(dp(8).toFloat(), 1f); minimumHeight = dp(112)
+                PreparationStyle.button(this, selected == scenario, soft = true)
+            }, full(-2).apply { bottomMargin = dp(14) })
         }
         val lastStatus = prefs.getString("last_status", "")
         val note = storageProblem ?: when {
-            lastStatus == "running" || lastStatus == "paused" -> "이전 연습은 멈춘 상태예요. 시작을 누르면 새로 연습해요."
-            records.isNotEmpty() -> if (recordEnabled()) "최근 ${records.size}회 회고 · 실제 운전 점수와 구분해요." else "기록 저장 꺼짐 · 이번 회고는 앱을 종료하면 사라져요."
-            else -> "도로와 조작은 모두 화면 속 시뮬레이션이에요. 실제 차는 P·정차를 유지해요."
+            lastStatus == "running" || lastStatus == "paused" -> "이전 연습은 멈춰 있어요. 시작을 누르면 새로 연습해요."
+            !recordEnabled() -> "기록 저장이 꺼져 있어요. 이번 연습은 기기에 저장하지 않아요."
+            else -> "연습 기록은 이 기기에 저장해요. 실제 운전 점수와는 구분해요."
         }
-        addView(label(note, 13, muted), full(25))
+        pageBody.addView(label(note, 18, muted), full(-2).apply { topMargin = dp(18) })
+        pageBody.addView(label("화면 속 가상 연습이에요. 실제 차량은 P에 놓고 멈춘 상태로 이용해 주세요.", 18, muted), full(-2).apply { topMargin = dp(10) })
+        if (records.isNotEmpty()) {
+            val history = horizontal(pageBody, -2)
+            history.addView(button("지난 연습 · ${records.size}회", "sim_history", true) {
+                reviewIndex = 0; reviewRecord = records.first(); page = Page.REFLECTION; render()
+            }, weighted(-2))
+            history.addView(button("주행 기록 삭제", "sim_delete_history", true) { confirmDeleteHistory() }, weighted(-2))
+        }
+        startButton = button("${scenarioTitle(selected)} 시작", "sim_begin") { begin() }.also {
+            addView(it, full(-2).apply { topMargin = dp(16) })
+        }
     }
 
     private fun confirmDeleteHistory() {
@@ -251,158 +269,117 @@ class DrivingSimulatorView(
     }
 
     private fun drivingPage() {
-        val heading = horizontal(this, 52)
-        phaseLabel = label("", 16, teal, true).also { heading.addView(it, weighted()) }
-        heading.addView(badge(), fixed(230, 28))
-        pauseButton = button("잠시 멈춤", "sim_pause", secondary = true) { pausePractice() }.also {
-            heading.addView(it, fixed(92, 48))
-        }
-        resumeButton = button("이어하기", "sim_resume") { resumePractice() }.also {
-            heading.addView(it, fixed(92, 48))
-        }
-        heading.addView(button("마치기", "sim_finish", secondary = true) {
-            finishPractice("중간에 마침")
-        }, fixed(72, 48))
-        heading.addView(button("나가기", "sim_exit", secondary = true) { exit() }, fixed(72, 48))
+        val heading = horizontal(this, -2)
+        phaseLabel = label("", 24, teal, true).also { it.contentDescription = "sim_phase"; heading.addView(it, weighted(-2)) }
+        pauseButton = button("잠시 멈춤", "sim_pause", true) { pausePractice() }.also { heading.addView(it, fixed(128, -2)) }
+        resumeButton = button("이어하기", "sim_resume") { resumePractice() }.also { heading.addView(it, fixed(128, -2)) }
+        heading.addView(button("마치기", "sim_finish", true) { finishPractice("중간에 마침") }, fixed(108, -2))
+        heading.addView(button("나가기", "sim_exit", true) { exit() }, fixed(108, -2))
 
+        val pageBody = scrollBody()
         road = CockpitRoadView(context).also {
-            addView(it, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f).apply {
-                topMargin = dp(4); bottomMargin = dp(6)
-            })
+            it.background = PreparationStyle.surface(context); it.clipToOutline = true
+            pageBody.addView(it, full(370))
         }
-
-        val coaching = horizontal(this, 58).apply {
-            background = background(tealSoft, 12)
-            setPadding(dp(12), 0, dp(8), 0)
-        }
-        coaching.addView(label("안내", 13, teal, true), fixed(55, 48))
-        cueLabel = label("", 19, ink, true).apply { maxLines = 2 }.also {
-            coaching.addView(it, weighted(LayoutParams.MATCH_PARENT))
-        }
-        repeatButton = button("다시 듣기", "sim_repeat", secondary = true) {
+        val coaching = card(18, tealSoft)
+        pageBody.addView(coaching, full(-2).apply { topMargin = dp(14) })
+        val cueRow = horizontal(coaching, -2)
+        cueLabel = label("", 23, ink, true).also { it.contentDescription = "sim_guidance"; cueRow.addView(it, weighted(-2)) }
+        repeatButton = button("다시 듣기", "sim_repeat", true) {
             if (canInput()) snapshot?.coachCue?.let { stopVoice(); onCue(it) }
-        }.also { coaching.addView(it, fixed(88, 48)) }
+        }.also { cueRow.addView(it, fixed(132, -2)) }
 
-        val signals = horizontal(this, 58)
-        signals.addView(label("가상\n깜빡이", 13, muted, true), fixed(52, 48))
-        listOf(
-            Triple(SimulationSignal.LEFT, "← 왼쪽", "sim_signal_left"),
-            Triple(SimulationSignal.OFF, "꺼짐", "sim_signal_off"),
-            Triple(SimulationSignal.RIGHT, "오른쪽 →", "sim_signal_right"),
-        ).forEach { (signal, title, key) ->
-            val control = button(title, key, secondary = true) {
-                if (canInput()) session?.setSignal(signal)?.let(::consume)
-            }
-            signalButtons[signal] = control; inputControls.add(control)
-            signals.addView(control, weighted(48))
+        val signals = PreparationColumns(context, breakpoint = 1_050)
+        pageBody.addView(signals, full(-2).apply { topMargin = dp(14) })
+        val signalCard = card(16); signals.addView(signalCard)
+        signalCard.addView(label("방향지시등", 19, muted, true), full(-2).apply { bottomMargin = dp(10) })
+        val signalRow = horizontal(signalCard, -2)
+        listOf(Triple(SimulationSignal.LEFT, "← 왼쪽", "sim_signal_left"),
+            Triple(SimulationSignal.OFF, "끄기", "sim_signal_off"),
+            Triple(SimulationSignal.RIGHT, "오른쪽 →", "sim_signal_right")).forEach { (signal, title, key) ->
+            val control = button(title, key, true) { if (canInput()) session?.setSignal(signal)?.let(::consume) }
+            signalButtons[signal] = control; inputControls.add(control); signalRow.addView(control, weighted(-2))
         }
-        signals.addView(label("가상\n미러", 13, muted, true), fixed(48, 48))
-        listOf(
-            Triple(SimulationMirror.LEFT, "왼쪽 미러 보기", "sim_mirror_left"),
-            Triple(SimulationMirror.RIGHT, "오른쪽 미러 보기", "sim_mirror_right"),
-        ).forEach { (mirror, title, key) ->
-            val control = button(title, key, secondary = true) {
-                if (canInput()) {
-                    session?.lookMirror(mirror)?.let(::consume)
-                    Log.i("DrivingSim", "input mirror=$mirror scenario=$selected")
-                }
+        val mirrorCard = card(16); signals.addView(mirrorCard)
+        mirrorCard.addView(label("미러와 옆 공간 확인", 19, muted, true), full(-2).apply { bottomMargin = dp(10) })
+        val mirrors = horizontal(mirrorCard, -2)
+        listOf(Triple(SimulationMirror.LEFT, "왼쪽 미러 보기", "sim_mirror_left"),
+            Triple(SimulationMirror.RIGHT, "오른쪽 미러 보기", "sim_mirror_right")).forEach { (mirror, title, key) ->
+            val control = button(title, key, true) {
+                if (canInput()) { session?.lookMirror(mirror)?.let(::consume); Log.i("DrivingSim", "input mirror=$mirror scenario=$selected") }
             }
-            mirrorButtons[mirror] = control; inputControls.add(control)
-            signals.addView(control, weighted(48, 1.2f))
+            mirrorButtons[mirror] = control; inputControls.add(control); mirrors.addView(control, weighted(-2))
         }
 
-        val controls = horizontal(this, 86)
-        val steeringColumn = LinearLayout(context).apply { orientation = VERTICAL }
-        controls.addView(steeringColumn, weighted(LayoutParams.MATCH_PARENT, 1.35f))
-        steeringLabel = label("가상 핸들 · 중앙", 15, ink, true).also {
-            steeringColumn.addView(it, full(28))
-        }
-        val steeringRow = horizontal(steeringColumn, 52)
-        val center = button("핸들 중앙", "sim_center", secondary = true) {
-            if (canInput()) session?.setSteering(0.0)?.let(::consume)
-        }
-        inputControls.add(center)
+        val controls = PreparationColumns(context, 1.2f, 1f, 1_050)
+        pageBody.addView(controls, full(-2).apply { topMargin = dp(12) })
+        val wheel = card(16); controls.addView(wheel)
+        steeringLabel = label("가상 핸들 · 중앙", 20, ink, true).also { wheel.addView(it, full(-2).apply { bottomMargin = dp(8) }) }
+        val steeringRow = horizontal(wheel, -2)
         steering = SeekBar(context).apply {
-            max = 200; progress = 100
-            contentDescription = "sim_steering"; tag = "sim_steering"
+            max = 200; progress = 100; contentDescription = "sim_steering"; tag = "sim_steering"
+            progressTintList = android.content.res.ColorStateList.valueOf(teal); thumbTintList = progressTintList
             setPadding(dp(16), 0, dp(16), 0)
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
                 override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    if (fromUser && !syncingControls && canInput()) {
-                        session?.setSteering((progress - 100) / 100.0)?.let(::consume)
-                    }
+                    if (fromUser && !syncingControls && canInput()) session?.setSteering((progress - 100) / 100.0)?.let(::consume)
                 }
             })
-        }.also {
-            inputControls.add(it)
-            steeringRow.addView(it, weighted(48))
-        }
-        steeringRow.addView(center, fixed(100, 48))
-        val pedals = LinearLayout(context).apply { orientation = VERTICAL }
-        controls.addView(pedals, weighted(LayoutParams.MATCH_PARENT, 1f))
-        pedals.addView(label("가상 페달 · 손을 떼면 현재 속도 유지", 13, muted), full(28))
-        val pedalRow = horizontal(pedals, 52)
-        brakeButton = pedal("브레이크 · 길게 누르기", "sim_brake", false).also {
-            pedalRow.addView(it, weighted(50))
-        }
-        gasButton = pedal("가속 · 길게 누르기", "sim_gas", true).also {
-            pedalRow.addView(it, weighted(50))
-        }
-        snapshot?.let { updateScene(it) }
+        }.also { inputControls.add(it); steeringRow.addView(it, weighted(64)) }
+        val center = button("핸들 중앙", "sim_center", true) { if (canInput()) session?.setSteering(0.0)?.let(::consume) }
+        inputControls.add(center); steeringRow.addView(center, fixed(140, -2))
+        val pedals = card(16); controls.addView(pedals)
+        pedals.addView(label("가상 페달 · 누르는 동안 조작", 19, muted), full(-2).apply { bottomMargin = dp(8) })
+        val pedalRow = horizontal(pedals, -2)
+        brakeButton = pedal("브레이크", "sim_brake", false).also { pedalRow.addView(it, weighted(-2)) }
+        gasButton = pedal("가속", "sim_gas", true).also { pedalRow.addView(it, weighted(-2)) }
+        snapshot?.let(::updateScene)
     }
 
     private fun reflectionPage() {
         val record = reviewRecord ?: records.firstOrNull()
-        val heading = horizontal(this, 52)
-        heading.addView(label("방금의 움직임을 돌아봐요", 25, ink, true), weighted())
-        heading.addView(badge(), fixed(240, 30))
-        heading.addView(button("나가기", "sim_exit", secondary = true) { exit() }, fixed(85, 48))
-        if (record == null) {
-            addView(label("다음 연습에서 한 동작씩 함께 해 봐요.", 20, ink), full(80))
-        } else {
-            val scenario = runCatching {
-                SimulationScenario.valueOf(record.optString("scenario"))
-            }.getOrDefault(selected)
-            val seconds = record.optDouble("elapsedSeconds", 0.0).roundToInt()
-            addView(label("${scenarioTitle(scenario)} · ${record.optString("outcome")} · ${seconds}초", 17, teal, true), full(37))
-            addView(label("${date(record.optLong("at"))}  ·  화면 속 가상 주행 기록", 13, muted), full(28))
+        val heading = horizontal(this, -2)
+        heading.addView(label("차로 변경 돌아보기", 32, ink, true), weighted(-2))
+        heading.addView(button("나가기", "sim_exit", true) { exit() }, fixed(116, -2))
+        val body = scrollBody()
+        val summary = card(24, tealSoft)
+        body.addView(summary, full(-2))
+        if (record == null) summary.addView(label("다음 연습에서 한 동작씩 함께 해 봐요.", 23, ink), full(-2))
+        else {
+            val scenario = runCatching { SimulationScenario.valueOf(record.optString("scenario")) }.getOrDefault(selected)
+            summary.addView(label("${scenarioTitle(scenario)} · ${record.optString("outcome")}", 26, teal, true), full(-2))
+            summary.addView(label("${date(record.optLong("at"))} · 가상 주행 ${record.optDouble("elapsedSeconds", 0.0).roundToInt()}초", 19, muted), full(-2).apply { topMargin = dp(12) })
             val notes = record.optJSONArray("reflections") ?: JSONArray()
-            val notesColumn = LinearLayout(context).apply {
-                orientation = VERTICAL
-                gravity = Gravity.CENTER_VERTICAL
-            }
-            addView(notesColumn, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f))
+            val results = card()
+            body.addView(results, full(-2).apply { topMargin = dp(20) })
+            results.addView(label("이번에 확인한 움직임", 24, ink, true), full(-2).apply { bottomMargin = dp(12) })
             for (i in 0 until minOf(notes.length(), 5)) {
-                val note = horizontal(notesColumn, 64).apply {
-                    background = background(if (i % 2 == 0) PleosUi.SURFACE else tealSoft, 12)
-                    setPadding(dp(15), 0, dp(15), 0)
-                }
-                note.addView(label(String.format(Locale.ROOT, "%02d", i + 1), 18, teal, true), fixed(42, 50))
-                note.addView(label(notes.optString(i), 19, ink).apply { maxLines = 2 }, weighted(60))
+                val note = horizontal(results, -2).apply { setPadding(0, dp(14), 0, dp(14)) }
+                note.addView(label(String.format(Locale.ROOT, "%02d", i + 1), 21, teal, true), fixed(54, -2))
+                note.addView(label(notes.optString(i), 21, ink), weighted(-2))
             }
         }
+        body.addView(label("화면 속 조작을 돌아보는 기록이에요. 실제 운전 실력 평가와는 구분해요.", 18, muted), full(-2).apply { topMargin = dp(18) })
         if (records.size > 1) {
-            val history = horizontal(this, 52)
-            history.addView(label("회고 ${reviewIndex + 1} / ${records.size} · 최근 20회까지 보관", 13, muted), weighted())
-            history.addView(button("이전 기록", "sim_history_older", secondary = true) {
-                if (reviewIndex + 1 < records.size) {
-                    reviewIndex++; reviewRecord = records[reviewIndex]; render()
-                }
-            }.apply { isEnabled = reviewIndex + 1 < records.size }, fixed(94, 48))
-            history.addView(button("다음 기록", "sim_history_newer", secondary = true) {
+            body.addView(label("회고 ${reviewIndex + 1} / ${records.size} · 최근 20회", 19, muted), full(-2).apply { topMargin = dp(18) })
+            val history = horizontal(body, -2)
+            history.addView(button("이전 기록", "sim_history_older", true) {
+                if (reviewIndex + 1 < records.size) { reviewIndex++; reviewRecord = records[reviewIndex]; render() }
+            }.apply { isEnabled = reviewIndex + 1 < records.size }, weighted(-2))
+            history.addView(button("다음 기록", "sim_history_newer", true) {
                 if (reviewIndex > 0) { reviewIndex--; reviewRecord = records[reviewIndex]; render() }
-            }.apply { isEnabled = reviewIndex > 0 }, fixed(94, 48))
+            }.apply { isEnabled = reviewIndex > 0 }, weighted(-2))
         }
-        storageProblem?.let { addView(label(it, 13, amber), full(28)) }
-        val actions = horizontal(this, 56)
+        storageProblem?.let { body.addView(label(it, 19, amber), full(-2)) }
+        val actions = PreparationColumns(context, breakpoint = 800)
+        addView(actions, full(-2).apply { topMargin = dp(16) })
         startButton = button("같은 코스 다시 연습", "sim_restart") {
-            val savedScenario = record?.optString("scenario")
-            selected = runCatching { SimulationScenario.valueOf(savedScenario.orEmpty()) }.getOrDefault(selected)
+            selected = runCatching { SimulationScenario.valueOf(record?.optString("scenario").orEmpty()) }.getOrDefault(selected)
             begin()
-        }.also { actions.addView(it, weighted(50)) }
-        actions.addView(button("코스 선택으로", "sim_courses", secondary = true) { showBrief() }, weighted(50))
+        }.also { actions.addView(it) }
+        actions.addView(button("코스 선택으로", "sim_courses", true) { showBrief() })
     }
 
     private fun begin() {
@@ -533,7 +510,7 @@ class DrivingSimulatorView(
                     }
                 }, 300)
             }
-        }.apply { textSize = 14f }
+        }.apply { textSize = 21f }
         control.setOnTouchListener { view, event ->
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
@@ -646,9 +623,14 @@ class DrivingSimulatorView(
         SimulationScenario.BLIND_SPOT -> "옆 차 기다리기"
     }
 
-    private fun badge() = label("실제 차 P·정차  |  화면 속 가상 주행", 12, amber, true).apply {
-        gravity = Gravity.CENTER
-        background = background(PleosUi.RAISED, 9)
+    private fun card(padding: Int = 24, fill: Int = PleosUi.SURFACE) = LinearLayout(context).apply {
+        orientation = VERTICAL; background = PreparationStyle.surface(context, fill)
+        setPadding(dp(padding), dp(padding), dp(padding), dp(padding))
+    }
+    private fun scrollBody(): LinearLayout {
+        val scroll = ScrollView(context).apply { isFillViewport = true; clipToPadding = false }
+        addView(scroll, LayoutParams(-1, 0, 1f).apply { topMargin = dp(18) })
+        return LinearLayout(context).apply { orientation = VERTICAL; scroll.addView(this) }
     }
 
     private fun label(text: String, size: Int, color: Int, bold: Boolean = false) = TextView(context).apply {
@@ -658,33 +640,30 @@ class DrivingSimulatorView(
     }
 
     private fun button(title: String, key: String, secondary: Boolean = false, action: () -> Unit) = PracticeButton(context).apply {
-        text = title; textSize = 17f; isAllCaps = false
-        minWidth = 0; minimumWidth = 0; minHeight = 0; minimumHeight = 0
-        setPadding(dp(7), 0, dp(7), 0); gravity = Gravity.CENTER
+        text = title; textSize = 20f; isAllCaps = false
+        minWidth = 0; minimumWidth = 0; minHeight = dp(64); minimumHeight = dp(64)
+        setPadding(dp(18), dp(12), dp(18), dp(12)); gravity = Gravity.CENTER
         contentDescription = key; tag = key
         setTypeface(typeface, Typeface.BOLD)
-        styleButton(this, !secondary)
+        styleButton(this, !secondary, force = true)
         setOnClickListener { action() }
     }
 
-    private fun styleButton(button: Button, selected: Boolean) {
-        PleosUi.decorate(button, selected)
-    }
-
-    private fun background(fill: Int, radius: Int, stroke: Int? = null) = GradientDrawable().apply {
-        setColor(fill); cornerRadius = dp(radius).toFloat()
-        stroke?.let { setStroke(dp(1), it) }
+    private fun styleButton(button: Button, selected: Boolean, force: Boolean = false) {
+        if (!force && button.background is RippleDrawable && button.isSelected == selected) return
+        button.isSelected = selected
+        PreparationStyle.button(button, selected)
     }
 
     private fun horizontal(parent: LinearLayout, height: Int): LinearLayout = LinearLayout(context).apply {
-        orientation = HORIZONTAL; gravity = Gravity.CENTER_VERTICAL
+        orientation = HORIZONTAL; gravity = Gravity.CENTER_VERTICAL; isBaselineAligned = false
         parent.addView(this, full(height))
     }
 
     private fun weighted(height: Int = LayoutParams.MATCH_PARENT, weight: Float = 1f) =
         LayoutParams(0, if (height < 0) height else dp(height), weight).apply { marginEnd = dp(6) }
 
-    private fun fixed(width: Int, height: Int) = LayoutParams(dp(width), dp(height)).apply { marginEnd = dp(6) }
+    private fun fixed(width: Int, height: Int) = LayoutParams(dp(width), if (height < 0) height else dp(height)).apply { marginEnd = dp(6) }
     private fun full(height: Int) = LayoutParams(LayoutParams.MATCH_PARENT, if (height < 0) height else dp(height))
     private fun dp(value: Int): Int = (resources.displayMetrics.density * value).roundToInt()
     private fun date(millis: Long): String = SimpleDateFormat("M월 d일 HH:mm", Locale.KOREA).format(Date(millis))

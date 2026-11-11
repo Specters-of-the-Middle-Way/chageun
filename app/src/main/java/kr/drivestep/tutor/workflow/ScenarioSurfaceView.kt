@@ -53,8 +53,8 @@ class ScenarioSurfaceView(context: Context) : View(context) {
             rect.set(roadLeft + dp(8f), height * .42f, roadRight - dp(8f), height * .47f)
             canvas.drawRect(rect, paint)
         }
-        paint.color = PleosUi.TEXT; paint.textSize = dp(16f); paint.textAlign = Paint.Align.LEFT
-        canvas.drawText("작성된 가상 연습장", dp(12f), dp(25f), paint)
+        paint.color = PleosUi.TEXT; paint.textSize = PleosUi.canvasTextSize(context, dp(19f)); paint.textAlign = Paint.Align.LEFT
+        canvas.drawText("가상 주행", dp(12f), dp(30f), paint)
     }
     private fun dp(value: Float) = value * resources.displayMetrics.density
 }

@@ -8,7 +8,9 @@ enum class TrainingSignal { OFF, LEFT, RIGHT }
 data class ScenarioSnapshot(val task: ScenarioTask, val status: EventStatus, val paused: Boolean, val elapsed: Double,
     val distance: Double, val speedKmh: Double, val lateral: Double, val rotation: Double, val signal: TrainingSignal,
     val mirrorChecked: Boolean, val waiting: Double, val warning: Boolean, val routeVersion: Int, val phase: Int,
-    val leadGapM: Double?, val instruction: String, val cueRevision: Int, val events: List<WorkflowEvent>, val attemptId: String)
+    val leadGapM: Double?, val instruction: String, val cueRevision: Int, val events: List<WorkflowEvent>, val attemptId: String) {
+    val leadHeadwaySeconds get() = FollowingGap.seconds(speedKmh, leadGapM)
+}
 
 /** Deterministic, authored controls and road situations. No vehicle or GPS input is fabricated. */
 class ScenarioSession(val task: ScenarioTask, val attemptId: String = "simulation") {
@@ -75,8 +77,13 @@ class ScenarioSession(val task: ScenarioTask, val attemptId: String = "simulatio
             "D01" -> { if (abs(lateral) > .8) tell("가상 차로 중앙을 다시 맞춰 봐요.") else complete = distance >= 60 && speed * 3.6 in 5.0..35.0 }
             "D02" -> {
                 val gap = 35 + elapsed * 4 - distance
-                if (gap < 10) { stable = 0.0; tell("가상 앞차와 가까워졌어요. 브레이크로 간격을 조절해 봐요.") }
-                else stable += step
+                val seconds = FollowingGap.seconds(speed * 3.6, gap)
+                if (seconds == null) stable = 0.0
+                else if (seconds < FollowingGap.TRAINING_SECONDS) {
+                    stable = 0.0; tell("가상 시간 간격이 과제 목표 3초보다 작아요. 부드럽게 속도를 줄여 간격을 조절해 봐요.")
+                } else {
+                    stable += step; tell("가상 시간 간격을 3초 이상 유지하며 이동해요. 이 값은 실제 안전 판정이 아니에요.")
+                }
                 complete = distance >= 40 && stable >= 3
             }
             "D03" -> {

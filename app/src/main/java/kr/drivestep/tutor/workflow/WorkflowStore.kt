@@ -12,8 +12,15 @@ class WorkflowStore(context: Context, private val consent: () -> Boolean, storeN
         (0 until minOf(rows.length(), 20)).mapNotNull { rows.optJSONObject(it) }
             .filter { ScenarioCatalog.find(it.optString("task")) != null && it.optString("source") == "SIMULATION" }
     }.getOrDefault(emptyList())
+    fun recommendations(now: Long): List<PracticeRecommendation> {
+        if (!consent()) return emptyList()
+        val evidence = records().map { DifficultyRecord(it.optString("attempt"), it.optString("task"),
+            if (it.isNull("difficulty")) null else it.optString("difficulty"), it.optLong("at")) }
+        return PracticeRecommendations.suggest(evidence, true, now)
+    }
     fun save(snapshot: ScenarioSnapshot, explanation: String?, difficulty: String?): Boolean {
         if (!consent()) return false
+        val selectedDifficulty = difficulty?.takeIf { ScenarioCatalog.find(it) != null }
         val facts = String.format(java.util.Locale.KOREA,
             "가상 이동 %.1fm · 가상 속도 %.1fkm/h · 방향지시 %s · 주변 확인 학습 %s", snapshot.distance,
             snapshot.speedKmh, snapshot.signal.name, if (snapshot.mirrorChecked) "누름" else "미확인")
@@ -23,7 +30,7 @@ class WorkflowStore(context: Context, private val consent: () -> Boolean, storeN
         val row = JSONObject().put("schema", 1).put("attempt", snapshot.attemptId).put("at", System.currentTimeMillis()).put("task", snapshot.task.id)
             .put("source", "SIMULATION").put("status", snapshot.status.name).put("facts", facts)
             .put("unknown", snapshot.task.unknown).put("explanation", explanation ?: JSONObject.NULL)
-            .put("difficulty", difficulty ?: JSONObject.NULL).put("next", difficulty ?: snapshot.task.nextTask).put("events", events)
+            .put("difficulty", selectedDifficulty ?: JSONObject.NULL).put("next", selectedDifficulty ?: snapshot.task.nextTask).put("events", events)
         return prefs.edit().putString("records", JSONArray((listOf(row) + records()).take(20)).toString()).commit()
     }
     fun checkpoint(snapshot: ScenarioSnapshot) {

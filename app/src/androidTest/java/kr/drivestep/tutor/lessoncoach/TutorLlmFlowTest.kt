@@ -23,6 +23,7 @@ import org.junit.runner.RunWith
 import java.io.File
 
 /** Real Android HTTP + View + storage test, with clearly labelled host fixture replies. */
+@org.junit.Ignore("OpenAI UI retired; GleoIntegrationDeviceTest covers the replacement actions")
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 29)
 class TutorLlmFlowTest {
@@ -50,13 +51,16 @@ class TutorLlmFlowTest {
             click("coach_lesson"); click("lesson_mode_live"); click("lesson_start")
             expect("차량 신호")
             send("미러는 봤는데 제가 뭘 놓친 건지 잘 모르겠어요")
-            expect("시험 응답 · 실제 LLM 아님", 12000)
+            expect("연습용 예시 답변", 12000)
             expect("사이드미러로 옆과 뒤를 살피는 연습")
             checked("voice_toggle", true)
             send("제가 아까 말한 걸 생각해서 다시 설명해 주세요")
             expect("이전 대화와 전달된 자차 상태를 함께 받았어요", 12000)
             expect("Pleos 음성 안내 중", 12000)
-            expect("Pleos 음성 안내 완료", 25000)
+            eventually("완료 뒤 음성 상태 문구 숨김", 25000) {
+                onMain { views().any { it.contentDescription == "lesson_speech_status" && it.visibility == View.GONE } }
+            }
+            assertFalse(hasText("Pleos 음성 안내 완료"))
             checked("voice_toggle", false)
             send("연결 오류 시험")
             expect("OpenAI 키 설정 필요 · 기본 안내", 12000)
@@ -84,7 +88,7 @@ class TutorLlmFlowTest {
             val record = requireNotNull(saved)
             val events = record.getJSONArray("events").let { a -> List(a.length()) { a.getJSONObject(it) } }
             assertTrue(record.getBoolean("liveInputs"))
-            assertEquals(2, events.count { it.getString("title") == "시험 응답 · 실제 LLM 아님" })
+            assertEquals(2, events.count { it.getString("title") == "연습용 예시 답변" })
             assertEquals(3, events.count { it.getString("kind") == "UTTERANCE" })
             assertTrue(events.filter { it.getString("kind") == "UTTERANCE" }.all { it.getString("title") == "시험 문장 입력" })
             assertTrue(events.any { it.getString("kind") == "VEHICLE" && it.getString("source") == "SDK" })

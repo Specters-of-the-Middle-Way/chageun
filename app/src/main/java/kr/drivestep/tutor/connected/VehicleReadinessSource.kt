@@ -39,7 +39,7 @@ class VehicleReadinessSource(context: Context, private val onUpdate: (ReadinessS
     val isRunning get() = running
     fun start() {
         if (running) return
-        running = true; generation++; val token = generation; state.reset("SDK 응답 대기")
+        running = true; generation++; val token = generation; state.reset("차량 상태를 불러오고 있어요")
         publish()
         try {
             val lease = PleosVehicleSessions.acquire(app); vehicleLease = lease
@@ -130,7 +130,7 @@ class VehicleReadinessSource(context: Context, private val onUpdate: (ReadinessS
             deadline?.let(main::removeCallbacks)
             deadline = Runnable {
                 if (running && token == generation) {
-                    close(); state.unavailable(key,InputValidity.ERROR,"SDK 응답 시간 초과 · 다시 연결해 주세요"); publish()
+                    close(); state.unavailable(key,InputValidity.ERROR,"차량 응답이 늦어지고 있어요. 다시 연결해 주세요."); publish()
                 }
             }.also { main.postDelayed(it,delay) }
         }
@@ -139,7 +139,7 @@ class VehicleReadinessSource(context: Context, private val onUpdate: (ReadinessS
             try { check({ supported -> dispatch(token) {
                 if (closed) return@dispatch
                 deadline?.let(main::removeCallbacks)
-                if (!supported) { state.unavailable(key,InputValidity.UNSUPPORTED,"이 좌석·기능 읽기 미지원"); publish() }
+                if (!supported) { state.unavailable(key,InputValidity.UNSUPPORTED,"이 차량에서는 해당 상태를 확인할 수 없어요"); publish() }
                 else {
                     enabled = true
                     try { unregister = subscribe?.invoke { value -> dispatch(token) { if (!closed) { sequence++; publish(accept(value)) } } } }
@@ -168,7 +168,7 @@ class VehicleReadinessSource(context: Context, private val onUpdate: (ReadinessS
     private fun quality(e: Exception) = if (e is SecurityException || e.message.orEmpty().contains("permission",true)) InputValidity.DENIED else InputValidity.ERROR
     private fun fail(key: String, e: Exception) {
         val token = generation
-        dispatch(token) { state.unavailable(key,quality(e),if (quality(e) == InputValidity.DENIED) "차량 신호 권한 없음" else "SDK 수신 오류 · 다시 연결해 주세요"); publish() }
+        dispatch(token) { state.unavailable(key,quality(e),if (quality(e) == InputValidity.DENIED) "차량 정보 이용 권한이 필요해요" else "차량 상태를 불러오지 못했어요. 다시 연결해 주세요."); publish() }
     }
     private fun dispatch(token: Long, action: () -> Unit) { main.post { if (running && token == generation) action() } }
     private fun now() = SystemClock.elapsedRealtime()

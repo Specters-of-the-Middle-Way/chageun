@@ -1,0 +1,54 @@
+{
+  "packageName": "kr.drivestep.tutor",
+  "appDescription": "Chageun offers conversational novice driving lessons, departure preparation checks, weather-based driving advice, and virtual parking practice while parked.",
+  "invokeWord": "차근",
+  "version": "0.10.0",
+  "actionCalls": [
+    {
+      "type": "function",
+      "function": {
+        "name": "TALK_WITH_DRIVING_COACH",
+        "description": "Discuss novice driving questions and follow-up explanations in a coaching conversation, or retrieve the departure preparation checklist. Returns grounded lesson content and available consented vehicle observations.",
+        "component": "activity",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "operation": { "type": "string", "enum": ["START", "ASK", "REPEAT", "END", "PREPARATION"], "description": "Whether to start coaching, ask a question, repeat guidance, end coaching, or check the departure checklist; ASK is the default." },
+            "question": { "type": "string", "description": "The driver's current question or follow-up in the original language, up to 600 characters." },
+            "topic": { "type": "string", "enum": ["CURRENT", "LANE_CHANGE", "MIRRORS", "TURN", "START_STOP", "PARKING", "RAIN", "NIGHT", "OTHER"], "description": "The driving subject; CURRENT retains the ongoing lesson for a follow-up, while OTHER indicates a subject outside the supported lessons." },
+            "focus": { "type": "string", "enum": ["SUMMARY", "REASON", "STEPS", "CAUTION"], "description": "The requested kind of explanation, including a short overview, reasons, ordered preparation steps, or cautions." }
+          },
+          "required": []
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "GET_WEATHER_DRIVING_ADVICE",
+        "description": "Retrieve current weather-based driving advice using the consented location or the explicitly identified default area when location is unavailable.",
+        "component": "activity",
+        "parameters": { "type": "object", "properties": {}, "required": [] }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "START_PARKING_PRACTICE",
+        "description": "Start virtual parking practice while the vehicle is parked and the preparation checklist is complete, or open the required preparation steps.",
+        "component": "activity",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "course": {
+              "type": "string",
+              "description": "The requested virtual parking course; reverse bay parking is used when omitted.",
+              "enum": ["REVERSE_BAY", "PARALLEL", "T_BAY", "FRONT_BAY"]
+            }
+          },
+          "required": []
+        }
+      }
+    }
+  ]
+}

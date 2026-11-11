@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
+import android.util.TypedValue
 import android.widget.Button
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
@@ -18,11 +19,12 @@ import kotlin.math.roundToInt
  * This is an app adapter to design assets, not an official Android component SDK.
  */
 object PleosUi {
+    const val TEXT_SCALE = 1.2f
     val BACKGROUND = Color.rgb(247, 248, 250) // background/primary, Light
     val SURFACE = Color.WHITE // surface/basic
     val RAISED = Color.rgb(237, 238, 242) // surface/high
     val TEXT = Color.rgb(19, 20, 23) // text/dark/primary
-    val SECONDARY = Color.argb(163, 19, 20, 23) // text/dark/tertiary: supporting copy
+    val SECONDARY = Color.rgb(81, 84, 92) // Higher contrast for supporting copy on light surfaces.
     val LINE = Color.rgb(224, 225, 230) // surface/accent
     val SELECTED = Color.rgb(68, 70, 78) // button/filled/enabled
     val PRESSED = Color.rgb(49, 50, 54) // button/filled/pressed
@@ -93,6 +95,12 @@ object PleosUi {
         button.setCompoundDrawablesRelative(icon(button.context, key, sizeDp,
             if (button.isSelected) Color.WHITE else TEXT), null, null, null)
         button.compoundDrawablePadding = dp(button.context, 10)
+    }
+
+    /** Match Canvas labels to the same SP scaling used by TextViews. */
+    fun canvasTextSize(context: Context, sizePx: Float): Float {
+        val metrics = context.resources.displayMetrics
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sizePx / metrics.density, metrics)
     }
 
     private fun dp(context: Context, value: Int) = (value * context.resources.displayMetrics.density).roundToInt()

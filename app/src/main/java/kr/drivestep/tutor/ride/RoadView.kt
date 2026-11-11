@@ -1,5 +1,6 @@
 package kr.drivestep.tutor.ride
 
+import kr.drivestep.tutor.design.PleosUi
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -113,7 +114,7 @@ class RoadView(context: Context) : View(context) {
     }
 
     private fun label(c: Canvas, value: String, x: Float, y: Float, size: Float, color: Int, align: Paint.Align = Paint.Align.LEFT) {
-        paint.color = color; paint.style = Paint.Style.FILL; paint.textSize = size; paint.textAlign = align
+        paint.color = color; paint.style = Paint.Style.FILL; paint.textSize = PleosUi.canvasTextSize(context, size); paint.textAlign = align
         c.drawText(value, x, y, paint)
     }
     private fun rect(c: Canvas, l: Float, t: Float, r: Float, b: Float, color: Int) {

@@ -28,10 +28,11 @@ class ParkingSimulationSessionTest {
 
     @Test fun officialBodyAndWheelbaseAreSeparateFromSteeringAssumption() {
         val state = session().snapshot()
-        assertEquals(4.155, state.vehicle.lengthM, 0.0)
-        assertEquals(1.800, state.vehicle.widthM, 0.0)
-        assertEquals(2.680, state.vehicle.wheelbaseM, 0.0)
-        assertEquals(1.505, state.vehicle.heightM, 0.0)
+        assertEquals("아반떼", state.vehicle.name)
+        assertEquals(4.710, state.vehicle.lengthM, 0.0)
+        assertEquals(1.825, state.vehicle.widthM, 0.0)
+        assertEquals(2.720, state.vehicle.wheelbaseM, 0.0)
+        assertEquals(1.420, state.vehicle.heightM, 0.0)
         assertEquals(32.0, state.vehicle.maxRoadWheelAngleDegrees, 0.0)
     }
 
@@ -155,7 +156,7 @@ class ParkingSimulationSessionTest {
 
     @Test fun parallelParkingCanBeCompletedWithTwoManualReverseArcs() {
         val s=session(ParkingCourse.PARALLEL)
-        val radius=2.680/tan(Math.toRadians(32.0))
+        val radius=2.720/tan(Math.toRadians(32.0))
         val angle=acos(1.0-3.3/(2.0*radius))
         reverse(s);s.setSteering(1.0)
         driveUntil(s){it.pose.headingRadians <= -angle}
@@ -177,7 +178,7 @@ class ParkingSimulationSessionTest {
 
     @Test fun bodyInsideBayStillNeedsCorrectOrientationBeforeFinish() {
         val s=session(ParkingCourse.PARALLEL)
-        val radius=2.680/tan(Math.toRadians(32.0))
+        val radius=2.720/tan(Math.toRadians(32.0))
         val angle=acos(1.0-3.3/(2.0*radius))
         reverse(s);s.setSteering(1.0)
         driveUntil(s){it.pose.headingRadians <= -angle}
@@ -264,9 +265,9 @@ class ParkingSimulationSessionTest {
 
     @Test fun containsRequiresAllFourCornersAndTargetOrientation() {
         val outer=ParkingRect("target",0.0,0.0,3.0,5.6)
-        assertTrue(ParkingGeometry.contains(outer,ParkingRect("car",0.0,0.0,1.8,4.155)))
-        assertFalse(ParkingGeometry.contains(outer,ParkingRect("car",0.7,0.0,1.8,4.155)))
-        assertFalse(ParkingGeometry.contains(outer,ParkingRect("car",0.0,0.0,1.8,4.155,Math.PI/4)))
+        assertTrue(ParkingGeometry.contains(outer,ParkingRect("car",0.0,0.0,1.825,4.710)))
+        assertFalse(ParkingGeometry.contains(outer,ParkingRect("car",0.7,0.0,1.825,4.710)))
+        assertFalse(ParkingGeometry.contains(outer,ParkingRect("car",0.0,0.0,1.825,4.710,Math.PI/4)))
     }
 
     @Test fun collisionDetectsCrossingEdgesWithoutContainedCorners() {

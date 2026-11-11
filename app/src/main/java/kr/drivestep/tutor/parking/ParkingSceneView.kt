@@ -1,5 +1,6 @@
 package kr.drivestep.tutor.parking
 
+import kr.drivestep.tutor.design.PleosUi
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -11,6 +12,7 @@ import android.graphics.Shader
 import android.graphics.Typeface
 import android.view.View
 import kr.drivestep.tutor.R
+import kr.drivestep.tutor.vehicle.TrainingVehicle
 import kotlin.math.min
 
 /** Draws one educational world. There is no camera feed, vehicle API, or separate animation state. */
@@ -56,8 +58,8 @@ class ParkingSceneView(context: Context) : View(context) {
         val s = state ?: return
         if (width <= 0 || height <= 0) return
         val inset = dp(18).toFloat()
-        val top = dp(38).toFloat()
-        scale = min((width - inset * 2) / s.worldWidthM.toFloat(), (height - top - dp(22)) / s.worldHeightM.toFloat())
+        val top = dp(54).toFloat()
+        scale = min((width - inset * 2) / s.worldWidthM.toFloat(), (height - top - dp(44)) / s.worldHeightM.toFloat())
         originX = (width - s.worldWidthM.toFloat() * scale) / 2
         originY = top + s.worldHeightM.toFloat() * scale
         canvas.drawColor(Color.rgb(26, 29, 33))
@@ -126,7 +128,7 @@ class ParkingSceneView(context: Context) : View(context) {
             line(c, xs*w/2, ys*l/2, xs*(w/2-mark), ys*l/2, dp(4f), mint)
             line(c, xs*w/2, ys*l/2, xs*w/2, ys*(l/2-mark), dp(4f), mint)
         }
-        label(c, "목표", 0f, -l/2 - dp(8), dp(10f), mint, Paint.Align.CENTER)
+        label(c, "목표", 0f, -l/2 - dp(8), dp(14f), mint, Paint.Align.CENTER)
         label(c, "P", 0f, dp(7f), dp(23f), Color.argb(110, 119, 244, 193), Paint.Align.CENTER, true)
         c.restore()
     }
@@ -226,25 +228,25 @@ class ParkingSceneView(context: Context) : View(context) {
 
     private fun drawOverlay(c: Canvas, s: ParkingSnapshot) {
         val pad=dp(16f)
-        label(c,"주차 연습",pad,dp(23f),dp(11f),Color.rgb(157,169,176))
-        label(c,"IONIQ 3",width-pad,dp(23f),dp(11f),pale,Paint.Align.RIGHT,true)
-        val legendY=height-dp(10f)
+        label(c,"가상 주차장",pad,dp(32f),dp(18f),pale)
+        label(c,TrainingVehicle.NAME,width-pad,dp(32f),dp(18f),pale,Paint.Align.RIGHT,true)
+        val legendY=height-dp(16f)
         line(c,pad,legendY-dp(4),pad+dp(18),legendY-dp(4),dp(2f),mint)
-        label(c,"목표 구역",pad+dp(25),legendY,dp(10f),Color.rgb(167,180,183))
-        label(c,"가상 경로 · 실제 카메라 영상 아님",width-pad,legendY,dp(10f),Color.rgb(136,149,157),Paint.Align.RIGHT)
+        label(c,"목표 구역",pad+dp(25),legendY,dp(15f),pale)
+        label(c,"가상 경로",width-pad,legendY,dp(15f),pale,Paint.Align.RIGHT)
         if (s.clearanceM < .55 && !s.failed) {
             val text="가상 장애물에 가까워요"
-            paint.textSize=dp(12f); val tw=paint.measureText(text)
+            paint.textSize=PleosUi.canvasTextSize(context, dp(17f)); val tw=paint.measureText(text)
             paint.color=Color.argb(230,54,43,30)
-            c.drawRoundRect(width/2-tw/2-dp(12),dp(40f),width/2+tw/2+dp(12),dp(72f),dp(8f),dp(8f),paint)
-            label(c,text,width/2f,dp(61f),dp(12f),amber,Paint.Align.CENTER)
+            c.drawRoundRect(width/2-tw/2-dp(12),dp(50f),width/2+tw/2+dp(12),dp(96f),dp(8f),dp(8f),paint)
+            label(c,text,width/2f,dp(81f),dp(17f),amber,Paint.Align.CENTER)
         }
     }
 
     private fun drawPause(c: Canvas) {
         paint.color=Color.argb(130,8,11,13); c.drawRect(0f,0f,width.toFloat(),height.toFloat(),paint)
         label(c,"연습이 잠시 멈췄어요",width/2f,height/2f-dp(8f),dp(22f),Color.WHITE,Paint.Align.CENTER,true)
-        label(c,"이어하기를 누르면 같은 위치에서 시작합니다",width/2f,height/2f+dp(22f),dp(13f),Color.rgb(184,196,199),Paint.Align.CENTER)
+        label(c,"이어하기를 눌러 계속해요",width/2f,height/2f+dp(30f),dp(18f),pale,Paint.Align.CENTER)
     }
 
     private fun laneArrow(c: Canvas,x:Double,y:Double,degrees:Float) {
@@ -257,7 +259,7 @@ class ParkingSceneView(context: Context) : View(context) {
     }
 
     private fun label(c:Canvas,t:String,x:Float,y:Float,size:Float,color:Int,align:Paint.Align=Paint.Align.LEFT,bold:Boolean=false) {
-        paint.color=color;paint.style=Paint.Style.FILL;paint.textSize=size;paint.textAlign=align
+        paint.color=color;paint.style=Paint.Style.FILL;paint.textSize=PleosUi.canvasTextSize(context, size);paint.textAlign=align
         paint.typeface=if(bold)boldTypeface else regularTypeface
         c.drawText(t,x,y,paint);paint.textAlign=Paint.Align.LEFT
     }

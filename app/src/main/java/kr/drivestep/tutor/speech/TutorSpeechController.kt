@@ -609,9 +609,9 @@ class TutorSpeechController(
     }
 
     private fun sttFailure(error: SttError): String = when (error) {
-        SttError.PERMISSION_DENIED -> "Pleos 음성 권한이 없어요. STT_SERVICE 제공 여부를 확인해 주세요."
+        SttError.PERMISSION_DENIED -> "음성 인식을 사용할 수 없어요. 마이크와 음성 서비스 이용 권한을 확인해 주세요."
         SttError.UNAVAILABLE_LANGUAGE -> "기기 내 한국어 인식이 지원되지 않아요. 시험 입력을 사용할 수 있어요."
-        SttError.MIC_ERROR, SttError.AUDIO_ERROR -> "마이크를 사용할 수 없어요. 에뮬레이터 마이크 설정을 확인해 주세요."
+        SttError.MIC_ERROR, SttError.AUDIO_ERROR -> "마이크를 사용할 수 없어요. 마이크 연결과 이용 권한을 확인해 주세요."
         SttError.TIMEOUT -> "말씀을 확인하지 못해 대화를 마쳤어요. 대화 시작을 눌러 다시 말해 주세요."
         else -> "Pleos 음성 인식을 사용할 수 없어요 (${error.name}). 시험 입력으로 확인해 주세요."
     }

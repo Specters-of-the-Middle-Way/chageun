@@ -45,7 +45,7 @@ class WorkflowContractsTest {
     }
     @Test fun realVehicleHasNoInventedManualOrUnsupportedTrimFeature() {
         val repository = ManualRepository()
-        assertNull(repository.find(ManualVehicle("IONIQ 3", "2026", "unknown"), ManualFeature.SEAT_HEAT))
+        assertNull(repository.find(ManualVehicle("아반떼", "2026", "unknown"), ManualFeature.SEAT_HEAT))
         assertNull(repository.find(ManualRepository.DEMO_VEHICLE, ManualFeature.OTHER))
         val lesson = repository.find(ManualRepository.DEMO_VEHICLE, ManualFeature.DEFOG)!!
         assertEquals(InputSource.SIMULATION, lesson.source)

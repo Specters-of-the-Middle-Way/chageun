@@ -20,11 +20,11 @@ AI 코딩 에이전트(**Codex**, **Antigravity** 및 서브에이전트)는 작
 | **SDK / 빌드 환경** | `minSdk = 28`, `targetSdk = 35`, `compileSdk = 35`, JDK 17, Kotlin 2.0.0, AGP 8.8.2 |
 | **차량 라이브러리** | `useLibrary("android.car")` + `implementation("ai.pleos.playground:Vehicle:2.3.2")` |
 | **UI 스택** | 프로그래매틱 Android `View` / `LinearLayout` / `Canvas` + Pleos 공식 벡터 어댑터 (`PleosUi`, `PleosSwitch`, `PracticeButton`) — **Jetpack Compose 미사용** |
-| **기준 차량 제원** | 현대 IONIQ 3 유럽형 일반 차체 (`4,155 × 1,800 × 1,505 mm`, 축거 `2,680 mm`; 조향 반응은 별도 교육용 가정) |
+| **기준 차량 제원** | 현대 아반떼 CN7 스마트스트림 가솔린 1.6 일반형 (`4,710 × 1,825 × 1,420 mm`, 축거 `2,720 mm`; `vehicle/TrainingVehicle.kt`가 화면·주차 모델의 공통 기준이며 조향 반응은 별도 교육용 가정) |
 
 ---
 
-차체 제원 근거: [Hyundai Europe 공식 IONIQ 3 기술 제원](https://www.hyundai.news/uk/articles/press-releases/ioniq-3-unveil-milan-design-week-2026.html).
+차체 제원 근거: [현대자동차 아반떼 CN7 가솔린 1.6 공식 제원](https://www.hyundai.com/kr/ko/brand/brandstory/model/avante-history/2023-the-new-avante). 앱의 연습 기준 차량이며 에뮬레이터 기본 3D 차량이나 실제 SDK capability를 변경하지 않는다.
 
 ## 스킬 카탈로그 및 작업별 라우팅 가이드
 

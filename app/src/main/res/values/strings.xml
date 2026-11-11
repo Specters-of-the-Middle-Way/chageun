@@ -1,11 +1,18 @@
 <resources>
     <string name="app_name">차근</string>
+    <string name="vehicle_dimension_mm">%1$,d mm</string>
+    <string name="vehicle_parking_dimensions">%1$s  ·  %2$,d × %3$,d mm</string>
     <string name="app_brand_caption">%1$s   /   내 차 안의 옆자리 코치</string>
     <string name="journey_slider_value">%1$d %2$s</string>
     <string name="journey_setup_progress">운전 환경 %1$d/9  ·  %2$d개 확인</string>
     <string name="journey_setup_step">%1$d%2$s</string>
     <string name="connected_belt_state">안전벨트 버클: %1$s</string>
     <string name="connected_destination_state">목적지: %1$s · %2$s</string>
-    <string name="connected_turn_state">다음 안내: %1$s · %2$s m · %3$s</string>
-    <string name="connected_navigation_state">%1$s\n%2$s\n%3$s\n내비 정보는 수신 시각 기준이며 실제 차로·통행 가능 판정이 아니에요.</string>
+    <string name="connected_turn_state">다음 안내: %1$s · %2$s m</string>
+    <string name="connected_navigation_state">%1$s\n%2$s\n%3$s\n내비 안내와 함께 실제 도로 표지와 주변 상황을 확인해 주세요.</string>
+    <string name="road_gap_choice">%1$s%2$d%3$s</string>
+    <string name="road_lead_gap">\u0020· 가상 앞차 %1$.1fm</string>
+    <string name="road_lead_headway">\u0020· 시간 간격 %1$.1f초 (교육 목표 3초)</string>
+    <string name="road_lead_headway_stopped">\u0020· 정차·저속 시 시간 간격 미계산</string>
+    <string name="road_scenario_stats">가상 %1$.1fkm/h · 이동 %2$.1fm · 대기 %3$.1f초%4$s%5$s</string>
 </resources>

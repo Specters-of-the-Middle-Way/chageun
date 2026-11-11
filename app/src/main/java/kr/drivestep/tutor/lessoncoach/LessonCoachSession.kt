@@ -179,7 +179,7 @@ class LessonCoachSession(
         if (!TutorLlmPolicy.canUseWording(result, state)) return state
         val last = state.events.lastOrNull()
         if (last?.kind != LessonEventKind.GUIDANCE) return state
-        val title = if (result.provider == TutorLlmProvider.OPENAI) "AI 튜터 안내 · OpenAI" else "시험 응답 · 실제 LLM 아님"
+        val title = if (result.provider == TutorLlmProvider.OPENAI) "AI 튜터 안내 · OpenAI" else "연습용 예시 답변"
         state = state.copy(reply = result.text, cueRevision = ++cueSequence,
             events = state.events.dropLast(1) + last.copy(atMillis = now, title = title, detail = result.text))
         return state

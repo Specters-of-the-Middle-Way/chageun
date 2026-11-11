@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-feature android:name="android.hardware.type.automotive" android:required="true" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <uses-permission android:name="pleos.car.permission.CAR_LIGHTS" />
@@ -18,6 +19,7 @@
     <queries>
         <package android:name="ai.pleos.playground.service.location.fused" />
         <package android:name="ai.pleos.playground.caas" />
+        <package android:name="ai.umos.ambientai" />
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
@@ -34,10 +36,22 @@
         <!-- AAOS 14's modular car API is on the boot classpath, not a named shared library. -->
         <uses-library android:name="android.car" android:required="false" />
         <activity android:name=".MainActivity" android:exported="true"
+            android:launchMode="singleTop"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="CHECK_DEPARTURE_READINESS" />
+                <action android:name="GET_WEATHER_DRIVING_ADVICE" />
+                <action android:name="START_PARKING_PRACTICE" />
+                <action android:name="kr.drivestep.tutor.CHECK_DEPARTURE_READINESS" />
+                <action android:name="kr.drivestep.tutor.GET_WEATHER_DRIVING_ADVICE" />
+                <action android:name="kr.drivestep.tutor.START_PARKING_PRACTICE" />
+                <action android:name="TALK_WITH_DRIVING_COACH" />
+                <action android:name="kr.drivestep.tutor.TALK_WITH_DRIVING_COACH" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
     </application>

@@ -1,5 +1,6 @@
 package kr.drivestep.tutor.growth
 
+import kr.drivestep.tutor.design.PleosUi
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
@@ -466,7 +467,7 @@ class DrivingSceneView(context: Context) : View(context) {
 
     private fun text(c: Canvas, value: String, x: Float, y: Float, size: Float, color: Int,
                      bold: Boolean = false, align: Paint.Align = Paint.Align.LEFT) {
-        paint.style = Paint.Style.FILL; paint.color = color; paint.textSize = size
+        paint.style = Paint.Style.FILL; paint.color = color; paint.textSize = PleosUi.canvasTextSize(context, size)
         paint.typeface = if (bold) Typeface.create("sans-serif-medium", Typeface.NORMAL) else Typeface.DEFAULT
         paint.textAlign = align; paint.pathEffect = null
         c.drawText(value, x, y, paint)

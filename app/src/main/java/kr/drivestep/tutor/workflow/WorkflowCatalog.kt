@@ -6,7 +6,7 @@ object ScenarioCatalog {
     private const val REAL_UNKNOWN = "실제 도로·차선·주변 객체를 확인한 결과가 아니에요."
     val tasks = listOf(
         ScenarioTask("D01", "직진·차로 유지", "가속·브레이크와 조향으로 가상 차로 중앙을 유지하며 60m를 이동해요.", REAL_UNKNOWN, "D02"),
-        ScenarioTask("D02", "앞차와 거리 맞추기", "움직이는 가상 앞차를 보며 속도를 조절해요. 모의 간격 10m 이상을 유지하며 이동해요.", "실제 앞차 거리 입력은 미지원이에요.", "D03"),
+        ScenarioTask("D02", "앞차와 거리 맞추기", "움직이는 가상 앞차를 보며 속도를 조절해요. 교육 목표인 시간 간격 3초 이상을 유지하며 이동해요.", "이 연습에서는 3초 간격을 목표로 해요. 실제 앞차와의 거리나 안전 여부를 측정하지는 않아요.", "D03"),
         ScenarioTask("D03", "가속·감속·재출발", "가상 속도 10km/h에 도달한 뒤 브레이크로 멈추고 다시 출발해요.", "감속 이유를 자동으로 실수나 과실로 판단하지 않아요.", "D04"),
         ScenarioTask("D04", "방지턱 준비", "가상 40m 지점에 방지턱이 있어요. 모의 속도 10km/h 이하로 통과해요.", "실제 시설 정보나 차체 충격을 측정하지 않아요.", "D05"),
         ScenarioTask("D05", "교차로·신호 이해", "가상 정지선 30m 앞에서 멈춰요. 화면 신호가 녹색으로 바뀐 뒤 이동해요.", "이 신호는 작성된 교육 상황이며 실제 통행 허가가 아니에요.", "D06"),
@@ -26,13 +26,15 @@ object ScenarioCatalog {
     fun find(id: String) = tasks.find { it.id == id }
 }
 
-enum class ManualFeature(val title: String) { AC("에어컨"), HEAT("난방"), DEFOG("앞유리 김서림 제거"), SEAT_HEAT("열선"), OTHER("기타 기능") }
+enum class ManualFeature(val title: String) { AC("에어컨"), HEAT("난방"), DEFOG("앞유리 김서림 제거"), SEAT_HEAT("좌석 열선"),
+    WIPER("와이퍼·워셔"), LIGHTS("전조등"), REAR_DEFOG("뒷유리 열선"), OTHER("기타 기능") }
 data class ManualVehicle(val model: String, val year: String?, val trim: String?)
 data class ManualLesson(val feature: ManualFeature, val vehicle: ManualVehicle, val revision: String,
-    val section: String, val source: InputSource, val steps: List<String>)
-/** No manufacturer manual is bundled. The fixture is for an explicitly selected fictional training vehicle. */
+    val section: String, val source: InputSource, val steps: List<String>, val sourceUrl: String? = null)
+/** Exact reference selection is required; unverified models/years never fall back to another manual. */
 class ManualRepository {
     fun find(vehicle: ManualVehicle, feature: ManualFeature): ManualLesson? {
+        Cn7Manual.find(vehicle, feature)?.let { return it }
         if (vehicle != DEMO_VEHICLE || feature == ManualFeature.OTHER) return null
         val title = feature.title
         val purpose = when (feature) {
@@ -40,6 +42,9 @@ class ManualRepository {
             ManualFeature.HEAT -> "실내를 따뜻하게 하는 기능을 가상 패널로 익혀요."
             ManualFeature.DEFOG -> "앞유리의 김서림을 줄여 시야를 확보하는 기능을 가상 패널로 익혀요."
             ManualFeature.SEAT_HEAT -> "좌석을 따뜻하게 하는 기능을 가상 패널로 익혀요."
+            ManualFeature.WIPER -> "앞유리를 닦는 와이퍼와 워셔의 역할을 가상 패널로 익혀요."
+            ManualFeature.LIGHTS -> "전방 시야와 내 차의 위치를 알리는 등화의 역할을 가상 패널로 익혀요."
+            ManualFeature.REAR_DEFOG -> "뒷유리의 서리를 제거하는 열선의 역할을 가상 패널로 익혀요."
             ManualFeature.OTHER -> return null
         }
         return ManualLesson(feature, vehicle, "SIM-MANUAL-1", "가상 패널 / ${feature.name}", InputSource.SIMULATION,
@@ -54,9 +59,10 @@ class ManualLearningSession(val lesson: ManualLesson) {
     var index = 0; private set
     var learned = false; private set
     var simulatedOperation = false; private set
-    fun operate() { if (index == 2) simulatedOperation = true }
+    fun operate() { if (index == 2 && lesson.source == InputSource.SIMULATION) simulatedOperation = true }
     val current get() = lesson.steps[index]
     fun next() { if (index < lesson.steps.lastIndex) index++ }
     fun previous() { if (index > 0) index-- }
-    fun confirm() { if (index == lesson.steps.lastIndex && simulatedOperation) learned = true }
+    val canConfirm get() = index == lesson.steps.lastIndex && (lesson.source == InputSource.MANUAL || simulatedOperation)
+    fun confirm() { if (canConfirm) learned = true }
 }

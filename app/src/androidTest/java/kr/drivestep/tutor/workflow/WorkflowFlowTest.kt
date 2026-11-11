@@ -68,7 +68,7 @@ class WorkflowFlowTest {
         repeat(12){if(!has("journey_preflight_0"))click("journey_setup_confirm")}
         for(i in 0..6){val key="journey_preflight_$i";if(all().filterIsInstance<TextView>().none{it.contentDescription?.toString()==key&&it.text.contains("✓")})click(key)}
     }
-    private fun back(){activity.onActivity{it.onBackPressed()};SystemClock.sleep(100)}
+    private fun back(){InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK);SystemClock.sleep(100)}
     @Test(timeout=150_000) fun weatherManualCourseGateControlsReviewAndNewParkingWorkTogether() {
         assumeTrue(Build.FINGERPRINT.contains("generic")||Build.MODEL.contains("emulator",true)||Build.MODEL.contains("Car_on"))
         val target=InstrumentationRegistry.getInstrumentation().targetContext
@@ -83,8 +83,9 @@ class WorkflowFlowTest {
             click("journey_nav_profile");checked("journey_consent_records",false);checked("voice_toggle",true)
             click("coach_workflow")
             if(hasText("안내 재개"))click("workflow_mute")
-            click("workflow_weather");click("workflow_weather_retry");assertTrue(hasText("현재 날씨 미확인"))
-            click("workflow_weather_rain");assertTrue(hasText("SIMULATION"));click("workflow_weather_speak")
+            click("workflow_weather"); assertTrue(hasText("현재 날씨 미확인"))
+            click("workflow_weather_practice"); click("workflow_weather_retry")
+            click("workflow_weather_rain");assertTrue(hasText("가상 날씨 예시: 비"));click("workflow_weather_speak")
             eventually("No real SDK/fallback TTS start",15_000){hasText("음성 안내 중")}
             eventually("Weather advice must become non-repeatable after actual output starts"){
                 all().any{it.contentDescription?.toString()=="workflow_weather_speak"&&!it.isEnabled}
@@ -96,7 +97,7 @@ class WorkflowFlowTest {
             click("workflow_manual_next");click("workflow_manual_confirm");assertTrue(hasText("가상 학습 확인 완료"))
             click("workflow_home");click("workflow_courses");click("workflow_start_location");click("workflow_goal_weakness")
             click("workflow_route_sim-target");assertTrue(hasText("실제 내비 경로는 설정하지 않았어요"))
-            click("workflow_course_refresh");assertFalse(has("workflow_course_start"));click("workflow_route_sim-target")
+            click("workflow_course_refresh");assertTrue(all().any { it.contentDescription == "workflow_course_start" && !it.isEnabled });click("workflow_route_sim-target")
             click("workflow_course_start")
             eventually("Missing preparation gate"){has("journey_nav_profile")}
             assertFalse(has("workflow_gas"))
