@@ -44,7 +44,7 @@ class ParkingSceneView(context: Context) : View(context) {
         val key = "${value.gear}:${value.phase}:${value.insideTarget}:$paused"
         if (key != accessibilityKey) {
             accessibilityKey = key
-            contentDescription = "가상 주차장. ${if (value.course == ParkingCourse.REVERSE_BAY) "후진 주차" else "평행 주차"}, " +
+            contentDescription = "가상 주차장. ${value.course.title}, " +
                 "가상 기어 ${value.gear}, ${if (value.insideTarget) "화면의 목표 구역 안" else "목표 구역 밖"}. " +
                 if (this.paused) "일시정지 상태입니다." else "실제 카메라 영상이 아닙니다."
         }
@@ -94,7 +94,7 @@ class ParkingSceneView(context: Context) : View(context) {
         c.drawRoundRect(left, top, right, bottom, dp(8).toFloat(), dp(8).toFloat(), paint)
         paint.style = Paint.Style.FILL
         // The parking bay markings share the same dimensions and orientation as the engine.
-        if (s.course == ParkingCourse.REVERSE_BAY) {
+        if (s.course != ParkingCourse.PARALLEL) {
             for (x in doubleArrayOf(2.0, 5.0, 8.0, 11.0, 14.0)) {
                 val box = ParkingRect("line", x, s.targetBay.y, 3.0, s.targetBay.lengthM, 0.0)
                 bayOutline(c, box, Color.rgb(116, 121, 124), dp(1.5f), false)

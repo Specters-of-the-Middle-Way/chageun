@@ -3,7 +3,7 @@ package kr.drivestep.tutor.parking
 import kr.drivestep.tutor.coach.CoachCue
 import kotlin.math.*
 
-enum class ParkingCourse { REVERSE_BAY, PARALLEL }
+enum class ParkingCourse(val title: String) { REVERSE_BAY("후진 주차"), PARALLEL("평행 주차"), T_BAY("T자 후진 직각주차"), FRONT_BAY("전면 주차") }
 enum class ParkingGear { P, R, D }
 enum class ParkingPhase { PREPARE, MANEUVER, ALIGNED, COMPLETE, FAILED }
 enum class ParkingInterventionKind { BRAKE_FOR_GEAR, STOP_FOR_GEAR, SELECT_GEAR, FORWARD_FIRST, PROXIMITY, STOP_AND_P, ADJUST_POSITION, COLLISION, ROAD_EDGE }
@@ -143,12 +143,23 @@ class ParkingSimulationSession(val course: ParkingCourse) {
     private val vehicle = ParkingVehicleSpec()
     private val width = 16.0
     private val height = 20.0
-    private var pose = if (course == ParkingCourse.REVERSE_BAY) ParkingPose(8.0, 10.0, 0.0) else ParkingPose(8.2, 14.8, 0.0)
-    private val target = if (course == ParkingCourse.REVERSE_BAY) ParkingRect("target", 8.0, 4.0, 3.0, 5.6)
-        else ParkingRect("target", 11.5, 8.0, 3.2, 7.4)
-    private val obstacles = if (course == ParkingCourse.REVERSE_BAY) listOf(
-        ParkingRect("parked-left", 4.4, 4.1, 1.8, 4.3), ParkingRect("parked-right", 11.6, 4.1, 1.8, 4.3),
-    ) else listOf(ParkingRect("parked-front", 11.5, 15.0, 1.8, 4.3), ParkingRect("parked-rear", 11.5, 2.1, 1.8, 4.1))
+    private var pose = when (course) {
+        ParkingCourse.REVERSE_BAY -> ParkingPose(8.0, 10.0, 0.0)
+        ParkingCourse.PARALLEL -> ParkingPose(8.2, 14.8, 0.0)
+        ParkingCourse.T_BAY -> ParkingPose(10.0, 11.0, Math.PI / 2)
+        ParkingCourse.FRONT_BAY -> ParkingPose(3.0, 7.0, Math.PI / 2)
+    }
+    private val target = when (course) {
+        ParkingCourse.REVERSE_BAY -> ParkingRect("target", 8.0, 4.0, 3.0, 5.6)
+        ParkingCourse.PARALLEL -> ParkingRect("target", 11.5, 8.0, 3.2, 7.4)
+        ParkingCourse.T_BAY -> ParkingRect("target", 4.6, 4.0, 3.2, 6.0)
+        ParkingCourse.FRONT_BAY -> ParkingRect("target", 6.0, 14.0, 3.2, 5.8)
+    }
+    private val obstacles = if (course == ParkingCourse.PARALLEL)
+        listOf(ParkingRect("parked-front", 11.5, 15.0, 1.8, 4.3), ParkingRect("parked-rear", 11.5, 2.1, 1.8, 4.1))
+        else listOf(ParkingRect("parked-left", target.x - 3.6, target.y, 1.8, 4.3),
+            ParkingRect("parked-right", target.x + 3.6, target.y, 1.8, 4.3))
+    private var lastTravelGear: ParkingGear? = null
     private var gear = ParkingGear.P
     private var speed = 0.0
     private var steering = 0.0
@@ -160,7 +171,11 @@ class ParkingSimulationSession(val course: ParkingCourse) {
     private var paused = false
     private var movedReverse = false
     private var gearChanges = 0
-    private var coachCue = if (course == ParkingCourse.REVERSE_BAY) ParkingSimulationCues.START_REVERSE else ParkingSimulationCues.START_PARALLEL
+    private var coachCue = when (course) {
+        ParkingCourse.PARALLEL -> ParkingSimulationCues.START_PARALLEL
+        ParkingCourse.FRONT_BAY -> ParkingSimulationCues.SELECT
+        else -> ParkingSimulationCues.START_REVERSE
+    }
     private var revision = 1L
     private val interventions = mutableListOf<ParkingIntervention>()
     private val warned = mutableSetOf<ParkingInterventionKind>()
@@ -185,7 +200,7 @@ class ParkingSimulationSession(val course: ParkingCourse) {
             if (phase == ParkingPhase.PREPARE) phase = ParkingPhase.MANEUVER
             when (value) {
                 ParkingGear.R -> emit(if (course == ParkingCourse.PARALLEL && !movedReverse) ParkingSimulationCues.PARALLEL else ParkingSimulationCues.REVERSE)
-                ParkingGear.D -> if (!movedReverse) warn(ParkingInterventionKind.FORWARD_FIRST, ParkingSimulationCues.FORWARD_FIRST) else emit(ParkingSimulationCues.FORWARD)
+                ParkingGear.D -> if (!movedReverse && course != ParkingCourse.FRONT_BAY) warn(ParkingInterventionKind.FORWARD_FIRST, ParkingSimulationCues.FORWARD_FIRST) else emit(ParkingSimulationCues.FORWARD)
                 ParkingGear.P -> emit(if (fitsTarget()) ParkingSimulationCues.ALIGNED else ParkingSimulationCues.ADJUST)
             }
         }
@@ -235,7 +250,9 @@ class ParkingSimulationSession(val course: ParkingCourse) {
     fun finish(): ParkingSnapshot {
         if (locked()) return snapshot()
         if (gear != ParkingGear.P || abs(speed) > STOP_TOLERANCE_MPS) warn(ParkingInterventionKind.STOP_AND_P, ParkingSimulationCues.PARK)
-        else if (!fitsTarget() || distance < 0.5) warn(ParkingInterventionKind.ADJUST_POSITION, ParkingSimulationCues.ADJUST)
+        else if (!fitsTarget() || distance < 0.5 ||
+            (course == ParkingCourse.FRONT_BAY && lastTravelGear != ParkingGear.D) ||
+            (course == ParkingCourse.T_BAY && lastTravelGear != ParkingGear.R)) warn(ParkingInterventionKind.ADJUST_POSITION, ParkingSimulationCues.ADJUST)
         else {
             speed = 0.0; gas = 0.0; brake = 0.0; steering = 0.0
             phase = ParkingPhase.COMPLETE; emit(ParkingSimulationCues.COMPLETE)
@@ -257,6 +274,7 @@ class ParkingSimulationSession(val course: ParkingCourse) {
         if (abs(ds) > 0.000001) {
             pose = moved(pose, ds, steering)
             distance += abs(ds)
+            if (abs(ds) > 0.000001) lastTravelGear = gear
             if (ds < 0) movedReverse = true
             if (hypot(pose.x-trail.last().x, pose.y-trail.last().y) >= 0.12) {
                 trail += ParkingPoint(pose.x, pose.y)
@@ -326,7 +344,7 @@ class ParkingSimulationSession(val course: ParkingCourse) {
     }
     private fun emit(cue: CoachCue) { if (coachCue.id != cue.id) { coachCue = cue; revision++ } }
     private fun reflections(): List<String> = buildList {
-        add("가상 ${if (course == ParkingCourse.REVERSE_BAY) "후진" else "평행"} 주차에서 ${String.format(java.util.Locale.ROOT, "%.1f", distance)}m를 직접 조작했어요.")
+        add("가상 ${course.title}에서 ${String.format(java.util.Locale.ROOT, "%.1f", distance)}m를 직접 조작했어요.")
         add("정지·브레이크 조건을 확인한 기어 변경은 ${gearChanges}회예요.")
         if (phase == ParkingPhase.COMPLETE) add("화면 속 차체의 위치·방향을 맞추고, P에서 완료를 눌렀어요.")
         else if (phase == ParkingPhase.FAILED) add("가상 차체 겹침 또는 연습장 이탈로 중단했어요. 새 연습에서 다시 시도해요.")

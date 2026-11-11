@@ -22,6 +22,7 @@ import kr.drivestep.tutor.simulator.DrivingSimulatorView
 import kr.drivestep.tutor.parking.ParkingSimulatorView
 import kr.drivestep.tutor.journey.DriverJourneyView
 import kr.drivestep.tutor.journey.JourneyDestination
+import kr.drivestep.tutor.workflow.WorkflowView
 import kr.drivestep.tutor.lessoncoach.LessonCoachView
 import kr.drivestep.tutor.lessoncoach.LessonInputCoordinator
 import kr.drivestep.tutor.coach.*
@@ -35,7 +36,8 @@ import java.util.UUID
 import java.util.concurrent.Executors
 
 class MainActivity : Activity() {
-    private enum class Screen { COACH, LESSON, SIMULATOR, PARK_SIM, SITUATION, RIDE, HOME, HOW_TO, PRACTICE, REVIEW, PARKING, STEERING_SETUP, STEERING, GROWTH }
+    private enum class Screen { COACH, WORKFLOW, LESSON, SIMULATOR, PARK_SIM, SITUATION, RIDE, HOME, HOW_TO, PRACTICE, REVIEW, PARKING, STEERING_SETUP, STEERING, GROWTH }
+    private lateinit var workflow: WorkflowView
     private lateinit var lesson: LessonCoachView
     private lateinit var lessonInputs: LessonInputCoordinator
     private lateinit var growth: GrowthTutorView
@@ -144,6 +146,11 @@ class MainActivity : Activity() {
                 if (live && !hasSpeedPermission()) requestPermissions(arrayOf("android.car.permission.CAR_SPEED"), 31)
                 syncLessonInputs()
             })
+        workflow = WorkflowView(this, onExit = { screen = Screen.COACH; render() },
+            onPrepare = { journey.requestPreparation(); screen = Screen.COACH; render() },
+            onParking = { openDestination(JourneyDestination.PARKING) },
+            onLaneChange = { openDestination(JourneyDestination.DRIVE) },
+            canPractice = { journey.canPractice }, recordEnabled = { journey.recordEnabled })
         render()
         io.execute {
             try {
@@ -171,6 +178,7 @@ class MainActivity : Activity() {
             gateMessage = message
             voice.setActive(allowed && foreground && (screen !in setOf(Screen.SIMULATOR, Screen.PARK_SIM) || resumed))
             if (!allowed) {
+                workflow.setActive(false)
                 lesson.setActive(false)
                 lessonInputs.stop()
                 interrupt("DRIVING_RESTRICTION")
@@ -199,6 +207,7 @@ class MainActivity : Activity() {
 
     override fun onPause() {
         resumed = false
+        workflow.setActive(false)
         lesson.setActive(false)
         lessonInputs.stop()
         simulator.setActive(false)
@@ -212,6 +221,7 @@ class MainActivity : Activity() {
 
     override fun onStop() {
         foreground = false
+        workflow.setActive(false)
         lesson.setActive(false)
         lessonInputs.stop()
         growth.setActive(false)
@@ -233,6 +243,7 @@ class MainActivity : Activity() {
 
     override fun onDestroy() {
         lessonInputs.close()
+        workflow.close()
         lesson.close()
         ride.close()
         situation.close()
@@ -255,6 +266,7 @@ class MainActivity : Activity() {
     @Deprecated("Legacy Activity back callback")
     override fun onBackPressed() {
         if (screen == Screen.COACH) { if (!journey.goBack()) super.onBackPressed() }
+        else if (screen == Screen.WORKFLOW) { if (!workflow.goBack()) { screen = Screen.COACH; render() } }
         else if (screen == Screen.LESSON) { if (!lesson.goBack()) { screen = Screen.COACH; render() } }
         else if (screen == Screen.PARK_SIM) { if (!parkingSimulator.goBack()) returnFromPractice(JourneyDestination.PARKING) }
         else if (screen == Screen.SIMULATOR) { if (!simulator.goBack()) returnFromPractice(JourneyDestination.DRIVE) }
@@ -401,7 +413,10 @@ class MainActivity : Activity() {
 
     private fun renderContent() {
         if (isDestroyed) return
-        if (!::emulatorControls.isInitialized || !::steering.isInitialized || !::growth.isInitialized || !::ride.isInitialized || !::situation.isInitialized || !::simulator.isInitialized || !::parkingSimulator.isInitialized || !::journey.isInitialized || !::lesson.isInitialized) return
+        if (!::emulatorControls.isInitialized || !::steering.isInitialized || !::growth.isInitialized || !::ride.isInitialized || !::situation.isInitialized || !::simulator.isInitialized || !::parkingSimulator.isInitialized || !::journey.isInitialized || !::lesson.isInitialized || !::workflow.isInitialized) return
+        journey.setSpeechEnabled(voiceEnabled)
+        workflow.setSpeechEnabled(voiceEnabled)
+        workflow.setActive(foreground && resumed && parked && screen == Screen.WORKFLOW)
         lesson.setSpeechEnabled(voiceEnabled)
         lesson.setActive(foreground && resumed && parked && screen == Screen.LESSON)
         syncLessonInputs()
@@ -415,6 +430,7 @@ class MainActivity : Activity() {
         // Replacing it would cancel a held pedal or restart its simulation ticker.
         if (foreground && parked && renderedScreen == screen &&
             ((screen == Screen.RIDE && ride.isAttachedToWindow) || (screen == Screen.SITUATION && situation.isAttachedToWindow) ||
+                (screen == Screen.WORKFLOW && workflow.isAttachedToWindow) ||
                 (screen == Screen.LESSON && lesson.isAttachedToWindow) ||
                 (screen == Screen.SIMULATOR && simulator.isAttachedToWindow) ||
                 (screen == Screen.PARK_SIM && parkingSimulator.isAttachedToWindow) ||
@@ -425,7 +441,7 @@ class MainActivity : Activity() {
         }
         if (!foreground || !parked || screen !in setOf(Screen.HOW_TO, Screen.PRACTICE, Screen.STEERING_SETUP, Screen.STEERING) ||
             (screen == Screen.STEERING && (steeringReview != null || steering.snapshot?.isTerminal == true))) emulatorControls.stop()
-        if (parked && screen in setOf(Screen.COACH, Screen.LESSON, Screen.SIMULATOR, Screen.PARK_SIM)) {
+        if (parked && screen in setOf(Screen.COACH, Screen.WORKFLOW, Screen.LESSON, Screen.SIMULATOR, Screen.PARK_SIM)) {
             renderSimulator()
             return
         }
@@ -455,8 +471,8 @@ class MainActivity : Activity() {
         voiceControls(content)
         gap(content, 12)
         when (screen) {
-            Screen.COACH -> coachHome(content)
-            Screen.LESSON, Screen.SIMULATOR, Screen.PARK_SIM -> Unit // Mounted without a ScrollView above.
+            Screen.COACH -> Unit // The primary journey is mounted above.
+            Screen.WORKFLOW, Screen.LESSON, Screen.SIMULATOR, Screen.PARK_SIM -> Unit // Mounted without a ScrollView above.
             Screen.SITUATION -> {
                 (situation.parent as? android.view.ViewGroup)?.removeView(situation)
                 content.addView(situation)
@@ -494,63 +510,6 @@ class MainActivity : Activity() {
         scroll.post { scroll.scrollTo(0, savedScroll) }
     }
 
-    private fun coachHome(parent: LinearLayout) {
-        val hero = card(parent, ink)
-        hero.addView(text("혼자 운전하기 전, 옆자리에서 함께", 17, Color.rgb(155, 224, 201)))
-        gap(hero, 6)
-        hero.addView(text("제가 알려드릴게요.\n직접 해 보면서 익혀요.", 32, Color.WHITE, true))
-        gap(hero, 8)
-        hero.addView(text("조작법을 듣고 → 직접 조작하고 → 코치의 피드백을 받아요.\n서두르지 않아도 괜찮아요. 익숙해질 때까지 함께 연습해요.", 18, Color.rgb(221, 234, 232)))
-        hero.addView(button("도로를 보며 직접 연습 · 차로 변경", "coach_simulator") {
-            voice.stop(); currentCue = null; screen = Screen.SIMULATOR; render()
-        })
-        hero.addView(text("운전자 시점 · 움직이는 주변 차량 · 미러 확인 · 핸들 조작 · 옆자리 음성 코치", 15, Color.rgb(221, 234, 232)))
-        gap(parent, 14)
-        val wide = resources.configuration.screenWidthDp >= 900
-        val row = LinearLayout(this).apply { orientation = if (wide) LinearLayout.HORIZONTAL else LinearLayout.VERTICAL }
-        parent.addView(row)
-        val actual = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        val virtual = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        row.addView(actual, if (wide) LinearLayout.LayoutParams(0, -2, 1f) else LinearLayout.LayoutParams(-1, -2))
-        row.addView(virtual, if (wide) LinearLayout.LayoutParams(0, -2, 1f).apply { leftMargin = dp(14) } else LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(14) })
-        val a = card(actual)
-        a.addView(text("01  내 차의 조작부터", 23, ink, true))
-        a.addView(text("P·정차 상태의 조작 연수\n레버·핸들 신호를 받고, 다음 조작을 음성으로 안내해요.", 16, muted))
-        a.addView(button("방향지시등 · 코치와 시작", "coach_signal", databaseReady && !lastWriteError && sourceStatus.state == SourceState.READY) {
-            returnToCoach = true; screen = Screen.HOW_TO; offerCue(OperationGuide.introduction); render()
-        })
-        a.addView(button("핸들 · 코치와 시작", "coach_steering", secondary = true) {
-            returnToCoach = true; voice.stop(); currentCue = null; steeringReview = null
-            screen = Screen.STEERING_SETUP; if (hasSpeedPermission() && journey.vehicleDataEnabled) steering.connect(); render()
-        })
-        a.addView(button("처음이라면 · 시트와 미러 맞추기", "coach_setup", secondary = true) {
-            voice.stop(); currentCue = null; screen = Screen.GROWTH; render(); growth.openSetup()
-        })
-        a.addView(text(if (sourceStatus.state == SourceState.READY) "● 차량 신호 연결됨 · 조작하면 코치가 반응해요" else sourceStatus.message, 14, teal))
-        val b = card(virtual, soft)
-        b.addView(text("02  움직이며 연수하는 느낌", 23, ink, true))
-        b.addView(text("정차 중 가상 주행 체험\n가속·제동·핸들을 직접 움직이면 상황에 맞춰 코치가 반응해요.", 16, muted))
-        b.addView(button("조작형 연수 체험 열기", "coach_ride") {
-            voice.stop(); currentCue = null; screen = Screen.RIDE; render()
-        })
-        gap(b, 8)
-        b.addView(text("실제 차는 움직이지 않아요. 화면 속 페달·기어·핸들로 출발과 정지, 횡단보도 앞 대기를 체험합니다.", 16, ink))
-        gap(b, 8)
-        b.addView(text("앞으로: 실제 주행 상황을 읽는 음성 코치\n주변 인식 데이터와 주행 중 사용 범위를 먼저 확인해야 합니다.", 14, muted))
-        gap(parent, 14)
-        val links = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
-        parent.addView(links)
-        links.addView(button("내 조작 기록 · 복습", "coach_sdk", secondary = true) {
-            returnToCoach = false; voice.stop(); currentCue = null; screen = Screen.HOME; render()
-        }, LinearLayout.LayoutParams(0, dp(56), 1f).apply { rightMargin = dp(10) })
-        links.addView(button("기존 교통상식 학습 자료", "coach_reference", secondary = true) {
-            voice.stop(); currentCue = null; growth.openLibrary(); screen = Screen.GROWTH; render()
-        }, LinearLayout.LayoutParams(0, dp(56), 1f))
-        parent.addView(button("상황 감지 변수 확인 · 개발용", "coach_situation", secondary = true) {
-            voice.stop(); currentCue = null; screen = Screen.SITUATION; render()
-        })
-    }
-
     /** Preserve the platform's system bars; dedicate the app viewport to the road. */
     private fun renderSimulator() {
         rootScroll = null
@@ -578,6 +537,9 @@ class MainActivity : Activity() {
             gravity = Gravity.CENTER
         }, LinearLayout.LayoutParams(dp(110), dp(64)))
         if (screen == Screen.COACH) {
+            bar.addView(button("준비와 연습", "coach_workflow", secondary = true) {
+                voice.stop(); currentCue = null; workflow.openHome(); screen = Screen.WORKFLOW; render()
+            }, LinearLayout.LayoutParams(dp(160), dp(64)).apply { marginEnd = dp(12) })
             bar.addView(button("함께하는 연수", "coach_lesson", secondary = true) {
                 voice.stop(); currentCue = null; screen = Screen.LESSON; render()
             }, LinearLayout.LayoutParams(dp(180), dp(64)).apply { marginEnd = dp(12) })
@@ -602,12 +564,12 @@ class MainActivity : Activity() {
         PleosUi.decorate(repeat)
         PleosUi.prefix(repeat, "sound", 24)
         voiceRepeatButton = repeat
-        if (screen == Screen.LESSON) repeat.visibility = View.GONE
+        if (screen in setOf(Screen.LESSON, Screen.WORKFLOW)) repeat.visibility = View.GONE
         bar.addView(repeat, LinearLayout.LayoutParams(dp(164), dp(64)))
         content.addView(bar)
-        val surface = when (screen) { Screen.COACH -> journey; Screen.LESSON -> lesson; Screen.PARK_SIM -> parkingSimulator; else -> simulator }
+        val surface = when (screen) { Screen.COACH -> journey; Screen.WORKFLOW -> workflow; Screen.LESSON -> lesson; Screen.PARK_SIM -> parkingSimulator; else -> simulator }
         (surface.parent as? android.view.ViewGroup)?.removeView(surface)
-        if (screen == Screen.LESSON) {
+        if (screen in setOf(Screen.LESSON, Screen.WORKFLOW)) {
             val scroll = ScrollView(this).apply {
                 isFillViewport = true
                 addView(surface, FrameLayout.LayoutParams(-1, -2))
@@ -638,6 +600,7 @@ class MainActivity : Activity() {
         if (destination in setOf(JourneyDestination.DRIVE, JourneyDestination.PARKING) && !journey.canPractice) return
         voice.stop(); currentCue = null; returnToCoach = true
         screen = when (destination) {
+            JourneyDestination.WORKFLOW -> { workflow.openHome(); Screen.WORKFLOW }
             JourneyDestination.LESSON -> Screen.LESSON
             JourneyDestination.DRIVE -> Screen.SIMULATOR
             JourneyDestination.PARKING -> Screen.PARK_SIM
@@ -652,9 +615,6 @@ class MainActivity : Activity() {
     private fun home(parent: LinearLayout) {
         parent.addView(button("옆자리 코치로 돌아가기", "coach_home", secondary = true) {
             voice.stop(); currentCue = null; screen = Screen.COACH; render()
-        })
-        parent.addView(button("성장 튜터로 돌아가기", "growth_home", secondary = true) {
-            voice.stop(); currentCue = null; growth.openLibrary(); screen = Screen.GROWTH; render()
         })
         gap(parent, 12)
         val wide = resources.configuration.screenWidthDp >= 900

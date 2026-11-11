@@ -2,7 +2,7 @@ package kr.drivestep.tutor.journey
 
 import kotlin.math.roundToInt
 
-enum class JourneyDestination { DRIVE, PARKING, SIGNAL, STEERING, LEGACY, CONTEXT, LESSON }
+enum class JourneyDestination { DRIVE, PARKING, SIGNAL, STEERING, LEGACY, CONTEXT, LESSON, WORKFLOW }
 enum class JourneyStep { PROFILE, REVISIT, SETUP, PREFLIGHT, PRACTICE, EDUCATION, REVIEW }
 enum class CalibrationAxis { FORE_AFT, HEIGHT, BACKREST, STEERING }
 
@@ -28,6 +28,11 @@ data class DriverProfile(
     val guidance: String = "차근차근",
     val difficulty: String = "주차",
 ) {
+    fun validationErrors(): List<String> = buildList {
+        if (heightCm !in 150..200) add("키는 cm 단위 150~200 범위로 입력해 주세요.")
+        if (weightKg !in 50..110) add("체중은 kg 단위 50~110 범위로 입력해 주세요.")
+        if (confidence !in 1..5) add("자신감은 1~5 범위로 선택해 주세요.")
+    }
     fun validated() = copy(
         heightCm = heightCm.coerceIn(150, 200),
         weightKg = weightKg.coerceIn(50, 110),
@@ -98,12 +103,14 @@ class JourneyState(
     var vehicleConsent: Boolean = false,
 ) {
     var profile = profile.validated(); private set
+    var profileInputError: String? = if (profile.validationErrors().isNotEmpty()) "저장된 프로필의 범위가 맞지 않아 화면 값을 조정했어요. 키·체중을 직접 다시 확인해 주세요." else null
+        private set
     var calibration = calibration; private set
-    var profileConfirmed = profileConfirmed; private set
-    private val setup = MutableList(SETUP_COUNT) { setupChecks.getOrElse(it) { false } }
+    var profileConfirmed = profileConfirmed && profile.validationErrors().isEmpty(); private set
+    private val setup = MutableList(SETUP_COUNT) { profile.validationErrors().isEmpty() && setupChecks.getOrElse(it) { false } }
     private val preflight = MutableList(PREFLIGHT_COUNT) { false }
-    var consentReviewed = profileConfirmed; private set
-    var page = if (profileConfirmed) JourneyStep.REVISIT else JourneyStep.PROFILE
+    var consentReviewed = this.profileConfirmed; private set
+    var page = if (this.profileConfirmed) JourneyStep.REVISIT else JourneyStep.PROFILE
         private set
     var setupIndex = setup.indexOfFirst { !it }.takeIf { it >= 0 } ?: 0
         private set
@@ -117,13 +124,17 @@ class JourneyState(
     fun preflightChecks(): List<Boolean> = preflight.toList()
     fun guideBand(axis: CalibrationAxis): PostureGuideBand = profile.guideBand(axis)
 
-    fun updateProfile(next: DriverProfile) {
-        val safe = next.validated()
+    fun updateProfile(next: DriverProfile): Boolean {
+        val errors = next.validationErrors()
+        if (errors.isNotEmpty()) { profileInputError = errors.joinToString("\n"); return false }
+        profileInputError = null
+        val safe = next
         if (profile.heightCm != safe.heightCm || profile.weightKg != safe.weightKg) {
             setup.fill(false)
             preflight.fill(false)
         }
         profile = safe
+        return true
     }
 
     fun confirmProfile() {

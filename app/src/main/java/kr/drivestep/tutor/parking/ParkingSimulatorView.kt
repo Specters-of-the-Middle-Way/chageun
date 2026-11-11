@@ -177,15 +177,23 @@ class ParkingSimulatorView(
         val courses=row(this,if(compact)54 else 64)
         courses.addView(button("후진 주차","park_course_reverse",selected!=ParkingCourse.REVERSE_BAY){ select(ParkingCourse.REVERSE_BAY) },weight(if(compact)48 else 56))
         courses.addView(button("평행 주차","park_course_parallel",selected!=ParkingCourse.PARALLEL){ select(ParkingCourse.PARALLEL) },weight(if(compact)48 else 56))
+        courses.addView(button("T자 주차","park_course_t_bay",selected!=ParkingCourse.T_BAY){ select(ParkingCourse.T_BAY) },weight(if(compact)48 else 56))
+        courses.addView(button("전면 주차","park_course_front_bay",selected!=ParkingCourse.FRONT_BAY){ select(ParkingCourse.FRONT_BAY) },weight(if(compact)48 else 56))
 
+        addView(label("이중 주차: 의미·장소 조건 미확정 · 조작 안내는 제공하지 않아요. 후·측방 실제 거리 센서: 미지원.",12,muted),full(28))
         val body=LinearLayout(context).apply { orientation=HORIZONTAL }
         addView(body,LayoutParams(-1,0,1f).apply { topMargin=dp(8);bottomMargin=dp(10) })
         val preview=ParkingSceneView(context).apply { update(ParkingSimulationSession(selected).snapshot(),false) }
         body.addView(preview,LayoutParams(0,-1,1f).apply { marginEnd=dp(14) })
         val info=column(body,if(compact)270 else 298)
-        info.addView(label(if(selected==ParkingCourse.REVERSE_BAY)"후진 주차" else "평행 주차",12,accent,true),full(if(compact)24 else 30))
+        info.addView(label(courseName(selected),12,accent,true),full(if(compact)24 else 30))
         info.addView(label(if(selected==ParkingCourse.REVERSE_BAY)"기어와 속도 조절" else "조향과 위치 조절",if(compact)21 else 25,ink,true),full(if(compact)58 else 84))
-        info.addView(label(if(selected==ParkingCourse.REVERSE_BAY)"브레이크로 멈추고 R을 선택합니다. 후진하며 위치를 맞춘 뒤 P로 마무리해요." else "R·D와 핸들을 직접 조작하며 두 차량 사이의 목표 구역에 위치를 맞춰요.",if(compact)14 else 16,muted).apply { maxLines=5 },full(if(compact)68 else 106))
+        info.addView(label(when(selected){
+            ParkingCourse.REVERSE_BAY -> "브레이크로 멈추고 R을 선택합니다. 후진하며 위치를 맞춘 뒤 P로 마무리해요."
+            ParkingCourse.PARALLEL -> "R·D와 핸들을 직접 조작하며 두 차량 사이의 목표 구역에 위치를 맞춰요."
+            ParkingCourse.T_BAY -> "T자를 후진 직각주차로 해석한 가상 코스예요. R과 조향으로 방향을 바꾸고 후진 정렬해요."
+            ParkingCourse.FRONT_BAY -> "D와 조향으로 가상 주차 구역을 향해 전진해요. 전진 진입·정렬 후 정지·P로 마무리해요."
+        },if(compact)14 else 16,muted).apply { maxLines=5 },full(if(compact)68 else 106))
         info.addView(divider(),full(1))
         if(!compact)listOf("기어 변경은 정지 + 브레이크","핸들 입력은 중앙 버튼으로 복귀","속도는 화면 속 최대 5 km/h").forEachIndexed { i,text ->
             val r=row(info,46);r.addView(label("0${i+1}",13,accent,true),fixed(30,40));r.addView(label(text,14,ink),weight())
@@ -496,7 +504,7 @@ class ParkingSimulatorView(
     private fun full(height:Int)=LayoutParams(-1,if(height<0)height else dp(height))
     private fun gap(parent:LinearLayout,height:Int){parent.addView(View(context),full(height))}
     private fun dp(v:Int)=(v*resources.displayMetrics.density).roundToInt()
-    private fun courseName(c:ParkingCourse)=if(c==ParkingCourse.REVERSE_BAY)"후진 주차" else "평행 주차"
+    private fun courseName(c:ParkingCourse)=c.title
     private fun date(millis:Long)=SimpleDateFormat("M월 d일 HH:mm",Locale.KOREA).format(Date(millis))
     private fun TextView.setTextIfChanged(value:String){if(text.toString()!=value)text=value}
 }

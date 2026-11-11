@@ -15,6 +15,7 @@ import android.widget.ImageView
 import android.widget.ScrollView
 import android.widget.SeekBar
 import android.widget.TextView
+import kr.drivestep.tutor.speech.TutorSpeechController
 import kr.drivestep.tutor.R
 import kr.drivestep.tutor.design.PleosUi
 import kr.drivestep.tutor.design.PleosSwitch
@@ -53,6 +54,14 @@ class DriverJourneyView(
     private var dialog: AlertDialog? = null
     private var content: LinearLayout? = null
     private var lastPage: JourneyStep? = null
+    private var speechContext: String? = null
+    private var setupSpeechLabel: TextView? = null
+    private var setupSpeechStatus = "음성으로 듣기를 누르면 현재 단계의 안내를 읽어요."
+    private val setupSpeech = TutorSpeechController(context, onTranscript = {}, onStatus = {
+        setupSpeechStatus = if (it.contains("대화 시작")) "음성 안내를 껐어요. 화면에서 설명을 확인할 수 있어요." else it.replace("음성 입력과 안내", "음성 안내")
+        setupSpeechLabel?.text = setupSpeechStatus
+    })
+    fun setSpeechEnabled(value: Boolean) { setupSpeech.setEnabled(value) }
 
     val recordEnabled: Boolean get() = state.recordConsent
     val vehicleDataEnabled: Boolean get() = state.vehicleConsent
@@ -67,16 +76,19 @@ class DriverJourneyView(
     fun setActive(value: Boolean) {
         if (closed || active == value) return
         active = value
+        setupSpeech.setActive(value)
         if (!value) { dialog?.dismiss(); dialog = null }
         updateEnabled()
     }
+
+    fun requestPreparation() { state.enterPreflight(); render() }
 
     fun beginVisit() {
         state.newVisit()
         render()
     }
 
-    fun close() { closed = true; active = false; dialog?.dismiss(); dialog = null }
+    fun close() { setupSpeech.close(); closed = true; active = false; dialog?.dismiss(); dialog = null }
 
     fun onReturnFromPractice(destination: JourneyDestination? = null) {
         lastPractice = destination ?: lastPractice
@@ -97,6 +109,9 @@ class DriverJourneyView(
     }
 
     private fun render() {
+        val nextSpeechContext = "${state.page}:${state.setupIndex}"
+        if (speechContext != nextSpeechContext) { setupSpeech.stop(); speechContext = nextSpeechContext }
+        setupSpeechLabel = null
         removeAllViews(); enabledControls.clear()
         val side = LinearLayout(context).apply {
             orientation = VERTICAL; setPadding(dp(16), dp(20), dp(16), dp(16))
@@ -161,6 +176,7 @@ class DriverJourneyView(
 
     private fun profilePage(parent: LinearLayout) {
         heading(parent, "", "운전자 설정", "체격과 운전 경험을 확인하고 운전 환경을 준비하세요.")
+        state.profileInputError?.let { parent.addView(label(it, 17, grey), full(56)) }
         val row = horizontal(parent, 0, 1f)
         val car = LinearLayout(context).apply {
             orientation = VERTICAL; setPadding(dp(24), dp(16), dp(24), dp(18)); background = shape(panel, 16)
@@ -176,8 +192,6 @@ class DriverJourneyView(
         specRow(car, "전고", "1,505 mm")
         specRow(car, "축거", "2,680 mm")
         gap(car, 14)
-        car.addView(label("대표 데모 180 cm · 75~80 kg\n남성 · 동아시아인", 16, grey), full(50))
-        car.addView(label("성별·인종을 보정 계수로 사용하지 않아요.", 14, grey), full(36))
         car.addView(View(context), LayoutParams(1, 0, 1f))
         divider(car)
         consentRow(car, "프로필·연습 기록", "이 기기에 저장", "journey_consent_records", state.recordConsent) {
@@ -253,6 +267,9 @@ class DriverJourneyView(
         gap(reference, 8)
         reference.addView(label(step.first, 20, white, true).apply { gravity = Gravity.CENTER }, full(32))
         reference.addView(label("${state.profile.heightCm} cm · ${state.profile.weightKg} kg", 16, grey).apply { gravity = Gravity.CENTER }, full(26))
+        gap(reference, 16)
+        reference.addView(button("음성으로 듣기", "journey_setup_speak") { setupSpeech.speak(step.first + ". " + step.second) }, full(64))
+        setupSpeechLabel = label(setupSpeechStatus, 14, grey).also { reference.addView(it, full(80)) }
         val guideView = PostureGuideView(context).apply { update(index, state.profile, state.calibration) }
         val info = LinearLayout(context).apply { orientation = VERTICAL }
         row.addView(info, LayoutParams(0, -1, 1f))
@@ -334,8 +351,9 @@ class DriverJourneyView(
         heading(parent, "", "연습 선택", "IONIQ 3  ·  ${if (recordEnabled) "연습 기록 저장 켜짐" else "연습 기록 저장 꺼짐"}")
         val list = LinearLayout(context).apply { orientation = VERTICAL }
         parent.addView(list, LayoutParams(-1, 0, 1f))
+        practiceRow(list, "menu", "준비와 연습", "날씨 · 차량 기능 · 목표별 가상 코스 · 18개 과제", "journey_start_workflow") { launch(JourneyDestination.WORKFLOW) }
         practiceRow(list, "driving", "차로 변경", "방향지시등 · 미러 확인 · 조향", "journey_start_drive") { launch(JourneyDestination.DRIVE) }
-        practiceRow(list, "vehicle", "주차", "후진 주차 · 평행 주차", "journey_start_parking") { launch(JourneyDestination.PARKING) }
+        practiceRow(list, "vehicle", "주차", "후진 · T자 · 평행 · 전면 주차", "journey_start_parking") { launch(JourneyDestination.PARKING) }
         practiceRow(list, "sound", "함께하는 연수", "짧은 대화 · 다음 상황 준비 · 조작 복습", "journey_start_lesson") { launch(JourneyDestination.LESSON) }
         gap(parent, 16)
         val status = horizontal(parent, 64)
@@ -371,8 +389,7 @@ class DriverJourneyView(
         }
         educationTile(list, "방향지시등 조작", "차량 SDK 신호로 직접 확인하는 기초 실습", "journey_sdk_signal") { requestVehicleLesson(JourneyDestination.SIGNAL) }
         educationTile(list, "핸들 조작", "P·정차 상태에서 조향 신호를 확인해요", "journey_sdk_steering") { requestVehicleLesson(JourneyDestination.STEERING) }
-        educationTile(list, "기존 학습 자료", "교통상식·주차 순서를 다시 확인해요", "journey_legacy") { launch(JourneyDestination.LEGACY, requireReady = false) }
-        educationTile(list, "상황 감지 변수", "개발용 가상 입력으로 반응 조건을 확인해요", "journey_context") { launch(JourneyDestination.CONTEXT, requireReady = false) }
+        educationTile(list, "날씨·차량 기능·가상 코스", "준비와 학습, 목표별 조작 연습을 연결해요", "journey_workflow") { launch(JourneyDestination.WORKFLOW, requireReady = false) }
         educationTile(list, "함께하는 연수", "대화와 준비 안내를 연결하고 조작 기록을 복습해요", "journey_lesson") { launch(JourneyDestination.LESSON, requireReady = false) }
         gap(parent, 12)
         parent.addView(button(if (state.canPractice) "연습 선택으로" else "준비하던 단계로", "journey_education_back", selected = true) {
@@ -386,7 +403,7 @@ class DriverJourneyView(
         val learned = prefs.getStringSet("education", emptySet())?.size ?: 0
         metric(row, "학습 완료", "$learned 개", "정차 중 교육 확인")
         metric(row, "내 자신감", "${state.profile.confidence} / 5", "내가 응답한 값")
-        metric(row, "운전 숙련도", "평가 중", "검증된 수행 근거 필요")
+        metric(row, "운전 숙련도", "미평가", "검증된 수행 근거 필요")
         gap(parent, 20)
         val panelView = LinearLayout(context).apply { orientation = VERTICAL; background = shape(panel, 14); setPadding(dp(20), dp(16), dp(20), dp(16)) }
         parent.addView(panelView, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f))
