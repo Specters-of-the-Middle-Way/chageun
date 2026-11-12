@@ -27,10 +27,13 @@ object ScenarioCatalog {
 }
 
 enum class ManualFeature(val title: String) { AC("에어컨"), HEAT("난방"), DEFOG("앞유리 김서림 제거"), SEAT_HEAT("좌석 열선"),
-    WIPER("와이퍼·워셔"), LIGHTS("전조등"), REAR_DEFOG("뒷유리 열선"), OTHER("기타 기능") }
+    WIPER("와이퍼·워셔"), LIGHTS("전조등"), REAR_DEFOG("뒷유리 열선"), SEAT_VENT("좌석 통풍"),
+    CHILD_LOCK("뒷좌석 어린이 보호 잠금"), OTHER("기타 기능") }
 data class ManualVehicle(val model: String, val year: String?, val trim: String?)
+data class ManualQuiz(val question: String, val choices: List<String>, val answer: Int, val explanation: String)
 data class ManualLesson(val feature: ManualFeature, val vehicle: ManualVehicle, val revision: String,
-    val section: String, val source: InputSource, val steps: List<String>, val sourceUrl: String? = null)
+    val section: String, val source: InputSource, val steps: List<String>, val sourceUrl: String? = null,
+    val applicability: String? = null, val quiz: ManualQuiz? = null)
 /** Exact reference selection is required; unverified models/years never fall back to another manual. */
 class ManualRepository {
     fun find(vehicle: ManualVehicle, feature: ManualFeature): ManualLesson? {
@@ -45,7 +48,7 @@ class ManualRepository {
             ManualFeature.WIPER -> "앞유리를 닦는 와이퍼와 워셔의 역할을 가상 패널로 익혀요."
             ManualFeature.LIGHTS -> "전방 시야와 내 차의 위치를 알리는 등화의 역할을 가상 패널로 익혀요."
             ManualFeature.REAR_DEFOG -> "뒷유리의 서리를 제거하는 열선의 역할을 가상 패널로 익혀요."
-            ManualFeature.OTHER -> return null
+            ManualFeature.SEAT_VENT, ManualFeature.CHILD_LOCK, ManualFeature.OTHER -> return null
         }
         return ManualLesson(feature, vehicle, "SIM-MANUAL-1", "가상 패널 / ${feature.name}", InputSource.SIMULATION,
             listOf(purpose,
@@ -59,10 +62,15 @@ class ManualLearningSession(val lesson: ManualLesson) {
     var index = 0; private set
     var learned = false; private set
     var simulatedOperation = false; private set
+    var selectedAnswer: Int? = null; private set
+    fun answer(value: Int) {
+        if (!learned && index == lesson.steps.lastIndex && value in (lesson.quiz?.choices?.indices ?: IntRange.EMPTY)) selectedAnswer = value
+    }
     fun operate() { if (index == 2 && lesson.source == InputSource.SIMULATION) simulatedOperation = true }
     val current get() = lesson.steps[index]
     fun next() { if (index < lesson.steps.lastIndex) index++ }
     fun previous() { if (index > 0) index-- }
-    val canConfirm get() = index == lesson.steps.lastIndex && (lesson.source == InputSource.MANUAL || simulatedOperation)
+    val canConfirm get() = index == lesson.steps.lastIndex && (lesson.source == InputSource.MANUAL || simulatedOperation) &&
+        (lesson.quiz == null || selectedAnswer == lesson.quiz.answer)
     fun confirm() { if (canConfirm) learned = true }
 }

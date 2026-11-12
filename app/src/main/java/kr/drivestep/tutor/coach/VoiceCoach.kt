@@ -7,11 +7,13 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import java.util.Locale
 import kr.drivestep.tutor.R
+import kr.drivestep.tutor.speech.AppSpeechOutput
 
 /**
  * Speaks the current parked-practice cue. The caller must setActive(false) onStop and
@@ -52,6 +54,7 @@ class VoiceCoach(context: Context, private val onStatus: (String) -> Unit) : Aut
 
     private enum class Backend { TTS, BUNDLE }
     private class Playback(val cue: CoachCue, val utteranceId: String) {
+        var lease:Long?=null
         var backend = Backend.TTS
         var focus: AudioFocusRequest? = null
         var player: MediaPlayer? = null
@@ -92,11 +95,18 @@ class VoiceCoach(context: Context, private val onStatus: (String) -> Unit) : Aut
                 lastCueKey = key
                 val playback = Playback(cue, "coach_${++serial}")
                 current = playback
-                if (takeFocus(playback)) {
-                    if (ttsReady) playTts(playback) else playBundle(playback)
-                } else {
-                    finish(playback)
-                    report("다른 소리 우선 · 화면 안내 사용")
+                trace(playback,"REQUEST chars=${cue.text.length}")
+                val lease=AppSpeechOutput.gate.acquire { finish(playback,"SUPERSEDED") }
+                playback.lease=lease
+                AppSpeechOutput.gate.whenReady(lease) {
+                    if(isCurrent(playback)) {
+                        if (takeFocus(playback)) {
+                            if (ttsReady) playTts(playback) else playBundle(playback)
+                        } else {
+                            finish(playback,"FOCUS_DENIED")
+                            report("다른 소리 우선 · 화면 안내 사용")
+                        }
+                    }
                 }
             }
         }
@@ -151,6 +161,7 @@ class VoiceCoach(context: Context, private val onStatus: (String) -> Unit) : Aut
                 override fun onStart(utteranceId: String?) = onMain {
                     findTtsPlayback(utteranceId)?.let { playback ->
                         Log.i(TAG, "Playback started: tts cue=${playback.cue.id}")
+                        trace(playback,"START backend=ANDROID_FIXED")
                         armTimeout(playback, PLAYBACK_TIMEOUT_MS) {
                             finish(playback)
                             report("음성 응답 지연 · 화면 안내 사용")
@@ -159,7 +170,7 @@ class VoiceCoach(context: Context, private val onStatus: (String) -> Unit) : Aut
                 }
 
                 override fun onDone(utteranceId: String?) = onMain {
-                    findTtsPlayback(utteranceId)?.let(::finish)
+                    findTtsPlayback(utteranceId)?.let { finish(it,"DONE") }
                 }
 
                 @Deprecated("Legacy engine callback")
@@ -239,6 +250,7 @@ class VoiceCoach(context: Context, private val onStatus: (String) -> Unit) : Aut
                     try {
                         it.start()
                         Log.i(TAG, "Playback started: bundle cue=${playback.cue.id}")
+                        trace(playback,"START backend=BUNDLED_WAV")
                         report("기본 음성 안내")
                         armTimeout(playback, PLAYBACK_TIMEOUT_MS) {
                             finish(playback)
@@ -249,7 +261,7 @@ class VoiceCoach(context: Context, private val onStatus: (String) -> Unit) : Aut
                     }
                 }
             }
-            player.setOnCompletionListener { if (isCurrent(playback)) finish(playback) }
+            player.setOnCompletionListener { if (isCurrent(playback)) finish(playback,"DONE") }
             player.setOnErrorListener { _, what, extra ->
                 Log.w(TAG, "Packaged voice error: $what/$extra")
                 if (isCurrent(playback)) failBundle(playback)
@@ -276,9 +288,10 @@ class VoiceCoach(context: Context, private val onStatus: (String) -> Unit) : Aut
             .setAcceptsDelayedFocusGain(false)
             .setWillPauseWhenDucked(true)
             .setOnAudioFocusChangeListener({ change ->
+                trace(playback,"FOCUS_CHANGE value=$change current=${isCurrent(playback)}")
                 if (change != AudioManager.AUDIOFOCUS_GAIN && isCurrent(playback)) {
                     // Do not resume: an old steering-related instruction can become misleading.
-                    finish(playback)
+                    finish(playback,"FOCUS_LOSS")
                     report("다른 소리 우선 · 화면 안내 사용")
                 }
             }, main)
@@ -306,7 +319,7 @@ class VoiceCoach(context: Context, private val onStatus: (String) -> Unit) : Aut
 
     private fun isCurrent(playback: Playback) = !closed && active && enabled && current === playback
 
-    private fun finish(playback: Playback) {
+    private fun finish(playback: Playback,reason:String="CANCEL") {
         if (current !== playback) return
         current = null // Invalidate callbacks before stop/release can produce them.
         clearTimeout(playback)
@@ -314,6 +327,8 @@ class VoiceCoach(context: Context, private val onStatus: (String) -> Unit) : Aut
         releasePlayer(playback)
         playback.focus?.let { request -> runCatching { audioManager?.abandonAudioFocusRequest(request) } }
         playback.focus = null
+        playback.lease?.let(AppSpeechOutput.gate::release); playback.lease=null
+        trace(playback,"$reason resourcesReleased=true focusReleased=true")
     }
 
     private fun releasePlayer(playback: Playback) {
@@ -327,7 +342,7 @@ class VoiceCoach(context: Context, private val onStatus: (String) -> Unit) : Aut
     }
 
     private fun cancelCurrent(clearDuplicate: Boolean) {
-        current?.let(::finish)
+        current?.let { finish(it) }
         if (clearDuplicate) lastCueKey = null
     }
 
@@ -343,6 +358,10 @@ class VoiceCoach(context: Context, private val onStatus: (String) -> Unit) : Aut
             lastStatus = message
             onStatus(message)
         }
+    }
+    private fun trace(playback:Playback,event:String) {
+        if(app.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE!=0)
+            Log.i(TAG,"OUTPUT route=FIXED owner=${System.identityHashCode(this)} request=${playback.utteranceId} t=${SystemClock.elapsedRealtime()} $event")
     }
 
     private fun onMain(action: () -> Unit) {

@@ -8,12 +8,13 @@ enum class TrainingSignal { OFF, LEFT, RIGHT }
 data class ScenarioSnapshot(val task: ScenarioTask, val status: EventStatus, val paused: Boolean, val elapsed: Double,
     val distance: Double, val speedKmh: Double, val lateral: Double, val rotation: Double, val signal: TrainingSignal,
     val mirrorChecked: Boolean, val waiting: Double, val warning: Boolean, val routeVersion: Int, val phase: Int,
-    val leadGapM: Double?, val instruction: String, val cueRevision: Int, val events: List<WorkflowEvent>, val attemptId: String) {
+    val leadGapM: Double?, val instruction: String, val cueRevision: Int, val events: List<WorkflowEvent>, val attemptId: String,
+    val traffic: TrafficScene? = null) {
     val leadHeadwaySeconds get() = FollowingGap.seconds(speedKmh, leadGapM)
 }
 
 /** Deterministic, authored controls and road situations. No vehicle or GPS input is fabricated. */
-class ScenarioSession(val task: ScenarioTask, val attemptId: String = "simulation") {
+class ScenarioSession(val task: ScenarioTask, val attemptId: String = "simulation", val variant: Int = 0) {
     private var status = EventStatus.ACTIVE
     private var paused = true
     private var elapsed = 0.0
@@ -30,6 +31,7 @@ class ScenarioSession(val task: ScenarioTask, val attemptId: String = "simulatio
     private var warning = false
     private var phase = 0
     private var stable = 0.0
+    private var trafficStopChosen = false
     private var route = 1
     private var instruction = task.instruction
     private var revision = 1
@@ -38,24 +40,36 @@ class ScenarioSession(val task: ScenarioTask, val attemptId: String = "simulatio
     val arbiter = AdviceArbiter()
     fun snapshot() = ScenarioSnapshot(task, status, paused, elapsed, distance, speed * 3.6, lateral, rotation, signal,
         mirror, waiting, warning, route, phase, if (task.id == "D02") max(0.0, 35 + elapsed * 4 - distance) else null,
-        instruction, revision, events.toList(), attemptId)
+        instruction, revision, events.toList(), attemptId, traffic())
+    private fun traffic() = TrafficScenarios.scene(task.id, variant, elapsed, distance, speed)
     fun resume() { if (status == EventStatus.ACTIVE) { paused = false; gas = 0.0; brake = 0.0; steering = 0.0 } }
     fun pedals(gas: Double, brake: Double) {
         if (!paused && status == EventStatus.ACTIVE) {
             this.gas = if (gas.isFinite()) gas.coerceIn(0.0, 1.0) else 0.0
             this.brake = if (brake.isFinite()) brake.coerceIn(0.0, 1.0) else 0.0
+            if(this.brake > .5) trafficStopChosen = true
         }
     }
-    fun steer(value: Double) { if (!paused && value.isFinite()) steering = value.coerceIn(-1.0, 1.0) }
-    fun signal(value: TrainingSignal) { if (!paused) signal = value }
-    fun checkMirror() { if (!paused) mirror = true }
-    fun waitForGap() { if (!paused && status == EventStatus.ACTIVE) { gas = 0.0; brake = 1.0; tell("가상 브레이크를 유지하며 대기해요. 기다림은 감점하지 않아요.") } }
+    fun steer(value: Double) { if (!paused && status == EventStatus.ACTIVE && value.isFinite()) steering = value.coerceIn(-1.0, 1.0) }
+    fun signal(value: TrainingSignal) { if (!paused && status == EventStatus.ACTIVE) signal = value }
+    fun checkMirror() { if (!paused && status == EventStatus.ACTIVE) {
+        val scene=traffic(); mirror=scene?.entryAvailable != false
+        if(scene!=null) tell(if(mirror) "가상 객체 위치를 새로 확인했어요. 과제의 방향지시·조향·복원을 이어가요." else scene.explanation)
+    } }
+    fun waitForGap() { if (!paused && status == EventStatus.ACTIVE) {
+        gas = 0.0; brake = 1.0; trafficStopChosen=true
+        tell(traffic()?.explanation ?: "가상 브레이크를 유지하며 대기해요. 기다림은 감점하지 않아요.")
+        log(EventStatus.ACTIVE,"대기를 직접 선택했어요. 기다림은 실패나 감점이 아니에요.")
+    } }
     fun pause(reason: String = "사용자 일시 정지") {
         if (status != EventStatus.ACTIVE) return
         paused = true; gas = 0.0; brake = 0.0; steering = 0.0; speed = 0.0
+        if(traffic()!=null) mirror=false
         log(EventStatus.INTERRUPTED, reason); tell("중단한 과제예요. 준비 상태를 확인하고 직접 이어가기를 눌러 주세요.")
     }
-    fun cancel() { if (status == EventStatus.ACTIVE) finish(EventStatus.CANCELLED, "사용자가 시도를 취소했어요. 취소는 감점하지 않아요.") }
+    fun cancel() { if (status == EventStatus.ACTIVE) finish(EventStatus.CANCELLED,
+        traffic()?.let { "${it.title} · 시도를 취소하고 차로·통로를 유지했어요. 취소는 실패나 감점이 아니에요. ${it.explanation}" }
+            ?: "사용자가 시도를 취소했어요. 취소는 감점하지 않아요.") }
     fun reroute() {
         if (paused || status != EventStatus.ACTIVE) return
         route++; mirror = false; signal = TrainingSignal.OFF
@@ -71,6 +85,8 @@ class ScenarioSession(val task: ScenarioTask, val attemptId: String = "simulatio
         lateral += steering * speed * step * .22
         rotation += steering * speed * step * 5
         if (brake > .5 && speed < .1) waiting += step
+        val traffic = traffic()
+        if(traffic!=null && !traffic.entryAvailable) mirror=false
         val turnReady = mirror && signal == if (task.id in setOf("D06", "D14")) TrainingSignal.RIGHT else TrainingSignal.LEFT
         var complete = false
         when (task.id) {
@@ -110,12 +126,27 @@ class ScenarioSession(val task: ScenarioTask, val attemptId: String = "simulatio
                 complete = phase == 1 && turnReady && (if (task.id == "D06") rotation >= 60 else rotation <= -60) && abs(steering) < .15
             }
             "D08" -> complete = turnReady && rotation <= -150 && abs(steering) < .15
-            "D09", "D10", "D13" -> {
-                val available = task.id == "D09" || waiting >= 6
-                if (!available && abs(lateral) > .5) { tell("가상 옆 차가 있어요. 대기하거나 취소할 수 있어요."); mirror = false }
-                complete = available && turnReady && lateral <= -3.0 && abs(steering) < .15 && (task.id != "D13" || speed * 3.6 >= 20)
+            "D09" -> complete = turnReady && lateral <= -3.0 && abs(steering) < .15
+            "D10", "D13" -> {
+                val scene=requireNotNull(traffic)
+                if(!scene.entryAvailable) {
+                    // This authored blocked-space exercise holds the learner before the van.
+                    // Do not let acceleration move its occluder off-screen while claiming hidden vision.
+                    if(scene.visibilityBlocked && distance>1.5) { distance=1.5; speed=0.0; gas=0.0; brake=1.0 }
+                    if(lateral < -.4) { lateral = -.4; steering=0.0; gas=0.0; brake=1.0 }
+                    tell(scene.explanation)
+                } else if(!mirror) tell(scene.explanation)
+                complete = scene.entryAvailable && turnReady && lateral <= -3.0 && abs(steering) < .15 && (task.id != "D13" || speed * 3.6 >= 20)
             }
-            "D11" -> complete = waiting >= 5 && mirror && distance >= 40
+            "D11" -> {
+                val scene=requireNotNull(traffic)
+                if(trafficStopChosen && speed < .1) phase=1
+                if(!scene.entryAvailable || !mirror || phase==0) {
+                    if(distance>6) { distance=6.0; speed=0.0; gas=0.0; brake=1.0 }
+                    tell(if(phase==0) "가상 통로 앞에서 브레이크나 정차·대기를 직접 선택해요." else scene.explanation)
+                }
+                complete = phase==1 && scene.entryAvailable && mirror && distance >= 40
+            }
             "D12" -> {
                 if (speed * 3.6 in 30.0..40.0) stable += step
                 if (stable >= 3 && phase == 0) { phase = 1; tell("가상 연습 속도를 유지했어요. 브레이크로 감속해 봐요.") }

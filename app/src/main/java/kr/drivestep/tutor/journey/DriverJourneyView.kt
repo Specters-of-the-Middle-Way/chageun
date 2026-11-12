@@ -1,6 +1,7 @@
 package kr.drivestep.tutor.journey
 
 import android.app.AlertDialog
+import kr.drivestep.tutor.design.showReadable
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
@@ -153,7 +154,7 @@ class DriverJourneyView(
             orientation = VERTICAL; setPadding(dp(16), dp(20), dp(16), dp(16))
             setBackgroundColor(bg)
         }
-        addView(side, LayoutParams(dp(224), LayoutParams.MATCH_PARENT))
+        addView(ScrollView(context).apply { isFillViewport=true; addView(side) }, LayoutParams(dp(224), LayoutParams.MATCH_PARENT))
         side.addView(label("운전 튜터", 24, white, true), full(48))
         side.addView(label(TrainingVehicle.NAME, 18, grey), full(34))
         gap(side, 24)
@@ -183,7 +184,7 @@ class DriverJourneyView(
                 background = shape(if (selected) PreparationStyle.softAccent else bg, 16)
                 setTextColor(if (selected) mint else white)
                 if (selected) setTypeface(typeface, Typeface.BOLD)
-            }, full(64).apply { bottomMargin = dp(8) })
+            }, full(-2).apply { bottomMargin = dp(8) })
         }
         side.addView(View(context), LayoutParams(1, 0, 1f))
         side.addView(button("정차 교육", "journey_education") { state.enterEducation(); render() }, full(64))
@@ -275,19 +276,19 @@ class DriverJourneyView(
 
     private fun revisitPage(parent: LinearLayout) {
         heading(parent, "", "운전자와 차량 확인", "운전자가 바뀌었거나 자세를 조절했다면 운전 환경을 다시 확인하세요.")
-        val summary = LinearLayout(context).apply { orientation = HORIZONTAL; gravity = Gravity.CENTER_VERTICAL; setPadding(dp(24), dp(28), dp(24), dp(28)) }
-        parent.addView(summary, full(190))
+        val body=scrollBody(parent)
+        val summary = card(fill=PreparationStyle.softAccent).apply { orientation = HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
+        body.addView(summary, full(-2))
         summary.addView(PleosUi.image(context, "profile", 88), LayoutParams(dp(120), dp(120)))
         val info = LinearLayout(context).apply { orientation = VERTICAL }
         summary.addView(info, LayoutParams(0, -2, 1f).apply { marginStart = dp(28) })
-        info.addView(label(TrainingVehicle.NAME, 32, white, true), full(50))
-        info.addView(label("${state.profile.heightCm} cm  ·  ${state.profile.weightKg} kg  ·  ${state.profile.experience}", 22, white), full(40))
-        info.addView(label("운전 환경 ${state.setupCompletedCount}/9 항목 확인", 18, grey), full(36))
-        divider(parent)
-        parent.addView(label("출발 전 확인은 이용할 때마다 다시 진행합니다.", 20, grey), full(76))
-        parent.addView(button("같은 운전자 · 출발 준비 확인", "journey_revisit", selected = true) { state.revisitUnchanged(); render() }, full(72))
+        info.addView(label(TrainingVehicle.NAME, 32, white, true), full(-2))
+        info.addView(label("${state.profile.heightCm} cm  ·  ${state.profile.weightKg} kg  ·  ${state.profile.experience}", 22, white), full(-2).apply { topMargin=dp(12) })
+        info.addView(label("운전 환경 ${state.setupCompletedCount}/9 항목 확인", 21, grey), full(-2).apply { topMargin=dp(12) })
+        body.addView(label("출발 전 확인은 이용할 때마다 다시 진행합니다.", 21, grey), full(-2).apply { topMargin=dp(20) })
+        parent.addView(button("같은 운전자 · 출발 준비 확인", "journey_revisit", selected = true) { state.revisitUnchanged(); render() }, full(-2))
         gap(parent, 16)
-        parent.addView(button("운전자 또는 자세 변경", "journey_revisit_changed") { state.revisitChanged(); persist(); render() }, full(72))
+        parent.addView(button("운전자 또는 자세 변경", "journey_revisit_changed") { state.revisitChanged(); persist(); render() }, full(-2))
     }
 
     private fun setupPage(parent: LinearLayout) {
@@ -446,10 +447,7 @@ class DriverJourneyView(
 
     private fun educationPage(parent: LinearLayout) {
         heading(parent, "", "정차 중 교육", "차량을 연결하지 않아도 운전의 기본을 배울 수 있어요.")
-        val scroll = ScrollView(context)
-        parent.addView(scroll, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f))
-        val list = LinearLayout(context).apply { orientation = VERTICAL }
-        scroll.addView(list)
+        val list = scrollBody(parent)
         if (vehicleEducation.showEvEducation) educationTile(list, "전기차의 감속", "회생제동과 브레이크를 구분해요", "journey_ev_braking") {
             showMessage("회생제동과 브레이크", "회생제동은 감속 과정의 에너지를 회수하는 기능이에요. 모드와 배터리 상태 등에 따라 감속 느낌이 달라질 수 있어요.\n\n원페달 기능이 있더라도 모든 상황의 정지·정차 유지를 대신한다고 가정하지 않아요. 현재 차량의 사용설명서와 계기판 표시를 먼저 확인하고, 필요한 제동은 운전자가 직접 수행해요.\n\n이 앱은 실제 회생제동 모드를 변경하지 않아요.", educationId = "ev_braking")
         }
@@ -463,7 +461,7 @@ class DriverJourneyView(
         gap(parent, 12)
         parent.addView(button(if (state.canPractice) "연습 선택으로" else "준비하던 단계로", "journey_education_back", selected = true) {
             if (state.canPractice) state.enterPractice() else state.enterPreflight(); render()
-        }, full(64))
+        }, full(-2))
     }
 
     private fun reviewPage(parent: LinearLayout) {
@@ -586,7 +584,7 @@ class DriverJourneyView(
                 if (!active || closed) return@setPositiveButton
                 prefs.edit().clear().apply(); state = JourneyState(); lastPractice = null; storageMessage = null
                 onSettingsChanged(); render()
-            }.show()
+            }.showReadable()
     }
 
     private fun showMessage(title: String, body: String, educationId: String? = null) {
@@ -601,7 +599,7 @@ class DriverJourneyView(
                 saved.add(educationId); prefs.edit().putStringSet("education", saved).apply()
             }
         }
-        dialog = builder.show()
+        dialog = builder.showReadable()
     }
 
     private fun saveSelfReport() {
@@ -653,14 +651,13 @@ class DriverJourneyView(
     }
 
     private fun educationTile(parent: LinearLayout, title: String, subtitle: String, key: String, action: () -> Unit) {
-        val row = LinearLayout(context).apply { orientation = HORIZONTAL; gravity = Gravity.CENTER_VERTICAL; setPadding(dp(8), dp(12), dp(8), dp(12)) }
-        parent.addView(row, full(88))
+        val row = card(20).apply { orientation = HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
+        parent.addView(row, full(-2).apply { bottomMargin=dp(14) })
         row.addView(PleosUi.image(context, if (key.contains("steering")) "steering" else if (key.contains("parking")) "vehicle" else "info", 32), LayoutParams(dp(48), dp(48)))
         val words = LinearLayout(context).apply { orientation = VERTICAL }
-        words.addView(label(title, 22, white), full(34)); words.addView(label(subtitle, 16, grey), full(29))
+        words.addView(label(title, 24, white,true), full(-2)); words.addView(label(subtitle, 20, grey), full(-2).apply { topMargin=dp(8) })
         row.addView(words, LayoutParams(0, -2, 1f).apply { marginStart = dp(16) })
-        row.addView(button("열기", key, action = action), LayoutParams(dp(100), dp(64)))
-        divider(parent)
+        row.addView(button("열기", key, action = action), LayoutParams(dp(100), -2).apply { marginStart=dp(16) })
     }
     private fun choiceRow(parent: LinearLayout, title: String, choices: List<String>, selected: String, key: String, onSelect: (String) -> Unit) {
         parent.addView(label(title, 21, white, true), full(-2).apply { bottomMargin = dp(12) })
@@ -716,7 +713,7 @@ class DriverJourneyView(
         setOnClickListener { if (active && !closed && condition()) action() }
         enabledControls += this to condition
     }
-    private fun updateEnabled() { enabledControls.forEach { (view, condition) -> view.isEnabled = active && !closed && condition(); view.alpha = if (view.isEnabled) 1f else .45f } }
+    private fun updateEnabled() { enabledControls.forEach { (view, condition) -> view.isEnabled = active && !closed && condition(); view.alpha = 1f } }
     private fun divider(parent: LinearLayout) { parent.addView(View(context).apply { setBackgroundColor(line) }, full(1)) }
     private fun shape(fill: Int, radius: Int) = GradientDrawable().apply { setColor(fill); cornerRadius = dp(radius).toFloat() }
     private fun horizontal(parent: LinearLayout, height: Int, weight: Float = 0f) = LinearLayout(context).apply {

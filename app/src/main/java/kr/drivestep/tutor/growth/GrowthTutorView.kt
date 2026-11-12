@@ -1,6 +1,7 @@
 package kr.drivestep.tutor.growth
 
 import android.app.AlertDialog
+import kr.drivestep.tutor.design.showReadable
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
@@ -267,7 +268,7 @@ class GrowthTutorView(
         backButton()
         addView(button("성장 기록 초기화", "growth_reset", secondary = true) {
             AlertDialog.Builder(context).setTitle("성장 연습 기록을 초기화할까요?").setMessage("체격 선택, 기본 설정 확인, 가상 연습 점수와 기록을 삭제해요. 차량 조작 연습 기록은 유지돼요.")
-                .setNegativeButton("취소", null).setPositiveButton("초기화") { _, _ -> progress.reset(); page = Page.HUB; render() }.show()
+                .setNegativeButton("취소", null).setPositiveButton("초기화") { _, _ -> progress.reset(); page = Page.HUB; render() }.showReadable()
         })
     }
     private fun competency(value: Competency) = when(value) {
@@ -301,12 +302,12 @@ class GrowthTutorView(
         parent.addView(this, LayoutParams(-1,-2).apply { topMargin = dp(8) })
     }
     private fun label(value: String, size: Int, color: Int = ink, bold: Boolean = false) = TextView(context).apply {
-        text = value; textSize = size.toFloat(); setTextColor(color); setLineSpacing(dp(3).toFloat(), 1.02f)
+        text = value; textSize = size.coerceAtLeast(18).toFloat(); setTextColor(color); setLineSpacing(dp(3).toFloat(), 1.02f)
         if (bold) typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
         setPadding(0, dp(3), 0, dp(3))
     }
     private fun button(value: String, key: String, enabled: Boolean = true, secondary: Boolean = false, action: () -> Unit) = Button(context).apply {
-        text = value; textSize = 16f; isAllCaps = false; isEnabled = enabled; contentDescription = key
+        text = value; textSize = 20f; isAllCaps = false; isEnabled = enabled; contentDescription = key
         setTextColor(if (!enabled) muted else if (secondary) teal else Color.WHITE)
         background = rounded(if (!enabled) Color.rgb(226,232,230) else if (secondary) mint else teal)
         minHeight = dp(52); setPadding(dp(12),dp(8),dp(12),dp(8))

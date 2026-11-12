@@ -22,9 +22,16 @@ internal object PreparationStyle {
     fun button(button: Button, selected: Boolean, soft: Boolean = false) = with(button) {
         backgroundTintList = null
         val fill = if (selected) { if (soft) softAccent else accent } else PleosUi.SURFACE
+        val enabledStates=arrayOf(intArrayOf(-android.R.attr.state_enabled),intArrayOf())
+        val content=surface(context,fill,!selected).apply {
+            setColor(ColorStateList(enabledStates,intArrayOf(PleosUi.RAISED,fill)))
+        }
         background = RippleDrawable(ColorStateList.valueOf(Color.argb(35, 110, 145, 134)),
-            surface(context, fill, !selected), surface(context, Color.WHITE))
-        setTextColor(if (selected && !soft) Color.WHITE else if (selected) accent else PleosUi.TEXT)
+            content, surface(context, Color.WHITE))
+        // Button may mutate the assigned ripple, replacing its child. Initialize that live child
+        // so restyling a selected control does not leave its fill in the empty (disabled) state.
+        (background as RippleDrawable).getDrawable(0).state = drawableState
+        setTextColor(ColorStateList(enabledStates,intArrayOf(PleosUi.SECONDARY,if (selected && !soft) Color.WHITE else if (selected) accent else PleosUi.TEXT)))
         setTypeface(typeface, if (selected) Typeface.BOLD else Typeface.NORMAL)
         elevation = 0f; stateListAnimator = null
     }

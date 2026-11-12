@@ -15,4 +15,10 @@
     <string name="road_lead_headway">\u0020· 시간 간격 %1$.1f초 (교육 목표 3초)</string>
     <string name="road_lead_headway_stopped">\u0020· 정차·저속 시 시간 간격 미계산</string>
     <string name="road_scenario_stats">가상 %1$.1fkm/h · 이동 %2$.1fm · 대기 %3$.1f초%4$s%5$s</string>
+    <string name="road_traffic_state">%1$s · %2$s\n%3$s</string>
+    <string name="road_traffic_clear">가상 통로 비어 있음 · 새로 확인</string>
+    <string name="road_traffic_blocked">진입 보류</string>
+    <string name="road_traffic_actor">%1$s · 가상 %2$s %3$.1fm</string>
+    <string name="road_traffic_ahead">앞</string>
+    <string name="road_traffic_behind">뒤</string>
 </resources>

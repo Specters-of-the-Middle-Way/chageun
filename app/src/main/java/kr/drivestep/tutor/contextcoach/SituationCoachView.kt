@@ -293,7 +293,7 @@ class SituationCoachView(
     }
 
     private fun toggle(title: String, key: String, changed: (Boolean) -> Unit) = Switch(context).apply {
-        text = title; textSize = 15f; setTextColor(ink); contentDescription = key
+        text = title; textSize = 20f; setTextColor(ink); contentDescription = key
         layoutParams = LayoutParams(-1, dp(42))
         setOnCheckedChangeListener { _, checked -> if (!syncing && canInput()) changed(checked) }
         manualControls.add(this)
@@ -577,15 +577,15 @@ class SituationCoachView(
         parent.addView(this, if (asColumn) weight(-2) else LayoutParams(-1, -2))
     }
     private fun label(value: String, size: Int, color: Int = ink, bold: Boolean = false) = TextView(context).apply {
-        text = value; textSize = size.toFloat(); setTextColor(color)
+        text = value; textSize = size.coerceAtLeast(18).toFloat(); setTextColor(color)
         if (bold) typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
         setLineSpacing(dp(2).toFloat(), 1.02f)
     }
     private fun button(value: String, key: String, secondary: Boolean = false, action: () -> Unit) = Button(context).apply {
-        text = value; textSize = 15f; isAllCaps = false; contentDescription = key
+        text = value; textSize = 20f; isAllCaps = false; contentDescription = key
         setTextColor(if (secondary) teal else Color.WHITE); background = rounded(if (secondary) soft else teal)
         minHeight = dp(42); setPadding(dp(6), dp(3), dp(6), dp(3))
-        layoutParams = LayoutParams(-1, dp(48)).apply { topMargin = dp(5) }
+        layoutParams = LayoutParams(-1, -2).apply { topMargin = dp(5) }
         setOnClickListener { action() }
     }
     private fun weight(height: Int = -2) = LayoutParams(0, if (height < 0) height else dp(height), 1f).apply { marginEnd = dp(7); topMargin = dp(3) }

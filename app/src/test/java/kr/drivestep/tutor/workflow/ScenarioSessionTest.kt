@@ -89,7 +89,7 @@ class ScenarioSessionTest {
     @Test fun waitingAndCancellationAreNormalOutcomesWithoutMasteryPenalty() {
         val s=session("D10");wait(s,8.0);s.cancel()
         assertEquals(EventStatus.CANCELLED,s.snapshot().status)
-        assertTrue(s.snapshot().instruction.contains("감점하지"))
+        assertTrue(s.snapshot().instruction.contains("실패나 감점이 아니"))
         val elapsed=s.snapshot().elapsed;s.tick(1.0);assertEquals(elapsed,s.snapshot().elapsed,0.0)
     }
     @Test fun routeVersionChangeInvalidatesOldCueAndSurroundingConfirmation() {

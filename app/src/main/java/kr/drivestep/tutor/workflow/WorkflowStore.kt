@@ -31,14 +31,18 @@ class WorkflowStore(context: Context, private val consent: () -> Boolean, storeN
             .put("source", "SIMULATION").put("status", snapshot.status.name).put("facts", facts)
             .put("unknown", snapshot.task.unknown).put("explanation", explanation ?: JSONObject.NULL)
             .put("difficulty", selectedDifficulty ?: JSONObject.NULL).put("next", selectedDifficulty ?: snapshot.task.nextTask).put("events", events)
+        snapshot.traffic?.let { row.put("trafficVariant",it.variant).put("trafficTitle",it.title) }
         return prefs.edit().putString("records", JSONArray((listOf(row) + records()).take(20)).toString()).commit()
     }
     fun checkpoint(snapshot: ScenarioSnapshot) {
         if (!consent() || snapshot.status != EventStatus.ACTIVE) return
         prefs.edit().putString("checkpoint", JSONObject().put("schema", 1).put("task", snapshot.task.id)
             .put("phase", snapshot.phase).put("stage", snapshot.instruction.take(400)).put("distance", snapshot.distance).put("reason", "INTERRUPTED")
-            .put("at", System.currentTimeMillis()).toString()).apply()
+            .put("trafficVariant",snapshot.traffic?.variant ?: 0).put("at", System.currentTimeMillis()).toString()).apply()
     }
+    fun pendingVariant(): Int = if(pendingTask()==null) 0 else runCatching {
+        JSONObject(prefs.getString("checkpoint", "")!!).optInt("trafficVariant",0).coerceIn(0,1)
+    }.getOrDefault(0)
     fun pendingTask(): ScenarioTask? {
         if (!consent()) return null
         return runCatching { ScenarioCatalog.find(JSONObject(prefs.getString("checkpoint", "")!!).getString("task")) }.getOrNull()
@@ -54,5 +58,7 @@ class WorkflowStore(context: Context, private val consent: () -> Boolean, storeN
     fun learned(lesson: ManualLesson) {
         if (consent()) prefs.edit().putBoolean("learned:${lesson.revision}:${lesson.feature.name}", true).apply()
     }
+    fun saveDoubleParking(): Boolean = consent() && prefs.edit().putLong("education:double_parking:v1",System.currentTimeMillis()).commit()
+    fun doubleParkingLearned(): Boolean = prefs.getLong("education:double_parking:v1",0)>0
     fun delete(): Boolean = prefs.edit().clear().commit()
 }

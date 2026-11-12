@@ -87,8 +87,9 @@ class PlanningFeaturesDeviceTest {
         assertTrue(all().first { it.contentDescription == "weather_live_location" }.let { !it.isEnabled })
         checked("weather_live_consent",true); click("weather_live_location")
         eventually("Real Open-Meteo response not shown") { hasText("예보 기준") && hasText("°C") }
-        assertTrue(hasText("현재 위치 주변 ·") || hasText("현재 위치 미확인 · 기본 지역인 경기도 성남시 수정구 복정동"))
-        assertTrue(hasText("Open-Meteo 현재 예보"))
+        assertTrue(all().filterIsInstance<TextView>().any { it.contentDescription == "weather_live_place" &&
+            it.text.toString() in setOf("현재 위치 주변", WeatherPlaces.DEFAULT.name) })
+        assertTrue(hasText("기상 모델 기반 현재 예보"))
         checked("weather_live_consent",false)
         assertFalse(hasText("예보 기준")); assertFalse(all().any { it.contentDescription == "weather_live_speak" })
         assertTrue(hasText("날씨 조회 동의를 껐어요"))

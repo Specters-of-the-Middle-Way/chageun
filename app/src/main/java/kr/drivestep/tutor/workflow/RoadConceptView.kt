@@ -1,6 +1,5 @@
 package kr.drivestep.tutor.workflow
 
-import kr.drivestep.tutor.design.PleosUi
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
@@ -60,9 +59,7 @@ class RoadConceptView(context: Context, private val illustration: RoadIllustrati
         // Right-hand traffic example, independent of the foreign source's road layout.
         paint.style = Paint.Style.FILL; paint.color = 0xff73d7b8.toInt()
         rect.set(w * .565f,h * .74f,w * .615f,h * .94f); canvas.drawRoundRect(rect,dp(4f),dp(4f),paint)
-        paint.color = 0xfff7f8fa.toInt(); paint.textSize = PleosUi.canvasTextSize(context, dp(18f)); paint.textAlign = Paint.Align.LEFT
-        canvas.drawText(illustration.caption,dp(16f),dp(28f),paint)
-        paint.textSize = PleosUi.canvasTextSize(context, dp(14f)); canvas.drawText("교육용 단순 그림",dp(16f),h - dp(16f),paint)
+        // Captions are rendered by the parent as wrapping, scalable TextViews.
     }
     private fun arrow(canvas: Canvas, x: Float, y: Float, up: Boolean) {
         val direction = if (up) -1f else 1f

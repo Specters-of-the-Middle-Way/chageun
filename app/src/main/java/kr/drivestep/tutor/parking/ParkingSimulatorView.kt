@@ -1,6 +1,7 @@
 package kr.drivestep.tutor.parking
 
 import android.app.AlertDialog
+import kr.drivestep.tutor.design.showReadable
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
@@ -359,7 +360,7 @@ class ParkingSimulatorView(
             }.create()
         deleteDialog=dialog
         dialog.setOnDismissListener{if(deleteDialog===dialog)deleteDialog=null}
-        dialog.show()
+        dialog.showReadable()
     }
     private fun dismissDeleteDialog(){deleteDialog?.dismiss();deleteDialog=null}
     /** Called only after the host's parked and preparation gates. Never resets an existing attempt. */
@@ -429,7 +430,7 @@ class ParkingSimulatorView(
     private fun exit(){pause();session=null;snapshot=null;page=Page.COURSES;render();onExit()}
     private fun canInput()=active&&running&&!closed&&page==Page.DRIVE
     private fun enabled(){
-        inputs.forEach{it.isEnabled=canInput();it.alpha=if(it.isEnabled)1f else .4f}
+        inputs.forEach{it.isEnabled=canInput();it.alpha=1f}
         pauseButton?.apply{visibility=if(running)VISIBLE else GONE;isEnabled=canInput()}
         resumeButton?.apply{visibility=if(running)GONE else VISIBLE;isEnabled=active&&!closed}
         finishButton?.isEnabled=canInput()&&snapshot?.let{it.gear==ParkingGear.P&&it.speedKmh<.05}==true

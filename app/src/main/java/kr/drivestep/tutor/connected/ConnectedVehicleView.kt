@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Typeface
 import android.os.SystemClock
 import android.text.InputType
 import android.view.Gravity
@@ -15,6 +16,9 @@ import kr.drivestep.tutor.R
 import kr.drivestep.tutor.design.PleosSwitch
 import kr.drivestep.tutor.design.PleosUi
 import kr.drivestep.tutor.design.PracticeButton
+import kr.drivestep.tutor.design.showReadable
+import kr.drivestep.tutor.journey.PreparationColumns
+import kr.drivestep.tutor.journey.PreparationStyle
 import kr.drivestep.tutor.workflow.InputValidity
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -56,22 +60,31 @@ class ConnectedVehicleView(context: Context, private val vehicleEnabled: ()->Boo
     }
     init {
         orientation = VERTICAL
-        addView(ScrollView(context).apply { addView(body) },LayoutParams(-1,-1))
-        body.addView(label("차량 상태 · 위치와 내비","connected_title",26),full())
-        body.addView(label("연결된 차량의 시트·안전벨트·경고 표시를 확인해요. 계기판과 함께 살펴보세요."),full())
-        body.addView(label("앞좌석 왼쪽의 설정값이에요. 몸에 편안한 자세인지는 직접 확인해 주세요."),full())
-        body.addView(seats,full()); body.addView(belt,full()); body.addView(warnings,full())
-        body.addView(button("차량 정보 연결 설정","connected_vehicle_settings",onVehicleSettings),full())
-        body.addView(button("차량 상태 다시 연결","connected_vehicle_retry",onReconnect),full())
+        addView(ScrollView(context).apply { isFillViewport = true; addView(body) },LayoutParams(-1,0,1f))
+        body.addView(label("차량에서 받은 상태와 위치를 확인하고, 원하는 목적지를 내비로 보내요.","connected_title",21),full())
+        val columns = PreparationColumns(context, breakpoint = 1_100); body.addView(columns,full())
+        val vehicle = card(); columns.addView(vehicle)
+        vehicle.addView(heading("출발 전 차량 상태"),full())
+        vehicle.addView(label("앞좌석 왼쪽의 설정값이에요. 자세와 계기판은 직접 확인해 주세요.",size=19),full())
+        vehicle.addView(seats,full()); vehicle.addView(belt,full()); vehicle.addView(warnings,full())
+        vehicle.addView(button("차량 정보 연결 설정","connected_vehicle_settings",onVehicleSettings),full())
+        vehicle.addView(button("차량 상태 다시 연결","connected_vehicle_retry",onReconnect),full())
+        val position = card(); columns.addView(position)
+        position.addView(heading("내 위치와 내비 안내"),full())
         val consent = LinearLayout(context).apply { orientation = HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
-        consent.addView(label("현재 위치·내비 정보 이용\n내 위치와 내비 안내를 확인해요. 좌표와 목적지는 앱 기록에 저장하지 않아요."),LayoutParams(0,-2,1f))
-        consent.addView(locationToggle,LayoutParams(dp(80),dp(56))); body.addView(consent,full())
-        body.addView(location,full()); body.addView(navigation,full())
-        body.addView(button("위치·내비 다시 연결","connected_navigation_retry") { permissionAsked = false; source.stop(); synchronize() },full())
-        body.addView(label("목적지 직접 입력\n장소 이름과 좌표를 입력해 내비로 보내세요. 내비에 설정된 기존 목적지가 바뀔 수 있어요."),full())
-        body.addView(name,full(56)); body.addView(latitude,full(56)); body.addView(longitude,full(56))
-        body.addView(send,full(60)); body.addView(requestStatus,full())
-        body.addView(label("시트와 미러는 차량에서 직접 조절해 주세요."),full())
+        consent.addView(label("현재 위치·내비 정보 이용",size=22),LayoutParams(0,-2,1f).apply { marginEnd=dp(16) })
+        consent.addView(locationToggle,LayoutParams(dp(80),dp(64))); position.addView(consent,full())
+        position.addView(label("좌표와 목적지는 앱 기록에 저장하지 않아요.",size=18),full())
+        position.addView(location,full()); position.addView(navigation,full())
+        position.addView(button("위치·내비 다시 연결","connected_navigation_retry") { permissionAsked = false; source.stop(); synchronize() },full())
+        val destination = card(); body.addView(destination,full())
+        destination.addView(heading("목적지 직접 입력"),full())
+        destination.addView(label("장소 이름과 좌표를 입력해 내비로 보내세요. 내비에 설정된 기존 목적지가 바뀔 수 있어요.",size=20),full())
+        destination.addView(name,full())
+        val coordinates = PreparationColumns(context, breakpoint = 1_100); destination.addView(coordinates,full())
+        coordinates.addView(latitude); coordinates.addView(longitude)
+        destination.addView(send,full()); destination.addView(requestStatus,full())
+        body.addView(label("시트와 미러는 차량에서 직접 조절해 주세요.",size=18),full())
         send.isEnabled = false
     }
     val hasLocationConnection get() = source.isRunning
@@ -133,20 +146,27 @@ class ConnectedVehicleView(context: Context, private val vehicleEnabled: ()->Boo
             .setMessage("${goal.name}\n위도 ${goal.point.latitude} · 경도 ${goal.point.longitude}\n이 위치를 차량 내비의 목적지로 보내요. 화면 속 연습 코스에는 적용되지 않아요.")
             .setNegativeButton("취소",null).setPositiveButton("목적지 보내기") { _,_ ->
                 if (active && locationToggle.isChecked && snapshot?.canRequest == true) source.requestDestination(goal)
-            }.show()
+            }.showReadable()
     }
     fun close() { closed = true; dialog?.dismiss(); source.close() }
     private fun quality(value: InputValidity) = when (value) { InputValidity.VALID -> "확인됨"; InputValidity.STALE -> "다시 확인 필요"; InputValidity.UNSUPPORTED -> "이 차량에서 확인 불가"; InputValidity.DENIED -> "이용 권한 필요"; InputValidity.ERROR -> "연결 확인 필요"; InputValidity.UNKNOWN -> "확인 전" }
-    private fun label(value: String,key: String = "",size: Int = 18) = TextView(context).apply {
+    private fun card() = LinearLayout(context).apply {
+        orientation=VERTICAL; background=PreparationStyle.surface(context); setPadding(dp(20),dp(18),dp(20),dp(18))
+    }
+    private fun heading(value: String) = label(value,size=25).apply { setTypeface(typeface,Typeface.BOLD) }
+    private fun label(value: String,key: String = "",size: Int = 21) = TextView(context).apply {
         text = value; textSize = size.toFloat(); contentDescription = key; setTextColor(PleosUi.TEXT); setPadding(dp(8),dp(8),dp(8),dp(8))
+        setLineSpacing(dp(3).toFloat(),1f)
     }
     private fun input(hintText: String,key: String,numeric: Boolean) = EditText(context).apply {
-        hint = hintText; contentDescription = key; textSize = 18f; setTextColor(PleosUi.TEXT); setHintTextColor(PleosUi.SECONDARY)
+        hint = hintText; contentDescription = key; textSize = 21f; setTextColor(PleosUi.TEXT); setHintTextColor(PleosUi.SECONDARY)
+        minHeight=dp(64); setPadding(dp(16),dp(14),dp(16),dp(14)); background=PreparationStyle.surface(context, PleosUi.BACKGROUND, true)
         inputType = if (numeric) InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED else InputType.TYPE_CLASS_TEXT
         isSingleLine = true; importantForAutofill = IMPORTANT_FOR_AUTOFILL_NO
     }
     private fun button(value: String,key: String,action: ()->Unit) = PracticeButton(context).apply {
-        text = value; textSize = 18f; isAllCaps = false; contentDescription = key; PleosUi.decorate(this,false)
+        text = value; textSize = 20f; isAllCaps = false; contentDescription = key; PreparationStyle.button(this,key=="connected_destination_send")
+        minHeight=dp(64); minimumHeight=dp(64); minWidth=0; minimumWidth=0; setPadding(dp(18),dp(12),dp(18),dp(12))
         setOnClickListener { if (active && !closed) action() }
     }
     private fun full(height: Int = -2) = LayoutParams(-1,if (height < 0) height else dp(height)).apply { bottomMargin = dp(8) }

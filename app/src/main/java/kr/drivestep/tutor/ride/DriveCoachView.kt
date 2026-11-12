@@ -241,7 +241,7 @@ class DriveCoachView(
             gears.addView(view, LayoutParams(dp(62), dp(46)).apply { marginEnd = dp(5) })
         }
         holdSwitch = Switch(context).apply {
-            text = "가상 브레이크 유지"; textSize = 15f; setTextColor(ink)
+            text = "가상 브레이크 유지"; textSize = 20f; setTextColor(ink)
             contentDescription = "ride_brake_hold"
             isChecked = brakeLatched
             setOnCheckedChangeListener { _, checked ->
@@ -486,16 +486,16 @@ class DriveCoachView(
     }
 
     private fun label(value: String, size: Int, color: Int = ink, bold: Boolean = false) = TextView(context).apply {
-        text = value; textSize = size.toFloat(); setTextColor(color)
+        text = value; textSize = size.coerceAtLeast(18).toFloat(); setTextColor(color)
         if (bold) typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
         setLineSpacing(dp(3).toFloat(), 1.03f)
     }
 
     private fun button(value: String, key: String, secondary: Boolean = false, action: () -> Unit) = PracticeButton(context).apply {
-        text = value; textSize = 17f; isAllCaps = false; contentDescription = key
+        text = value; textSize = 20f; isAllCaps = false; contentDescription = key
         background = rounded(if (secondary) soft else teal); setTextColor(if (secondary) teal else Color.WHITE)
         minHeight = dp(48); setPadding(dp(8), dp(5), dp(8), dp(5))
-        layoutParams = LayoutParams(-1, dp(50)).apply { topMargin = dp(6) }
+        layoutParams = LayoutParams(-1, -2).apply { topMargin = dp(6) }
         setOnClickListener { action() }
     }
 

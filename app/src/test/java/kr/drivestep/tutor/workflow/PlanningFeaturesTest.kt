@@ -80,7 +80,8 @@ class PlanningFeaturesTest {
                 val session = ManualLearningSession(lesson)
                 session.confirm(); assertFalse(session.learned)
                 repeat(2) { session.next() }; session.operate(); assertFalse(session.simulatedOperation)
-                session.next(); assertTrue(session.canConfirm); session.confirm(); assertTrue(session.learned)
+                session.next(); lesson.quiz?.let { session.answer(it.answer) }
+                assertTrue(session.canConfirm); session.confirm(); assertTrue(session.learned)
             }
         }
         assertNull(repo.find(Cn7Manual.AUTO_CLIMATE,ManualFeature.OTHER))

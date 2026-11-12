@@ -11,15 +11,20 @@ import android.os.SystemClock
 import android.text.InputType
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.SeekBar
+import android.widget.ScrollView
 import android.widget.TextView
 import kr.drivestep.tutor.design.PleosUi
 import kr.drivestep.tutor.design.PracticeButton
+import kr.drivestep.tutor.design.showReadable
+import kr.drivestep.tutor.journey.PreparationColumns
+import kr.drivestep.tutor.journey.PreparationStyle
 import kr.drivestep.tutor.speech.TutorSpeechController
 import kr.drivestep.tutor.speech.SpeechStatusText
 import kr.drivestep.tutor.gleo.*
@@ -57,6 +62,8 @@ class LessonCoachView(
     private var session = LessonCoachSession()
     private var snapshot = session.snapshot()
     private var page = Page.MENU
+    private var renderedPage: Page? = null
+    private var pageScroll: ScrollView? = null
     private var active = false
     private var closed = false
     private var speechEnabled = true
@@ -251,6 +258,8 @@ class LessonCoachView(
     }
 
     private fun render() {
+        val savedScroll=if (renderedPage==page) pageScroll?.scrollY ?: 0 else 0
+        renderedPage=page
         removeAllViews()
         inputControls.clear(); signalButtons.clear()
         replyLabel = null; directionLabel = null; reportLabel = null; vehicleLabel = null
@@ -268,32 +277,53 @@ class LessonCoachView(
                 addView(gleoView, LayoutParams(-1, -2))
             }
         }
+        val title=(getChildAt(0) as? TextView)?.also { removeView(it) }
+        val footer=if (page==Page.LESSON) pauseButton?.parent as? View else null
+        footer?.let { removeView(it) }
+        val pinned=LinearLayout(context).apply { orientation=HORIZONTAL; gravity=Gravity.CENTER_VERTICAL; isBaselineAligned=false }
+        for (key in when(page) { Page.MENU -> listOf("lesson_start","lesson_exit"); Page.REVIEW -> listOf("lesson_review_back"); else -> emptyList() }) {
+            (0 until childCount).map { getChildAt(it) }.firstOrNull { it.contentDescription==key }?.let {
+                removeView(it); pinned.addView(it,weight())
+            }
+        }
+        val body=LinearLayout(context).apply { orientation=VERTICAL }
+        while(childCount>0) { val child=getChildAt(0); removeView(child); body.addView(child) }
+        title?.let { addView(it,LayoutParams(-1,-2)) }
+        val scroll=ScrollView(context).apply { isFillViewport=true; addView(body); contentDescription="lesson_scroll" }
+        pageScroll=scroll; addView(scroll,LayoutParams(-1,0,1f))
+        footer?.let { addView(it,LayoutParams(-1,-2)) }
+        if(pinned.childCount>0) addView(pinned,LayoutParams(-1,-2))
+        scroll.post { if(!closed && scroll===pageScroll) scroll.scrollTo(0,savedScroll) }
         refreshLive()
     }
 
     private fun menu() {
-        addView(label("함께하는 연수", 28, bold = true))
-        addView(label("글레오에게 궁금한 상황을 물어보고, 설명을 들으며 차근차근 익혀요.", 19, secondary = true))
-        addView(button("글레오와 연수 대화", "lesson_gleo_start", true) { openGleo() })
-        addView(label("아래 기본 연습은 차근의 음성 안내와 가상 조작으로 진행해요.", 17, secondary = true))
-        space(this, 18)
-        addView(label("오늘 익힐 한 가지", 19, bold = true))
-        val topics = row(this)
+        addView(label("함께하는 연수", 30, bold = true))
+        val columns=PreparationColumns(context,1f,1.3f,1_100); addView(columns,LayoutParams(-1,-2))
+        val conversation=panel(columns).apply { background=PreparationStyle.surface(context,PreparationStyle.softAccent) }
+        conversation.addView(label("궁금한 상황을 말해 보세요", 26, bold=true))
+        conversation.addView(label("글레오에게 질문하고 설명을 들으며 차근차근 익혀요.", 22, secondary = true))
+        conversation.addView(button("글레오와 연수 대화", "lesson_gleo_start", true) { openGleo() })
+        val options=panel(columns)
+        options.addView(label("오늘 익힐 한 가지", 25, bold = true))
+        options.addView(label("차근의 음성 안내와 가상 조작으로 기본을 익혀요.", 20, secondary=true))
+        val topics = row(options)
         LessonTopic.entries.forEach { topic ->
             topics.addView(button(topic.title, "lesson_topic_${topic.name.lowercase()}", selectedTopic == topic) {
                 selectedTopic = topic; render()
             }, weight())
         }
-        space(this, 12)
-        val modes = row(this)
+        space(options, 12)
+        options.addView(label("연습에 사용할 정보",22,bold=true))
+        val modes = row(options)
         modes.addView(button("가상 상황", "lesson_mode_demo", !liveInputs) { liveInputs = false; render() }, weight())
         modes.addView(button("차량 신호 연결", "lesson_mode_live", liveInputs) {
             chooseVehicleInputs()
         }, weight())
-        addView(label(if (liveInputs) "차량 정보 연결이 켜져 있어요. 차량 속도 읽기 권한도 허용한 뒤 ‘함께 시작하기’를 눌러 주세요."
+        options.addView(label(if (liveInputs) "차량 정보 연결이 켜져 있어요. 차량 속도 읽기 권한도 허용한 뒤 ‘함께 시작하기’를 눌러 주세요."
             else "실제 차량은 P·정차 상태로 두세요. 화면의 시험 입력은 실제 차량을 움직이지 않아요.", 15, secondary = true))
         space(this, 12)
-        addView(button("글레오 음성 명령", "lesson_gleo_help") {
+        conversation.addView(button("글레오 음성 명령", "lesson_gleo_help") {
             showDialog(AlertDialog.Builder(context).setTitle("글레오로 차근 이용하기")
                 .setMessage("글레오를 부른 뒤 이렇게 말씀해 보세요.\n\n• 차근으로 차로 변경 알려줘\n• 왜 사각지대를 확인해야 해?\n• 차근에서 날씨에 맞는 운전 조언 알려줘\n• 차근으로 주차 연습 시작해 줘\n\n듣기가 끝나면 ‘글레오’라고 다시 불러 주세요. 주차 연습 전에는 준비 항목을 직접 확인해 주세요.")
                 .setNegativeButton("닫기", null).setPositiveButton("글레오 앱 열기") { _, _ ->
@@ -305,14 +335,15 @@ class LessonCoachView(
         addView(button("함께 시작하기", "lesson_start", true) { start(selectedTopic) })
         addView(button("이전 메뉴", "lesson_exit") { speech.stop(); onExit() })
         space(this, 20)
-        addView(label("지난 연수 이어보기", 20, bold = true))
-        if (records.isEmpty()) addView(label(storageStatus.ifBlank { "마무리와 복습 응답을 남기면 이 차량에서 다시 볼 수 있어요." }, 15, secondary = true))
+        val history=panel(this)
+        history.addView(label("지난 연수 이어보기", 25, bold = true))
+        if (records.isEmpty()) history.addView(label(storageStatus.ifBlank { "마무리와 복습 응답을 남기면 이 차량에서 다시 볼 수 있어요." }, 20, secondary = true))
         records.forEachIndexed { index, record ->
-            addView(button("${date(record.startedAtMillis)} · ${record.topic.title}\n${if (record.liveInputs) "차량 신호" else "가상 상황"} · ${record.reflection.label}", "lesson_history_$index") {
+            history.addView(button("${date(record.startedAtMillis)} · ${record.topic.title}\n${if (record.liveInputs) "차량 신호" else "가상 상황"} · ${record.reflection.label}", "lesson_history_$index") {
                 openReview(record)
             })
         }
-        if (records.isNotEmpty() || storageStatus.isNotBlank()) addView(button("연수 기록 삭제", "lesson_delete") { confirmDelete() })
+        if (records.isNotEmpty() || storageStatus.isNotBlank()) history.addView(button("연수 기록 삭제", "lesson_delete") { confirmDelete() })
         addView(label("정차 중 차근과 대화하며 연습해요. 음성 원본은 저장하지 않으며, 기록 저장을 켜면 대화 문장과 조작 기록을 최근 20회까지 보관해요.", 14, secondary = true))
     }
 
@@ -320,7 +351,8 @@ class LessonCoachView(
         addView(label(snapshot.topic.title, 27, bold = true))
         addView(label(if (liveInputs) "차량 연결 · 정차 중 연습" else "가상 상황 · 정차 중 연습", 15, secondary = true))
         space(this, 12)
-        val coach = panel(this)
+        val columns=PreparationColumns(context,1.3f,1f,1_100); addView(columns,LayoutParams(-1,-2))
+        val coach = panel(columns).apply { background=PreparationStyle.surface(context,PreparationStyle.softAccent) }
         coach.addView(label("차근의 안내", 15, secondary = true))
         replyLabel = label(snapshot.reply, 24, bold = true).also { coach.addView(it) }
         speechLabel = label(speechStatus, 14, secondary = true).also {
@@ -335,7 +367,8 @@ class LessonCoachView(
         voiceRow.addView(button("다시 듣기", "lesson_repeat") { if (canInput()) acceptText("다시 설명해 줘", SpeechInputSource.TEXT_DEMO) }, weight())
         coach.addView(label("연수를 시작하면 자동으로 들어요. ‘듣기 준비됨’일 때 답해 주세요. 끝내려면 ‘대화 종료’라고 말하거나 눌러 주세요.", 14, secondary = true))
         inputSourceLabel = label("아직 입력한 말이 없어요.", 15, secondary = true).also { coach.addView(it) }
-        val state = panel(this)
+        val state = panel(columns)
+        state.addView(label("현재 연습 상황",24,bold=true))
         directionLabel = label("", 18, bold = true).also { state.addView(it) }
         reportLabel = label("", 16, secondary = true).also { state.addView(it) }
         navigationLabel = label("", 16, secondary = true).also { state.addView(it) }
@@ -356,7 +389,7 @@ class LessonCoachView(
             hint = "예: 왼쪽으로 가고 싶은데 차가 많아"
             setText(inputText)
             setTextColor(PleosUi.TEXT); setHintTextColor(PleosUi.SECONDARY)
-            setTextSize(18f)
+            setTextSize(21f)
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
             maxLines = 2; imeOptions = EditorInfo.IME_ACTION_SEND
             setPadding(dp(16), dp(12), dp(16), dp(12))
@@ -364,11 +397,11 @@ class LessonCoachView(
             setOnEditorActionListener { _, action, _ -> if (action == EditorInfo.IME_ACTION_SEND) { sendTyped(); true } else false }
         }.also { test.addView(it); inputControls.add(it) }
         test.addView(button("문장 입력", "lesson_send") { sendTyped() }.also(inputControls::add))
-        val examples = row(test)
+        val examples = LinearLayout(context).apply { orientation=VERTICAL }; test.addView(examples,LayoutParams(-1,-2))
         listOf("차로 변경 도와줘" to "ask", "오른쪽 말고 왼쪽" to "correct", "왼쪽으로 가고 싶은데 차가 많고 멈춰 있어" to "traffic").forEach { (text, id) ->
             examples.addView(button(text, "lesson_example_$id") {
                 if (canInput()) acceptText(text, SpeechInputSource.TEXT_DEMO)
-            }.also(inputControls::add), weight(72))
+            }.also(inputControls::add), LayoutParams(-1,-2).apply { topMargin=dp(8) })
         }
         if (!liveInputs) demoControls(test)
         else test.addView(label("이 모드에서는 시험 차량·내비 신호를 넣지 않아요. 실제 연결된 데이터만 별도 표시해요.", 14, secondary = true))
@@ -425,13 +458,6 @@ class LessonCoachView(
                     if (vehicleEnabled()) selectVehicleInputs()
                 }
             })
-        activeDialog?.apply {
-            findViewById<TextView>(android.R.id.message)?.textSize = 18f
-            listOf(AlertDialog.BUTTON_POSITIVE, AlertDialog.BUTTON_NEGATIVE).forEach { id ->
-                getButton(id)?.apply { textSize = 18f; minHeight = dp(56) }
-            }
-            if (width > 0) window?.setLayout(minOf(dp(900), (width * .92f).toInt()), LayoutParams.WRAP_CONTENT)
-        }
     }
 
     private fun selectVehicleInputs() {
@@ -702,7 +728,7 @@ class LessonCoachView(
         val dialog = builder.create()
         activeDialog = dialog
         dialog.setOnDismissListener { if (activeDialog === dialog) activeDialog = null }
-        dialog.show()
+        dialog.showReadable()
     }
 
     private fun dismissDialog() {
@@ -735,34 +761,33 @@ class LessonCoachView(
     }
 
     private fun label(value: String, size: Int, secondary: Boolean = false, bold: Boolean = false) = TextView(context).apply {
-        text = value; textSize = size.toFloat(); setTextColor(if (secondary) PleosUi.SECONDARY else PleosUi.TEXT)
+        text = value; textSize = size.coerceAtLeast(if(secondary) 18 else 21).toFloat(); setTextColor(if (secondary) PleosUi.SECONDARY else PleosUi.TEXT)
         typeface = Typeface.create("sans-serif", if (bold) Typeface.BOLD else Typeface.NORMAL)
         setPadding(0, dp(5), 0, dp(7)); setLineSpacing(dp(3).toFloat(), 1f)
     }
 
     private fun button(value: String, key: String, selected: Boolean = false, icon: String? = null, action: () -> Unit) = PracticeButton(context).apply {
-        text = value; contentDescription = key; isAllCaps = false; textSize = 17f
-        minHeight = dp(62); minimumHeight = dp(62); gravity = Gravity.CENTER
+        text = value; contentDescription = key; isAllCaps = false; textSize = 20f
+        minHeight = dp(64); minimumHeight = dp(64); minWidth=0; minimumWidth=0; gravity = Gravity.CENTER
         setPadding(dp(14), dp(8), dp(14), dp(8))
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply { topMargin = dp(6); bottomMargin = dp(4) }
-        PleosUi.decorate(this, selected)
+        PreparationStyle.button(this, selected); isSelected=selected
         if (icon != null) PleosUi.prefix(this, icon)
         setOnClickListener { if (active && !closed) action() }
     }
 
     private fun panel(parent: LinearLayout) = LinearLayout(context).apply {
-        orientation = VERTICAL; setPadding(dp(18), dp(12), dp(18), dp(14)); background = background(PleosUi.SURFACE)
+        orientation = VERTICAL; setPadding(dp(20), dp(18), dp(20), dp(18)); background = PreparationStyle.surface(context)
         parent.addView(this, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply { topMargin = dp(10); bottomMargin = dp(4) })
     }
 
     private fun row(parent: LinearLayout) = LinearLayout(context).apply {
-        orientation = HORIZONTAL; gravity = Gravity.CENTER_VERTICAL
+        orientation = HORIZONTAL; gravity = Gravity.CENTER_VERTICAL; isBaselineAligned=false
         parent.addView(this, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
     }
 
-    private fun weight(minHeight: Int = 62) = LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f).apply {
+    private fun weight() = LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f).apply {
         marginEnd = dp(8); topMargin = dp(6); bottomMargin = dp(4)
-        height = dp(minHeight)
     }
 
     private fun background(color: Int) = GradientDrawable().apply { setColor(color); cornerRadius = dp(16).toFloat() }

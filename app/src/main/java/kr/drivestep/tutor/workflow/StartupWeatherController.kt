@@ -17,7 +17,7 @@ class StartupWeatherController(context: Context, restoredAttempt: Boolean,
     private val location = WeatherLocationSource(app)
     private val main = Handler(Looper.getMainLooper())
     private val executor = Executors.newSingleThreadExecutor()
-    private val speech = TutorSpeechController(app, {}, {})
+    private val speech = TutorSpeechController(app, {}, {}, diagnosticRoute="STARTUP_WEATHER")
     private var client: OpenMeteoClient? = null
     private var task: Future<*>? = null
     private var active = false

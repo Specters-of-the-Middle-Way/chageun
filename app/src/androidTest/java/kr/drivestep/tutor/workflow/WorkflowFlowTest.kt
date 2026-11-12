@@ -85,7 +85,7 @@ class WorkflowFlowTest {
             if(hasText("안내 재개"))click("workflow_mute")
             click("workflow_weather"); assertTrue(hasText("현재 날씨 미확인"))
             click("workflow_weather_practice"); click("workflow_weather_retry")
-            click("workflow_weather_rain");assertTrue(hasText("가상 날씨 예시: 비"));click("workflow_weather_speak")
+            click("workflow_weather_rain");assertTrue(hasText("비 · 이렇게 준비해요"));click("workflow_weather_speak")
             eventually("No real SDK/fallback TTS start",15_000){hasText("음성 안내 중")}
             eventually("Weather advice must become non-repeatable after actual output starts"){
                 all().any{it.contentDescription?.toString()=="workflow_weather_speak"&&!it.isEnabled}

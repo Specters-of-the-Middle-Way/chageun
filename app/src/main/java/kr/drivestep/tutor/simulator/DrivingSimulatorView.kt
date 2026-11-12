@@ -1,6 +1,7 @@
 package kr.drivestep.tutor.simulator
 
 import android.app.AlertDialog
+import kr.drivestep.tutor.design.showReadable
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
@@ -261,7 +262,7 @@ class DrivingSimulatorView(
             }.create()
         deleteDialog = dialog
         dialog.setOnDismissListener { if (deleteDialog === dialog) deleteDialog = null }
-        dialog.show()
+        dialog.showReadable()
     }
 
     private fun dismissDeleteDialog() {
@@ -545,7 +546,7 @@ class DrivingSimulatorView(
     private fun canInput(): Boolean = active && running && !closed && page == Page.DRIVE
 
     private fun updateEnabled() {
-        inputControls.forEach { it.isEnabled = canInput(); it.alpha = if (it.isEnabled) 1f else 0.45f }
+        inputControls.forEach { it.isEnabled = canInput(); it.alpha = 1f }
         startButton?.isEnabled = active && !closed
         repeatButton?.isEnabled = canInput()
         pauseButton?.apply { visibility = if (running) View.VISIBLE else View.GONE; isEnabled = canInput() }

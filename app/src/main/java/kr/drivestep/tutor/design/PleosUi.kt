@@ -26,8 +26,8 @@ object PleosUi {
     val TEXT = Color.rgb(19, 20, 23) // text/dark/primary
     val SECONDARY = Color.rgb(81, 84, 92) // Higher contrast for supporting copy on light surfaces.
     val LINE = Color.rgb(224, 225, 230) // surface/accent
-    val SELECTED = Color.rgb(68, 70, 78) // button/filled/enabled
-    val PRESSED = Color.rgb(49, 50, 54) // button/filled/pressed
+    val SELECTED = Color.rgb(16, 87, 74)
+    val PRESSED = Color.rgb(12, 65, 55)
     private val STYLE_TAG = R.id.pleos_style
 
     private val icons = mapOf(
@@ -63,12 +63,13 @@ object PleosUi {
     /** connect-s Small: radius 16, nominal height 64, source button group 67:22525. */
     fun buttonBackground(context: Context, selected: Boolean = false): Drawable {
         fun fill(color: Int) = GradientDrawable().apply {
-            setColor(color); cornerRadius = dp(context, 16).toFloat()
+            setColor(color); cornerRadius = dp(context, 20).toFloat()
+            if (!selected) setStroke(dp(context, 1), LINE)
         }
         return StateListDrawable().apply {
-            addState(intArrayOf(-android.R.attr.state_enabled), fill(Color.argb(13, 19, 20, 23)))
-            addState(intArrayOf(android.R.attr.state_pressed), fill(if (selected) PRESSED else Color.argb(26, 19, 20, 23)))
-            addState(intArrayOf(), fill(if (selected) SELECTED else Color.argb(13, 19, 20, 23)))
+            addState(intArrayOf(-android.R.attr.state_enabled), fill(RAISED))
+            addState(intArrayOf(android.R.attr.state_pressed), fill(if (selected) PRESSED else Color.rgb(233, 244, 239)))
+            addState(intArrayOf(), fill(if (selected) SELECTED else SURFACE))
         }
     }
 
@@ -80,7 +81,7 @@ object PleosUi {
         button.background = buttonBackground(button.context, selected)
         button.setTextColor(ColorStateList(
             arrayOf(intArrayOf(-android.R.attr.state_enabled), intArrayOf()),
-            intArrayOf(Color.argb(82, 19, 20, 23), if (selected) Color.WHITE else TEXT)))
+            intArrayOf(SECONDARY, if (selected) Color.WHITE else TEXT)))
         button.compoundDrawablesRelative.filterNotNull().forEach { it.setTint(if (selected) Color.WHITE else TEXT) }
         button.elevation = 0f
         button.stateListAnimator = null

@@ -34,6 +34,7 @@ class TutorSpeechController(
     private val onTranscript: (String) -> Unit,
     private val onStatus: (String) -> Unit,
     private val onConversationStopped: () -> Unit = {},
+    private val diagnosticRoute: String = "TUTOR",
 ) : AutoCloseable {
     private val app = context.applicationContext
     private val main = Handler(Looper.getMainLooper())
@@ -76,6 +77,10 @@ class TutorSpeechController(
     private var output: String? = null
     private var outputStarted = false
     private var usingAndroid = false
+    private var outputLease: Long? = null
+    private var pleosRequested = false
+    private var pleosEnded = false
+    private var requestedAt = 0L
     private val debugDiagnostics = app.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
     private var rmsCount = 0
     private var rmsMin = Double.POSITIVE_INFINITY
@@ -263,6 +268,10 @@ class TutorSpeechController(
     fun speak(text: String) = onMain {
         if (closed || !active || !enabled || text.isBlank()) return@onMain
         if (isListening && !isConversationActive) return@onMain
+        val sentence = text.trim().take(500)
+        if(output==sentence || pendingAfterMicrophoneClose==sentence) {
+            trace("COALESCED",serial); return@onMain
+        }
         isWaitingForReply = false
         conversation.waitForResponse()
         clearConversationTimer()
@@ -277,15 +286,25 @@ class TutorSpeechController(
         }
         cancel()
         val token = serial
-        val sentence = text.trim().take(500)
         output = sentence
+        requestedAt=SystemClock.elapsedRealtime()
+        trace("REQUEST chars=${sentence.length}",token)
+        val lease=AppSpeechOutput.gate.acquire {
+            endConversation(); cancel(); report("다른 안내를 위해 이전 음성을 멈췄어요.")
+        }
+        outputLease=lease
+        AppSpeechOutput.gate.whenReady(lease) { if(current(token) && output!=null) beginOutput(token,sentence) }
+    }
+
+    private fun beginOutput(token:Long,sentence:String) {
         if (!takeFocus(token, listening = false)) {
             endConversation()
             cancel()
             report("다른 차량 소리가 우선이에요. 안내는 화면에서 확인해 주세요.")
-            return@onMain
+            return
         }
         report("Pleos 음성 안내 준비 중")
+        if(!current(token) || output==null) return
         armDeadline(4_000) { if (current(token)) useAndroid(token, sentence) }
         try {
             val client = PleosTts(app, TtsMode.ON_DEVICE)
@@ -293,6 +312,7 @@ class TutorSpeechController(
             val listener = object : EventListener {
                 override fun onReady() = Unit
                 override fun onStart() = post {
+                    trace(if(current(token) && !usingAndroid) "START backend=PLEOS" else "LATE_START_IGNORED backend=PLEOS",token)
                     if (current(token) && !usingAndroid) {
                         outputStarted = true
                         Log.i("TutorSpeech", "TTS_STARTED backend=PLEOS_ON_DEVICE")
@@ -301,10 +321,12 @@ class TutorSpeechController(
                     }
                 }
                 override fun onDone() = post {
-                    if (current(token) && !usingAndroid) finishOutput("Pleos 음성 안내 완료", completed = true)
+                    trace(if(current(token) && !usingAndroid) "DONE backend=PLEOS" else "LATE_DONE_IGNORED backend=PLEOS",token)
+                    if (current(token) && !usingAndroid) { pleosEnded=true; finishOutput("Pleos 음성 안내 완료", completed = true) }
                 }
                 override fun onStop() = post {
-                    if (current(token) && !usingAndroid) finishOutput("음성 안내를 멈췄어요.")
+                    trace(if(current(token) && !usingAndroid) "STOP_CALLBACK backend=PLEOS" else "LATE_STOP_IGNORED backend=PLEOS",token)
+                    if (current(token) && !usingAndroid) { pleosEnded=true; finishOutput("음성 안내를 멈췄어요.") }
                 }
                 override fun onError(errorType: TtsError) = post {
                     if (current(token) && !usingAndroid) {
@@ -325,6 +347,7 @@ class TutorSpeechController(
                         client.setLocale(Locale.KOREA)
                         client.setAudioAttributes(attributes)
                         armDeadline(3_000) { if (current(token) && !outputStarted) useAndroid(token, sentence) }
+                        pleosRequested=true
                         client.speak(sentence)
                     } catch (_: Exception) {
                         useAndroid(token, sentence)
@@ -385,6 +408,12 @@ class TutorSpeechController(
         if (!current(token) || usingAndroid) return
         usingAndroid = true
         closePleosTts()
+        trace("FALLBACK_REQUEST",token)
+        val lease=outputLease ?: return
+        AppSpeechOutput.gate.whenReady(lease) { if(current(token) && usingAndroid) beginAndroid(token,text) }
+    }
+
+    private fun beginAndroid(token:Long,text:String) {
         report("Pleos 출력 연결 실패 · Android 음성으로 안내해요.")
         armDeadline(4_000) {
             if (current(token) && !outputStarted) finishOutput("음성 출력을 사용할 수 없어요. 화면 안내를 확인해 주세요.")
@@ -402,7 +431,11 @@ class TutorSpeechController(
                             engine.setAudioAttributes(attributes) == AndroidTts.SUCCESS
                     }.getOrDefault(false)
                     if (closed) return@post
-                    configureAndroidListener()
+                    if(androidReady) configureAndroidListener()
+                    else {
+                        runCatching { engine?.shutdown() }; androidTts=null
+                        trace("RELEASE backend=ANDROID initUnavailable=true",serial)
+                    }
                     // Initialization may finish after another request replaces this one. Read
                     // only the current, still-bounded request; never replay captured old text.
                     val pendingText = output
@@ -421,6 +454,7 @@ class TutorSpeechController(
     private fun configureAndroidListener() {
         androidTts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) = post {
+                trace(if(matchesAndroid(utteranceId)) "START backend=ANDROID" else "LATE_START_IGNORED backend=ANDROID",serial)
                 if (matchesAndroid(utteranceId)) {
                     outputStarted = true
                     Log.i("TutorSpeech", "TTS_STARTED backend=ANDROID_FALLBACK")
@@ -429,6 +463,7 @@ class TutorSpeechController(
                 }
             }
             override fun onDone(utteranceId: String?) = post {
+                trace(if(matchesAndroid(utteranceId)) "DONE backend=ANDROID" else "LATE_DONE_IGNORED backend=ANDROID",serial)
                 if (matchesAndroid(utteranceId)) finishOutput("Android 음성 안내 완료 · Pleos 출력 대체", completed = true)
             }
             @Deprecated("Android legacy callback")
@@ -458,6 +493,7 @@ class TutorSpeechController(
             .setAudioAttributes(attributes).setAcceptsDelayedFocusGain(false)
             .setWillPauseWhenDucked(true)
             .setOnAudioFocusChangeListener({ change ->
+                trace("FOCUS_CHANGE value=$change current=${current(token)}",token)
                 if (current(token) && change != AudioManager.AUDIOFOCUS_GAIN) {
                     endConversation()
                     cancel()
@@ -465,7 +501,9 @@ class TutorSpeechController(
                 }
             }, main).build()
         focus = request
-        return runCatching { manager.requestAudioFocus(request) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED }.getOrDefault(false)
+        val granted=runCatching { manager.requestAudioFocus(request) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED }.getOrDefault(false)
+        trace("FOCUS_REQUEST granted=$granted listening=$listening",token)
+        return granted
     }
 
     private fun armOutputDeadline(token: Long) = armDeadline(25_000) {
@@ -477,19 +515,51 @@ class TutorSpeechController(
         deadline = Runnable(action).also { main.postDelayed(it, delay) }
     }
 
-    private fun closePleosTts() {
+    private fun closePleosTts(token:Long=serial) {
         val client = pleosTts
         val listener = ttsListener
+        val needsStop=pleosRequested && !pleosEnded
         pleosTts = null
         ttsListener = null
+        pleosRequested=false; pleosEnded=false
         if (client != null) {
             if (listener != null) runCatching { client.removeEventListener(listener) }
-            runCatching { client.stop() }
-            runCatching { client.release() }
+            if(!needsStop) {
+                // Never queue package-scoped stop for a client that has not submitted speech,
+                // or for a naturally completed request. That late stop can hit its successor.
+                runCatching { client.release() }; trace("RELEASE backend=PLEOS stopNeeded=false",token)
+                return
+            }
+            val drain=AppSpeechOutput.gate.beginDrain()
+            var finished=false
+            var timeout:Runnable?=null
+            lateinit var cleanup:EventListener
+            fun finish(acknowledged:Boolean) {
+                if(finished) return
+                finished=true; timeout?.let(main::removeCallbacks)
+                runCatching { client.removeEventListener(cleanup) }; runCatching { client.release() }
+                trace("RELEASE backend=PLEOS stopAcknowledged=$acknowledged",token)
+                AppSpeechOutput.gate.finishDrain(drain,acknowledged)
+            }
+            cleanup=object:EventListener {
+                override fun onReady()=Unit
+                override fun onStart()=Unit
+                override fun onDone()=postCleanup { trace("DONE_DURING_STOP awaitingStop=true",token) }
+                override fun onStop()=postCleanup { finish(true) }
+                override fun onError(errorType:TtsError)=postCleanup { finish(false) }
+                override fun onUpdatedRms(rms:Double)=Unit
+            }
+            // 2 s bounds resource cleanup, not engine buffering or proof of audible quality.
+            // Without acknowledgement queued speech is discarded, never started on a timer.
+            timeout=Runnable { finish(false) }.also { main.postDelayed(it,2_000) }
+            trace("STOP_REQUEST backend=PLEOS drain=$drain",token)
+            runCatching { client.addEventListener(cleanup); client.stop() }.onFailure { finish(false) }
         }
     }
 
-    private fun cancel() {
+    private fun cancel(reason:String="CANCEL") {
+        if(output!=null) trace("$reason elapsedMs=${SystemClock.elapsedRealtime()-requestedAt}",serial)
+        val cancelledToken=serial
         if (isListening) {
             // SDK RMS values are signal amplitude, not dB or speech-confidence scores.
             diagnostic("STT_INPUT_SUMMARY rmsCallbacks=$rmsCount min=${rmsMin.takeIf { it.isFinite() }} max=${rmsMax.takeIf { it.isFinite() }}")
@@ -514,10 +584,12 @@ class TutorSpeechController(
             if (needsStopDrain) beginMicrophoneClose(input, listener)
             else releaseMicrophone(input, listener)
         }
-        closePleosTts()
+        closePleosTts(cancelledToken)
         runCatching { androidTts?.stop() }
         focus?.let { request -> runCatching { audio?.abandonAudioFocusRequest(request) } }
         focus = null
+        trace("FOCUS_RELEASED",cancelledToken)
+        outputLease?.let(AppSpeechOutput.gate::release); outputLease=null
         output = null
         outputStarted = false
         usingAndroid = false
@@ -571,7 +643,7 @@ class TutorSpeechController(
 
     private fun finishOutput(message: String, completed: Boolean = false) {
         if (!completed) endConversation()
-        cancel()
+        cancel(if(completed) "COMPLETE_RELEASE" else "STOP_OR_ERROR_RELEASE")
         report(message)
         if (completed && isConversationActive) {
             conversation.responseFinished(SystemClock.elapsedRealtime())
@@ -624,6 +696,7 @@ class TutorSpeechController(
     }
     /** Debug-only lifecycle/signal metadata. Never logs audio or recognized sentences. */
     private fun diagnostic(message: String) { if (debugDiagnostics) Log.i("TutorSpeech", message) }
+    private fun trace(event:String,token:Long) { diagnostic("OUTPUT route=$diagnosticRoute owner=${System.identityHashCode(this)} request=$token t=${SystemClock.elapsedRealtime()} $event") }
     private fun post(block: () -> Unit) { main.post { if (!closed) block() } }
     private fun postCleanup(block: () -> Unit) { main.post(block) }
     private fun onMain(block: () -> Unit) { if (Looper.myLooper() == Looper.getMainLooper()) block() else post(block) }

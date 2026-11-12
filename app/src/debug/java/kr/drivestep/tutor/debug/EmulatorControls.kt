@@ -12,6 +12,8 @@ import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import kr.drivestep.tutor.design.PleosUi
+import kr.drivestep.tutor.journey.PreparationStyle
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
@@ -41,7 +43,7 @@ class EmulatorControls(
     @Volatile private var connection: HttpURLConnection? = null
     private var heartbeat: ScheduledFuture<*>? = null
     private var clientId = ""
-    private var status = "디버그 전용 · 실제 SDK 수신으로 실습을 확인해요."
+    private var status = "가상 차량에서 받은 신호로 조작 순서를 확인해요."
     private var statusView: TextView? = null
     private var buttons = emptyList<Button>()
 
@@ -51,14 +53,10 @@ class EmulatorControls(
         val panel = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(14), dp(12), dp(14), dp(12))
-            background = GradientDrawable().apply {
-                cornerRadius = dp(14).toFloat()
-                setColor(Color.rgb(237, 240, 249))
-                setStroke(dp(1), Color.rgb(198, 208, 229))
-            }
+            background = PreparationStyle.surface(context,PreparationStyle.softAccent)
             contentDescription = "emulator_controls"
         }
-        panel.addView(label("에뮬레이터 시험 조작 · 디버그 전용", 17, true))
+        panel.addView(label("연습용 조작 패널", 24, true))
         panel.addView(label("아래 버튼은 가상 차량 신호를 요청해요. 실제 차량은 제어하지 않아요.", 14))
         val created = mutableListOf<Button>()
         fun row(items: List<Triple<String, String, String>>) {
@@ -66,9 +64,10 @@ class EmulatorControls(
             items.forEachIndexed { index, (title, key, path) ->
                 val button = Button(context).apply {
                     text = title
-                    textSize = 16f
+                    textSize = 20f
                     isAllCaps = false
-                    minHeight = dp(54)
+                    minHeight = dp(64); minimumHeight=dp(64); minWidth=0; minimumWidth=0
+                    setPadding(dp(12),dp(12),dp(12),dp(12)); PreparationStyle.button(this,false)
                     isEnabled = !busy.get()
                     tag = key
                     contentDescription = key
@@ -87,7 +86,7 @@ class EmulatorControls(
             Triple("끄기", "emulator_signal_off", "/vehicle/turn-signal?mode=Off"),
             Triple("오른쪽 →", "emulator_signal_right", "/vehicle/turn-signal?mode=BlinkRight"),
         ))
-        panel.addView(label("시험용 조향 입력 · SDK 전륜 조향각(°), 핸들 회전 수 아님", 13))
+        panel.addView(label("연습용 앞바퀴 조향각(°) · 핸들 회전 수와 달라요", 18))
         // Pleos emulator 2.1.0 console uses the opposite sign from SDK PERF_STEERING_ANGLE.
         // Labels describe the expected SDK receipt, never fabricated app state.
         row(listOf(
@@ -126,7 +125,7 @@ class EmulatorControls(
                 http(path, "PUT", token)
                 if (!current(token)) return@execute
                 http("/vehicle/state", "GET", token)
-                publish("시험 신호 요청 완료 · SDK 수신 대기 (요청 성공은 실습 성공이 아니에요)", token)
+                publish("조작을 요청했어요. 차량에서 받은 신호로 진행 상태를 확인해요.", token)
             } catch (_: Exception) {
                 publish("시험 신호 요청 실패 · Pleos 에뮬레이터의 가상 콘솔 연결을 확인해 주세요.", token)
             } finally {
@@ -181,7 +180,7 @@ class EmulatorControls(
         busy.set(false)
         statusView = null
         buttons = emptyList()
-        status = "디버그 전용 · 실제 SDK 수신으로 실습을 확인해요."
+        status = "가상 차량에서 받은 신호로 조작 순서를 확인해요."
         // No vehicle writes on stop: the browser lease expires on its own.
     }
 
@@ -194,8 +193,8 @@ class EmulatorControls(
 
     private fun label(value: String, size: Int, bold: Boolean = false) = TextView(context).apply {
         text = value
-        textSize = size.toFloat()
-        setTextColor(Color.rgb(39, 53, 73))
+        textSize = size.coerceAtLeast(18).toFloat()
+        setTextColor(PleosUi.TEXT)
         if (bold) setTypeface(typeface, Typeface.BOLD)
         setPadding(0, dp(3), 0, dp(3))
     }

@@ -18,6 +18,7 @@ import android.view.View
 import android.widget.*
 import kr.drivestep.tutor.design.PleosUi
 import kr.drivestep.tutor.design.PleosSwitch
+import kr.drivestep.tutor.design.showReadable
 import kr.drivestep.tutor.data.PracticeRepository
 import kr.drivestep.tutor.growth.GrowthTutorView
 import kr.drivestep.tutor.ride.DriveCoachView
@@ -645,7 +646,7 @@ class MainActivity : Activity() {
         }
         val toggle = PleosSwitch(this).apply {
             text = "음성 안내  "
-            textSize = 15f
+            textSize = 18f
             setTextColor(PleosUi.TEXT)
             contentDescription = "voice_toggle"
             isChecked = voiceEnabled
@@ -656,7 +657,7 @@ class MainActivity : Activity() {
                 render()
             }
         }
-        bar.addView(toggle, LinearLayout.LayoutParams(dp(196), dp(64)))
+        bar.addView(toggle, LinearLayout.LayoutParams(dp(232), dp(64)))
         val repeat = button("다시 듣기", "replay_voice", voiceEnabled && !vehicleWarningBlocksSpeech && currentCue != null, secondary = true) {
             voice.stop(); currentCue?.let(voice::speak)
         }
@@ -676,14 +677,8 @@ class MainActivity : Activity() {
         }
         val surface = when (screen) { Screen.COACH -> journey; Screen.WORKFLOW -> workflow; Screen.LESSON -> lesson; Screen.PARK_SIM -> parkingSimulator; else -> simulator }
         (surface.parent as? android.view.ViewGroup)?.removeView(surface)
-        if (screen in setOf(Screen.LESSON, Screen.WORKFLOW)) {
-            val scroll = ScrollView(this).apply {
-                isFillViewport = true
-                addView(surface, FrameLayout.LayoutParams(-1, -2))
-            }
-            rootScroll = scroll
-            content.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
-        } else content.addView(surface, LinearLayout.LayoutParams(-1, 0, 1f))
+        // Each primary surface owns its scrolling body and pinned controls.
+        content.addView(surface, LinearLayout.LayoutParams(-1, 0, 1f))
         setContentView(content)
     }
 
@@ -701,7 +696,7 @@ class MainActivity : Activity() {
             (destination in setOf(JourneyDestination.LEGACY, JourneyDestination.CONTEXT) && !journey.recordEnabled)) {
             AlertDialog.Builder(this).setTitle("설정 확인")
                 .setMessage("차량 조작 연습을 하려면 운전자 설정에서 차량 정보 연결과 기록 저장을 켜 주세요. 가상 연습은 차량 연결 없이도 이용할 수 있어요.")
-                .setPositiveButton("확인", null).show()
+                .setPositiveButton("확인", null).showReadable()
             return
         }
         if (destination in setOf(JourneyDestination.DRIVE, JourneyDestination.PARKING) && !journey.canPractice) return
@@ -932,7 +927,7 @@ class MainActivity : Activity() {
             AlertDialog.Builder(this).setTitle("이 연습 기록을 삭제할까요?")
                 .setMessage("이 차량에 저장된 해당 기록만 삭제합니다.")
                 .setNegativeButton("취소", null)
-                .setPositiveButton("삭제") { _, _ -> delete(record.id) }.show()
+                .setPositiveButton("삭제") { _, _ -> delete(record.id) }.showReadable()
         })
     }
 
@@ -958,7 +953,7 @@ class MainActivity : Activity() {
         val row = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
         val toggle = PleosSwitch(this).apply {
             text = "음성 안내"
-            textSize = 17f
+            textSize = 20f
             setTextColor(ink)
             contentDescription = "voice_toggle"
             isChecked = voiceEnabled
@@ -969,13 +964,13 @@ class MainActivity : Activity() {
                 render()
             }
         }
-        row.addView(toggle, LinearLayout.LayoutParams(0, dp(50), 1f))
+        row.addView(toggle, LinearLayout.LayoutParams(0, dp(64), 1f))
         val repeat = button("다시 듣기", "replay_voice", voiceEnabled && !vehicleWarningBlocksSpeech && currentCue != null, secondary = true) {
             voice.stop()
             currentCue?.let(voice::speak)
         }
         voiceRepeatButton = repeat
-        row.addView(repeat, LinearLayout.LayoutParams(dp(155), dp(50)))
+        row.addView(repeat, LinearLayout.LayoutParams(dp(180), -2))
         parent.addView(row)
         voiceStatusView = text(voiceStatus, 13, muted)
         parent.addView(voiceStatusView)
@@ -1087,7 +1082,7 @@ class MainActivity : Activity() {
             parent.addView(button("홈으로", "home") { goHome() })
             parent.addView(button("이 조향 기록 삭제", "delete_steering", secondary = true) {
                 AlertDialog.Builder(this).setTitle("이 조향 기록을 삭제할까요?").setNegativeButton("취소", null)
-                    .setPositiveButton("삭제") { _, _ -> steering.delete(record.id); goHome() }.show()
+                    .setPositiveButton("삭제") { _, _ -> steering.delete(record.id); goHome() }.showReadable()
             })
         } else {
             column.addView(text("중앙 준비는 0/4예요. 이후 변경 신호 네 번을 확인합니다.", 14, muted))
@@ -1125,18 +1120,18 @@ class MainActivity : Activity() {
     }
 
     private fun text(value: String, size: Int, color: Int = ink, bold: Boolean = false) = TextView(this).apply {
-        text = value; textSize = size.toFloat(); setTextColor(color)
+        text = value; textSize = size.coerceAtLeast(18).toFloat(); setTextColor(color)
         if (bold) setTypeface(typeface, Typeface.BOLD)
         setLineSpacing(dp(3).toFloat(), 1.03f)
     }
 
     private fun button(label: String, key: String, enabled: Boolean = true, secondary: Boolean = false, action: () -> Unit) = Button(this).apply {
-        text = label; textSize = 18f; isAllCaps = false; isEnabled = enabled
+        text = label; textSize = 20f; isAllCaps = false; isEnabled = enabled
         contentDescription = key
         PleosUi.decorate(this, !secondary)
-        minHeight = dp(56)
+        minHeight = dp(64); minimumHeight = dp(64); minWidth=0; minimumWidth=0
         setPadding(dp(20), dp(10), dp(20), dp(10))
-        layoutParams = LinearLayout.LayoutParams(-1, dp(56)).apply { topMargin = dp(6) }
+        layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(6) }
         setOnClickListener { action() }
     }
 

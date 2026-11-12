@@ -30,6 +30,7 @@ import kr.drivestep.tutor.connected.ConnectedVehicleView
 import kr.drivestep.tutor.connected.ReadinessSnapshot
 import kr.drivestep.tutor.design.PleosUi
 import kr.drivestep.tutor.design.PracticeButton
+import kr.drivestep.tutor.design.showReadable
 import kr.drivestep.tutor.speech.TutorSpeechController
 import kr.drivestep.tutor.speech.SpeechStatusText
 import kr.drivestep.tutor.vehicle.TrainingVehicle
@@ -42,9 +43,11 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
     private val onParking: () -> Unit, private val onLaneChange: () -> Unit,
     private val canPractice: () -> Boolean, private val recordEnabled: () -> Boolean,
     vehicleEnabled: () -> Boolean, onVehicleSettings: () -> Unit, onReconnect: () -> Unit, onLocationPermission: () -> Unit) : LinearLayout(context) {
-    private enum class Page { HOME, CONNECTED, WEATHER, WEATHER_PRACTICE, MANUAL, GUIDES, COURSES, TASKS, SCENARIO, REVIEW, HISTORY }
+    private enum class Page { HOME, CONNECTED, WEATHER, WEATHER_PRACTICE, MANUAL, GUIDES, DOUBLE_PARKING, COURSES, TASKS, SCENARIO, REVIEW, HISTORY }
     private val connected = ConnectedVehicleView(context,vehicleEnabled,onVehicleSettings,onReconnect,onLocationPermission)
-    private val liveWeather = LiveWeatherView(context, onLocationPermission, { say(it) }, { stopVoice() }, ::sayWeatherAutomatically)
+    private val liveWeather = LiveWeatherView(context, onLocationPermission, { say(it) }, { stopVoice() }, ::sayWeatherAutomatically) {
+        stopVoice(); page = Page.WEATHER_PRACTICE; render()
+    }
     private val main = Handler(Looper.getMainLooper())
     private val settings = context.getSharedPreferences("workflow_ui_v1", Context.MODE_PRIVATE)
     private val store = WorkflowStore(context, recordEnabled)
@@ -65,6 +68,11 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
     private var manualReference: ManualVehicle? = null
     private var guide = DrivingGuideSession(DrivingGuideCatalog.guides.first())
     private val gapStudy = GapStudyState()
+    private val doubleParking = DoubleParkingSession()
+    private var doubleParkingSaved = false
+    private val trafficVariants = mutableMapOf<String,Int>()
+    private var trafficDetails: TextView? = null
+    private val variantButtons = mutableListOf<Button>()
     private var selectedFeature = ManualFeature.AC
     private var goal = RouteGoal.BEGINNER
     private var selectedTask = "D03"
@@ -143,7 +151,7 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
     fun goBack(): Boolean {
         if (page == Page.HOME) return false
         if (page == Page.SCENARIO) { scenario?.cancel(); scenario?.snapshot()?.let(::openReview) }
-        else { stopVoice(); page = Page.HOME; render() }
+        else { pause("뒤로 이동"); stopVoice(); page = Page.HOME; render() }
         return true
     }
     fun close() { if (closed) return; pause("앱 종료"); closed = true; dialog?.dismiss(); connected.close(); liveWeather.close(); main.removeCallbacksAndMessages(null); speech.close() }
@@ -165,21 +173,22 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
     }
     private fun pause(reason: String) {
         main.removeCallbacks(ticker)
+        if(page==Page.DOUBLE_PARKING) doubleParking.pause()
         scenario?.takeIf { page == Page.SCENARIO && !it.snapshot().paused }?.let { val point = it.snapshot(); it.pause(reason); store.checkpoint(point) }
         scenario?.snapshot()?.let(::updateScene)
     }
     fun acceptVehicle(value: ReadinessSnapshot) = connected.acceptVehicle(value)
     fun locationPermissionResult() { connected.permissionResult(); liveWeather.permissionResult() }
-    fun preparationChanged() { pause("시트·벨트 상태 변경"); stopVoice() }
+    fun preparationChanged() { pause("시트·벨트 상태 변경"); stopVoice(); if(page==Page.DOUBLE_PARKING) render() }
     private fun render() {
         val scrollY = if (renderedPage == page) (0 until childCount).map { getChildAt(it) }.filterIsInstance<ScrollView>().firstOrNull()?.scrollY ?: 0 else 0
         practiceScrollY = scrollY
         renderedPage = page
         connected.setActive(active && page == Page.CONNECTED)
         liveWeather.setActive(active && page == Page.WEATHER)
-        removeAllViews(); stats = null; guidance = null; surface = null; resumeButton = null
-        pauseButton = null; mirrorButton = null; scenarioSteering = null; scenarioInputs.clear(); signalButtons.clear()
-        if (page in setOf(Page.COURSES, Page.TASKS, Page.SCENARIO, Page.REVIEW)) practiceHeader()
+        removeAllViews(); stats = null; guidance = null; surface = null; resumeButton = null; trafficDetails=null
+        pauseButton = null; mirrorButton = null; scenarioSteering = null; scenarioInputs.clear(); signalButtons.clear(); variantButtons.clear()
+        if (page != Page.HOME) practiceHeader()
         else {
         val header = row()
         header.addView(text("준비와 연습", 28, true), LayoutParams(0, dp(56), 1f))
@@ -203,13 +212,14 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
             Page.WEATHER_PRACTICE -> weatherPracticePage()
             Page.MANUAL -> manualPage()
             Page.GUIDES -> guidePage()
+            Page.DOUBLE_PARKING -> doubleParkingPage()
             Page.COURSES -> coursePage()
             Page.TASKS -> taskPage()
             Page.SCENARIO -> scenarioPage()
             Page.REVIEW -> reviewPage()
             Page.HISTORY -> historyPage()
         }
-        if (page in setOf(Page.HOME, Page.WEATHER, Page.WEATHER_PRACTICE, Page.MANUAL, Page.GUIDES, Page.HISTORY)) {
+        if (page == Page.HOME) {
             val body = LinearLayout(context).apply { orientation = VERTICAL }
             while (childCount > contentStart) {
                 val child = getChildAt(contentStart); removeViewAt(contentStart); body.addView(child)
@@ -235,113 +245,288 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
                 WorkflowHomeAction.LANE_CHANGE -> ready(onLaneChange)
                 WorkflowHomeAction.HISTORY -> { page = Page.HISTORY; render() }
                 WorkflowHomeAction.RECOVER -> pending?.let { task ->
-                    if (inMemory != null) ready { page = Page.SCENARIO; render() } else startTask(task.id)
+                    if (inMemory != null) ready { page = Page.SCENARIO; render() }
+                    else { trafficVariants[task.id]=store.pendingVariant(); startTask(task.id) }
                 }
             }
         }, full())
     }
     private fun weatherPage() {
         (liveWeather.parent as? ViewGroup)?.removeView(liveWeather)
-        addView(liveWeather, full())
-        addView(button("날씨별 대응 교육 보기", "workflow_weather_practice") {
-            stopVoice(); page = Page.WEATHER_PRACTICE; render()
-        }, full(64))
+        addView(liveWeather, LayoutParams(-1, 0, 1f))
     }
     private fun weatherPracticePage() {
-        addView(text("날씨별 대응 교육 · 가상 상황", 26, true), full())
+        val body = practiceBody()
+        body.addView(practiceText("날씨를 골라 출발 전에 준비할 일을 알아봐요. 현재 날씨와는 별도의 교육이에요.", 21), full())
+        val columns = PreparationColumns(context, 1f, 1.4f, 1_100); body.addView(columns, full())
+        val choices = practiceCard(); columns.addView(choices)
+        choices.addView(practiceText("어떤 날씨를 알아볼까요?", 24, true), full())
         val input = weather.result
-        addView(text(if (input?.value == null) "가상 상황 미선택 · 현재 날씨 조회와 별도의 교육이에요."
-            else "가상 날씨 예시: ${weatherLabel(input.value!!.condition)}\n대응 방법을 익히는 연습이에요. 현재 날씨와는 달라요."), full())
-        addView(button("가상 상황 선택 초기화", "workflow_weather_retry") {
-            stopVoice(); weather.accept(UnavailableWeatherProvider().read("미선택", weather.contextId, SystemClock.elapsedRealtime()), SystemClock.elapsedRealtime()); render()
-        }, full(56))
-        addView(text("날씨를 골라 상황별 대응 방법을 익혀 보세요."), full())
         WeatherCondition.entries.forEach { condition ->
-            addView(button(when (condition) { WeatherCondition.CLEAR -> "특별한 조언 없음"; WeatherCondition.RAIN -> "비 예시"; WeatherCondition.SNOW -> "눈 예시"; WeatherCondition.FOG -> "안개 예시"; WeatherCondition.COLD -> "저온 예시" }, "workflow_weather_${condition.name.lowercase()}") {
+            choices.addView(practiceButton(when (condition) { WeatherCondition.CLEAR -> "맑은 날"; WeatherCondition.RAIN -> "비"; WeatherCondition.SNOW -> "눈"; WeatherCondition.FOG -> "안개"; WeatherCondition.COLD -> "추운 날" }, "workflow_weather_${condition.name.lowercase()}", primary = input?.value?.condition == condition) {
                 stopVoice(); val now = SystemClock.elapsedRealtime(); weather.accept(SimulatedWeatherProvider(condition).read("가상 연습장", weather.contextId, now), now); render()
-            }, full(56))
+            }, full())
         }
+        val guidance = practiceCard(PreparationStyle.softAccent); columns.addView(guidance)
+        guidance.addView(practiceText(input?.value?.let { "${weatherLabel(it.condition)} · 이렇게 준비해요" } ?: "날씨별 준비 요령", 28, true), full())
         val advice = weather.advice(SystemClock.elapsedRealtime())
-        addView(text(advice?.text ?: "같은 세션의 같은 조언은 반복하지 않아요. 실제 유리·노면 상태는 직접 확인해 주세요."), full())
-        addView(button("조언 듣기", "workflow_weather_speak", advice != null) { advice?.let { say(it.text, it) } }, full(60))
-        addView(button("관련 시야 확보 기능 배우기", "workflow_weather_manual") { selectedFeature = ManualFeature.DEFOG; manual = null; page = Page.MANUAL; render() }, full(60))
-        addView(button("성에와 도로 살얼음 교육", "workflow_weather_winter") { guide = DrivingGuideSession(DrivingGuideCatalog.guides.first { it.id == "winter" }); page = Page.GUIDES; stopVoice(); render() }, full(60))
+        guidance.addView(practiceText(advice?.text ?: "궁금한 날씨를 골라 주세요. 이미 들은 조언은 같은 세션에서 반복하지 않아요. 실제 유리·노면 상태는 직접 확인해 주세요.", 24, true), full())
+        guidance.addView(practiceText("화면에서 선택한 가상 상황의 조언이에요. 현재 위치의 기상 정보는 날씨 조회 화면에서 확인해 주세요.", 19), full())
+        val links = practiceCard(); body.addView(links, full())
+        links.addView(practiceText("이어서 알아보기", 24, true), full())
+        val linksRow = PreparationColumns(context, breakpoint = 1_100); links.addView(linksRow, full())
+        linksRow.addView(practiceButton("관련 시야 확보 기능 배우기", "workflow_weather_manual") { selectedFeature = ManualFeature.DEFOG; manual = null; page = Page.MANUAL; render() })
+        linksRow.addView(practiceButton("성에와 도로 살얼음 교육", "workflow_weather_winter") { guide = DrivingGuideSession(DrivingGuideCatalog.guides.first { it.id == "winter" }); page = Page.GUIDES; stopVoice(); render() })
+        val actions = practiceRow(this)
+        actions.addView(practiceButton("선택 초기화", "workflow_weather_retry") {
+            stopVoice(); weather.accept(UnavailableWeatherProvider().read("미선택", weather.contextId, SystemClock.elapsedRealtime()), SystemClock.elapsedRealtime()); render()
+        }, practiceWeight())
+        actions.addView(practiceButton("조언 듣기", "workflow_weather_speak", advice != null, true) { advice?.let { say(it.text, it) } }, practiceWeight())
     }
     private fun manualPage() {
-        addView(text("차량 기능 · 설명서 근거 확인", 26, true), full())
-        addView(text(if (demoManual) "교육용 가상 차량 · SIM-MANUAL-1 · 실제 차량 조작에 적용하지 마세요."
-            else manualReference?.let { "${it.model} · ${it.year}년형 · ${it.trim} · 선택한 설명서 기준" }
-                ?: "${TrainingVehicle.NAME} · ${TrainingVehicle.VARIANT} · 연식·공조 사양을 직접 확인하고 아래 설명서를 선택해 주세요."), full())
-        val selectors = row()
-        selectors.addView(button("내 차량 설명서 확인", "workflow_manual_real") { stopVoice(); demoManual = false; manualReference = null; manual = null; render() }, weight())
-        selectors.addView(button("교육용 가상 설명서", "workflow_manual_demo") { stopVoice(); demoManual = true; manual = null; render() }, weight())
+        val body = practiceBody()
+        body.addView(practiceText("내 차의 기능을 고르고, 조작 순서를 한 단계씩 익혀요.", 21), full())
+        val reference = practiceCard(); body.addView(reference, full())
+        val referenceRow = PreparationColumns(context, breakpoint = 1_100); reference.addView(referenceRow, full())
+        val mode = LinearLayout(context).apply { orientation = VERTICAL }; referenceRow.addView(mode)
+        mode.addView(practiceText("학습할 설명서", 24, true), full())
+        val selectors = practiceRow(mode)
+        selectors.addView(practiceButton("내 차량 설명서", "workflow_manual_real", primary = !demoManual) {
+            stopVoice(); if (demoManual) { demoManual = false; manual = null }; render()
+        }, practiceWeight())
+        selectors.addView(practiceButton("가상 패널로 익히기", "workflow_manual_demo", primary = demoManual) {
+            stopVoice(); if (!demoManual) { demoManual = true; manual = null }; render()
+        }, practiceWeight())
+        val specification = LinearLayout(context).apply { orientation = VERTICAL }; referenceRow.addView(specification)
         if (!demoManual) {
-            addView(text("2024 CN7 가솔린 설명서로 학습하기 · 내 차의 연식과 공조 패널이 맞는지 확인해 주세요. 열선은 장착 차량만 해당해요."), full())
-            val references = row()
-            references.addView(button("2024 · 수동 공조", "workflow_manual_cn7_manual") { selectManual(Cn7Manual.MANUAL_CLIMATE) }, weight())
-            references.addView(button("2024 · 자동 공조", "workflow_manual_cn7_auto") { selectManual(Cn7Manual.AUTO_CLIMATE) }, weight())
+            specification.addView(practiceText("2024 아반떼 CN7 · 가솔린", 22, true), full())
+            val references = practiceRow(specification)
+            references.addView(practiceButton("수동 공조", "workflow_manual_cn7_manual", primary = manualReference == Cn7Manual.MANUAL_CLIMATE) {
+                selectManual(Cn7Manual.MANUAL_CLIMATE)
+            }, practiceWeight())
+            references.addView(practiceButton("자동 공조", "workflow_manual_cn7_auto", primary = manualReference == Cn7Manual.AUTO_CLIMATE) {
+                selectManual(Cn7Manual.AUTO_CLIMATE)
+            }, practiceWeight())
+            reference.addView(practiceText("내 차의 연식과 공조 패널이 맞는지 확인하고 선택해 주세요. 열선·통풍·어린이 보호 잠금은 해당 장치 장착 차량만 적용해요.", 19), full())
+        } else {
+            specification.addView(practiceText("교육용 가상 패널", 22, true), full())
+            specification.addView(practiceText("화면에서 기능을 켜고 상태를 확인해요. 실제 차량의 버튼 위치나 조작 순서를 뜻하지 않아요.", 19), full())
         }
-        ManualFeature.entries.chunked(4).forEach { group ->
-            val features = row()
-            group.forEach { feature -> features.addView(button(feature.title, "workflow_manual_${feature.name.lowercase()}") {
-                stopVoice(); selectedFeature = feature; manual = null; render()
-            }, weight()) }
-        }
+        val columns = PreparationColumns(context, 1f, 1.45f, 1_100); body.addView(columns, full())
+        val features = practiceCard(); columns.addView(features)
+        features.addView(practiceText("어떤 기능을 익힐까요?", 24, true), full())
+        manualFeatureGroup(features, "실내 온도", listOf(ManualFeature.AC, ManualFeature.HEAT, ManualFeature.SEAT_HEAT) + if(demoManual) emptyList() else listOf(ManualFeature.SEAT_VENT))
+        manualFeatureGroup(features, "시야 확보", listOf(ManualFeature.DEFOG, ManualFeature.REAR_DEFOG, ManualFeature.WIPER, ManualFeature.LIGHTS))
+        if(!demoManual) manualFeatureGroup(features, "승하차", listOf(ManualFeature.CHILD_LOCK))
+        features.addView(practiceButton(ManualFeature.OTHER.title, "workflow_manual_other", primary = selectedFeature == ManualFeature.OTHER) {
+            selectManualFeature(ManualFeature.OTHER)
+        }, full().apply { topMargin = dp(8) })
+        val learning = practiceCard(PreparationStyle.softAccent); columns.addView(learning)
         val lesson = manuals.find(if (demoManual) ManualRepository.DEMO_VEHICLE else manualReference ?: ManualVehicle(TrainingVehicle.NAME, null, null), selectedFeature)
-        if (lesson == null) { addView(text("설명서 확인 필요 · 해당 차종·트림·기능의 근거가 없어요. 없는 기능이나 조작 순서를 만들지 않아요.", 22, true), full()); return }
+        if (lesson == null) {
+            learning.addView(practiceText("설명서 확인 필요", 26, true), full())
+            learning.addView(practiceText(if (!demoManual && manualReference == null) "위에서 내 차에 맞는 공조 사양을 선택해 주세요. 선택한 설명서에 맞춰 기능을 안내해 드려요."
+                else "이 기능은 차량의 사용설명서에서 확인해 주세요. 목록에서 다른 기능을 선택하면 단계별 안내를 볼 수 있어요.", 23), full())
+            return
+        }
         if (manual?.lesson != lesson) manual = ManualLearningSession(lesson)
         val current = manual!!
-        addView(text("${lesson.revision} / ${lesson.section} · ${current.index + 1}/${lesson.steps.size}", 18, true), full())
-        lesson.sourceUrl?.let { url -> addView(button("현대 공식 설명서 원문", "workflow_manual_source") { openSource(url) }, full(52)) }
-        addView(text(current.current, 26), full(170))
-        if (current.index == 2 && lesson.source == InputSource.SIMULATION) addView(button(if (current.simulatedOperation) "가상 상태: 켜짐 · 모의 작동 확인" else "가상 패널에서 기능 켜기", "workflow_manual_operate") { current.operate(); render() }, full(64))
-        val actions = row()
-        actions.addView(button("이전", "workflow_manual_previous", current.index > 0) { current.previous(); stopVoice(); render() }, weight())
-        actions.addView(button("다시 듣기", "workflow_manual_repeat") { say(current.current) }, weight())
-        actions.addView(button("다음", "workflow_manual_next", current.index < lesson.steps.lastIndex) { current.next(); render(); say(current.current) }, weight())
-        addView(button(if (current.learned) (if (demoManual) "가상 학습 확인 완료" else "설명서 학습 확인 완료") else "학습 내용을 직접 확인했어요", "workflow_manual_confirm", current.canConfirm) {
+        learning.addView(practiceText(selectedFeature.title, 28, true), full())
+        lesson.applicability?.let { learning.addView(practiceText(it,19),full()) }
+        learning.addView(practiceText("${current.index + 1} / ${lesson.steps.size}단계 · ${if (demoManual) "가상 패널 학습" else manualReference?.trim.orEmpty()}", 21, true).apply {
+            contentDescription = "workflow_manual_progress"
+        }, full())
+        learning.addView(practiceText(current.current, 26, true).apply { contentDescription = "workflow_manual_instruction" }, full().apply { topMargin = dp(14); bottomMargin = dp(20) })
+        if (current.index == 2 && lesson.source == InputSource.SIMULATION) learning.addView(practiceButton(
+            if (current.simulatedOperation) "✓ 가상 패널 켜짐" else "가상 패널에서 기능 켜기", "workflow_manual_operate", primary = current.simulatedOperation) {
+            current.operate(); render()
+        }, full())
+        if(current.index==lesson.steps.lastIndex) lesson.quiz?.let { quiz ->
+            learning.addView(practiceText("이해 확인 · ${quiz.question}",23,true),full())
+            quiz.choices.forEachIndexed { index,choice -> learning.addView(practiceButton(choice,"workflow_manual_answer_$index",!current.learned,current.selectedAnswer==index) {
+                current.answer(index); stopVoice(); render()
+            },full()) }
+            current.selectedAnswer?.let { answer -> learning.addView(practiceText(
+                (if(answer==quiz.answer) "✓ 이해 확인 완료\n" else "다시 생각해 봐요\n")+quiz.explanation,21).apply { contentDescription="workflow_manual_feedback" },full()) }
+        }
+        learning.addView(practiceText(when {
+            current.learned -> if (demoManual) "가상 학습 확인 완료" else "설명서 학습 확인 완료"
+            current.canConfirm -> "모든 단계를 읽었어요. 내용을 직접 확인한 뒤 학습을 마쳐 주세요."
+            current.index == lesson.steps.lastIndex && lesson.quiz!=null -> "위의 문제에서 내용을 확인한 뒤 학습을 마칠 수 있어요."
+            current.index == lesson.steps.lastIndex -> "이전 단계로 돌아가 가상 패널을 켜고 상태를 확인해 주세요."
+            else -> "다음 단계에서 조작 순서를 이어서 확인해요."
+        }, 21).apply { contentDescription = "workflow_manual_learning_status" }, full())
+        lesson.sourceUrl?.let { url ->
+            learning.addView(practiceText("현대자동차 사용설명서 · 2024 아반떼 CN7\n${lesson.section}", 18).apply {
+                contentDescription = "workflow_manual_reference"
+            }, full().apply { topMargin = dp(14) })
+            learning.addView(practiceButton("현대 공식 설명서 원문", "workflow_manual_source") { openSource(url) }, full())
+        }
+        learning.addView(practiceText("학습 완료는 설명을 확인했다는 뜻이에요. 실제 기능의 작동 상태는 차량에서 직접 확인해 주세요.", 18), full())
+        val actions = practiceRow(this)
+        actions.addView(practiceButton("이전", "workflow_manual_previous", current.index > 0) { current.previous(); stopVoice(); render() }, practiceWeight())
+        actions.addView(practiceButton("음성으로 듣기", "workflow_manual_repeat") { say(current.current) }, practiceWeight())
+        actions.addView(practiceButton("다음 단계", "workflow_manual_next", current.index < lesson.steps.lastIndex, primary = current.index < lesson.steps.lastIndex) {
+            current.next(); render(); say(current.current)
+        }, practiceWeight())
+        addView(practiceButton(if (current.learned) "✓ 학습 확인 완료" else "학습 내용을 직접 확인했어요", "workflow_manual_confirm", current.canConfirm && !current.learned, primary = current.canConfirm) {
             current.confirm(); store.learned(lesson); render()
-        }, full(64))
-        addView(text("이 완료 표시는 교육 내용 확인이며 실제 에어컨·열선 작동을 인증하지 않아요."), full())
+        }, full())
     }
-    private fun selectManual(reference: ManualVehicle) { stopVoice(); demoManual = false; manualReference = reference; manual = null; render() }
+    private fun manualFeatureGroup(parent: LinearLayout, title: String, choices: List<ManualFeature>) {
+        parent.addView(practiceText(title, 20, true), full().apply { topMargin = dp(8) })
+        choices.chunked(2).forEach { pair ->
+            val buttons = practiceRow(parent)
+            pair.forEach { feature -> buttons.addView(practiceButton(feature.title, "workflow_manual_${feature.name.lowercase()}", primary = selectedFeature == feature) {
+                selectManualFeature(feature)
+            }, practiceWeight()) }
+        }
+    }
+    private fun selectManualFeature(feature: ManualFeature) {
+        stopVoice(); if (selectedFeature != feature) { selectedFeature = feature; manual = null }; render()
+    }
+    private fun selectManual(reference: ManualVehicle) {
+        stopVoice(); if (demoManual || manualReference != reference) manual = null
+        demoManual = false; manualReference = reference; render()
+    }
     private fun openSource(url: String) {
         stopVoice()
         runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
             .onFailure { Toast.makeText(context, "원문 주소: $url", Toast.LENGTH_LONG).show() }
     }
     private fun guidePage() {
-        addView(text("정차 중 상황별 교육", 26, true), full())
-        DrivingGuideCatalog.guides.chunked(3).forEach { group ->
-            val choices = row()
-            group.forEach { item -> choices.addView(button((if (guide.guide == item) "✓ " else "") + item.title, "workflow_guide_${item.id}") {
-                stopVoice(); guide = DrivingGuideSession(item); render()
-            }, weight(64)) }
-        }
-        val item = guide.guide
-        addView(text("${item.title} · ${guide.index + 1}/${item.steps.size}", 24, true), full())
-        item.illustrations.getOrNull(guide.index)?.let { addView(RoadConceptView(context,it), full(210)) }
-        addView(text(guide.current, 24), full())
-        val steps = row()
-        steps.addView(button("이전", "workflow_guide_previous", guide.index > 0) { guide.previous(); stopVoice(); render() }, weight())
-        steps.addView(button("음성으로 듣기", "workflow_guide_speak") { say(guide.current) }, weight())
-        steps.addView(button("다음", "workflow_guide_next", guide.index < item.steps.lastIndex) { guide.next(); stopVoice(); render() }, weight())
-        if (guide.index == item.steps.lastIndex) {
-            addView(text(item.question, 22, true), full())
-            item.choices.forEachIndexed { i, choice -> addView(button(choice, "workflow_guide_answer_$i") {
-                guide.answer(i); stopVoice(); render()
-            }, full(64)) }
-            if (guide.selected != null) addView(text((if (guide.completed) "이해 확인 완료 · " else "다시 생각해 봐요 · ") + item.explanation), full())
-            item.relatedTask?.let { id ->
-                addView(button("이어서 가상 연습: ${ScenarioCatalog.find(id)?.title}", "workflow_guide_practice", guide.completed) {
-                    startTask(id)
-                }, full(60))
+        val body = practiceBody()
+        body.addView(practiceText("궁금한 상황을 골라 차근차근 읽고, 마지막 문제로 이해한 내용을 확인해요.", 21), full())
+        val columns = PreparationColumns(context, 1f, 1.6f, 1_100); body.addView(columns, full())
+        val topics = practiceCard(); columns.addView(topics)
+        topics.addView(practiceText("어떤 상황을 알아볼까요?", 24, true), full())
+        listOf(
+            "시선과 차간 거리" to listOf("look_ahead", "shoulder", "following_gap"),
+            "도로와 교차로" to listOf("road_markings", "intersection"),
+            "주차와 겨울철" to listOf("double_parking", "winter")
+        ).forEach { (title, ids) ->
+            topics.addView(practiceText(title, 20, true), full().apply { topMargin = dp(10) })
+            ids.chunked(2).forEach { pair ->
+                val choices = practiceRow(topics)
+                pair.forEach { id ->
+                    val topic = DrivingGuideCatalog.guides.first { it.id == id }
+                    choices.addView(practiceButton(topic.title, "workflow_guide_$id", primary = guide.guide.id == id) {
+                        stopVoice(); if (guide.guide.id != id) guide = DrivingGuideSession(topic); render()
+                    }, practiceWeight())
+                }
             }
         }
-        if (item.id == "following_gap") addView(GapStudyView(context,gapStudy,{ active && !closed && page == Page.GUIDES },::stopVoice), full())
-        addView(text("출처: ${item.source}\n학습 확인은 실제 운전 능력 평가나 주변 감지 결과가 아니에요.", 15), full())
-        addView(button("교육 참고 자료", "workflow_guide_source") { openSource(item.sourceUrl) }, full(52))
-        item.additionalSourceUrl?.let { url -> addView(button("비보호 좌회전 참고 자료", "workflow_guide_additional_source") { openSource(url) },full(52)) }
+        val item = guide.guide
+        if(item.id=="double_parking") topics.addView(practiceButton("차량 배치로 이중 주차 연습","workflow_double_parking",primary=true) {
+            ready { doubleParking.resume(); page=Page.DOUBLE_PARKING; render() }
+        },full().apply { topMargin=dp(12) })
+        val lessonColumn = LinearLayout(context).apply { orientation = VERTICAL }; columns.addView(lessonColumn)
+        val lesson = practiceCard(PreparationStyle.softAccent); lessonColumn.addView(lesson, full())
+        lesson.addView(practiceText(item.title, 28, true), full())
+        lesson.addView(practiceText("${guide.index + 1} / ${item.steps.size}단계 · ${if (guide.index == item.steps.lastIndex) "읽고 이해 확인하기" else "한 단계씩 알아보기"}", 21).apply {
+            contentDescription = "workflow_guide_progress"
+        }, full())
+        lesson.addView(practiceText(guide.current, 25, true).apply { contentDescription = "workflow_guide_instruction" }, full().apply { topMargin = dp(12) })
+        item.illustrations.getOrNull(guide.index)?.let { illustration ->
+            lesson.addView(practiceText(illustration.caption, 21), full().apply { topMargin = dp(12) })
+            lesson.addView(RoadConceptView(context, illustration), full(260))
+            lesson.addView(practiceText("학습을 돕는 단순 그림이에요.", 18), full())
+        }
+        if (item.id == "following_gap") lessonColumn.addView(GapStudyView(context,gapStudy,{ active && !closed && page == Page.GUIDES },::stopVoice), full())
+        if(item.id=="shoulder") {
+            val situations=practiceCard(); lessonColumn.addView(situations,full())
+            situations.addView(practiceText("가상 상황에 적용해 보기",24,true),full())
+            situations.addView(practiceText("다가오는 차와 통로의 보행자가 지나가면 새로 주변을 확인해요. 정차 차량이 계속 시야·공간을 막으면 시도를 취소할 수 있어요. 기다림과 취소는 감점하지 않아요.",21),full())
+            for(id in listOf("D10","D11","D13")) {
+                situations.addView(practiceText("${ScenarioCatalog.find(id)?.title}: ${TrafficScenarios.titles(id).joinToString(" / ")}",20),full())
+                situations.addView(practiceButton("${ScenarioCatalog.find(id)?.title} 연습","workflow_guide_traffic_$id") { startTask(id) },full())
+            }
+            situations.addView(practiceText("차근이 작성한 가상 객체 상황이에요. 실도로의 진입 시점·거리 기준으로 사용하지 않아요.",18),full())
+        }
+        if (guide.index == item.steps.lastIndex) {
+            val quiz = practiceCard(); lessonColumn.addView(quiz, full())
+            quiz.addView(practiceText("이해한 내용 확인하기", 24, true), full())
+            quiz.addView(practiceText(item.question, 23, true).apply { contentDescription = "workflow_guide_question" }, full())
+            item.choices.forEachIndexed { i, choice ->
+                quiz.addView(practiceButton(choice, "workflow_guide_answer_$i", primary = guide.completed && guide.selected == i) {
+                    guide.answer(i); stopVoice(); render()
+                    findViewWithTag<View>("workflow_guide_feedback")?.let { feedback ->
+                        feedback.post {
+                            if (active && !closed && page == Page.GUIDES && feedback.isAttachedToWindow)
+                                feedback.requestRectangleOnScreen(android.graphics.Rect(0, 0, feedback.width, feedback.height), true)
+                        }
+                    }
+                }.apply {
+                    isSelected = guide.selected == i
+                    if (isSelected && !guide.completed) PreparationStyle.button(this, true, soft = true)
+                }, full())
+            }
+            if (guide.selected != null) {
+                val feedback = practiceCard(PreparationStyle.softAccent).apply { tag = "workflow_guide_feedback" }; quiz.addView(feedback, full())
+                feedback.addView(practiceText(if (guide.completed) "✓ 이해 확인 완료" else "다시 생각해 봐요", 23, true).apply {
+                    contentDescription = "workflow_guide_result"
+                }, full())
+                feedback.addView(practiceText(item.explanation, 21), full())
+            }
+        }
+        val reference = practiceCard(); body.addView(reference, full())
+        reference.addView(practiceText("참고한 자료", 20, true), full())
+        reference.addView(practiceText(item.source, 18), full())
+        val links = PreparationColumns(context, breakpoint = 1_100); reference.addView(links, full())
+        links.addView(practiceButton("교육 참고 자료", "workflow_guide_source") { openSource(item.sourceUrl) })
+        item.additionalSourceUrl?.let { url -> links.addView(practiceButton("비보호 좌회전 참고 자료", "workflow_guide_additional_source") { openSource(url) }) }
+        reference.addView(practiceText("학습 확인은 내용을 이해했는지 돌아보는 과정이에요. 실제 운전 능력이나 주변 상황을 측정하지 않아요.", 18), full())
+        val steps = practiceRow(this)
+        steps.addView(practiceButton("이전", "workflow_guide_previous", guide.index > 0) { guide.previous(); stopVoice(); render() }, practiceWeight())
+        steps.addView(practiceButton("음성으로 듣기", "workflow_guide_speak") { say(guide.current) }, practiceWeight())
+        steps.addView(practiceButton("다음 단계", "workflow_guide_next", guide.index < item.steps.lastIndex, primary = guide.index < item.steps.lastIndex) {
+            guide.next(); stopVoice(); render()
+        }, practiceWeight())
+        if (guide.index == item.steps.lastIndex) {
+            item.relatedTask?.let { id ->
+                addView(practiceButton("이어서 가상 연습: ${ScenarioCatalog.find(id)?.title}", "workflow_guide_practice", guide.completed, primary = guide.completed) {
+                    startTask(id)
+                }, full())
+            }
+        }
+    }
+    private fun doubleParkingPage() {
+        val state=doubleParking
+        val body=practiceBody()
+        val item=state.situation
+        val summary=practiceCard(PreparationStyle.softAccent); body.addView(summary,full())
+        summary.addView(practiceText(if(state.completed) "✓ 세 상황의 선택을 확인했어요" else "${state.index+1} / 3 · ${item.title}",26,true).apply { contentDescription="double_parking_progress" },full())
+        summary.addView(practiceText("다른 차 앞을 가로막는 상황을 이해하는 교육이에요. 평행 주차나 실차 조작 연습과 달라요.",21),full())
+        if(state.paused) summary.addView(practiceButton("준비 확인 후 이어하기","double_parking_resume",primary=true) { ready { state.resume(); render() } },full())
+        val columns=PreparationColumns(context,1.1f,1f,1_100); body.addView(columns,full())
+        val drawing=practiceCard(); columns.addView(drawing)
+        drawing.addView(DoubleParkingDiagramView(context,item,state.selected),full(330))
+        drawing.addView(practiceText("회색: 주차된 차 · 녹색 화살표: 출차 경로\n주황 영역: 보행·비상 통행 공간 · 빨강: 방해하는 배치",20),full())
+        drawing.addView(practiceText(item.prompt,23,true),full())
+        val choices=practiceCard(); columns.addView(choices)
+        choices.addView(practiceText(if(state.completed) "선택과 이유 복습" else "위치나 대응을 직접 골라 주세요",24,true),full())
+        item.choices.forEach { choice -> choices.addView(practiceButton(choice.title,"double_parking_choice_${choice.id}",!state.paused && !state.completed,state.selected?.id==choice.id) {
+            ready { state.choose(choice.id); stopVoice(); render() }
+        },full()) }
+        state.selected?.let { choice ->
+            choices.addView(practiceText(if(choice.correct) "✓ 출차·통행을 확보하는 선택이에요" else "어떤 길이 막히는지 다시 살펴요",23,true),full())
+            choices.addView(practiceText(choice.explanation,22).apply { contentDescription="double_parking_feedback" },full())
+        }
+        if(state.completed) {
+            DoubleParkingCatalog.situations.forEachIndexed { index,situation -> body.addView(practiceButton("${index+1}. ${situation.title} 복습","double_parking_review_$index") { state.reviewAt(index); render() },full()) }
+            body.addView(practiceButton(if(doubleParkingSaved) "이 기기에 학습 확인을 저장했어요" else if(recordEnabled()) "학습 확인 저장" else "기록 동의 꺼짐 · 저장 없이 복습","double_parking_save",recordEnabled() && !doubleParkingSaved) {
+                doubleParkingSaved=store.saveDoubleParking(); render()
+            },full())
+        }
+        body.addView(practiceText("실제 주변 공간·차량 고정 상태는 직접 확인해요. N단 유지나 주차 브레이크 해제를 모든 차량에 공통으로 지시하지 않아요.",19),full())
+        val actions=practiceRow(this)
+        actions.addView(practiceButton("교육으로","double_parking_back") { state.pause(); page=Page.GUIDES; stopVoice(); render() },practiceWeight())
+        actions.addView(practiceButton(if(state.completed) "처음부터 다시 연습" else "이 상황 다시 선택","double_parking_retry",!state.paused) {
+            ready { if(state.completed) { state.restart(); doubleParkingSaved=false } else state.retryCurrent(); render() }
+        },practiceWeight())
+        if(!state.completed) actions.addView(practiceButton(if(state.index==2) "세 상황 학습 마치기" else "다음 상황","double_parking_next",state.canAdvance,primary=state.canAdvance) {
+            ready { state.next(); stopVoice(); render() }
+        },practiceWeight())
     }
     private fun loadCourses() { courses.load(RouteRequest(goal, selectedTask, if (startSelected) "가상 연습장" else null, if (excludeRoundTrip) setOf("왕복") else emptySet()), SimulatedRouteProvider(), SystemClock.elapsedRealtime()) }
     private fun coursePage() {
@@ -460,7 +645,7 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
         dialog = AlertDialog.Builder(context).setTitle(title)
             .setItems(ScenarioCatalog.tasks.map { "${it.id} · ${it.title}" }.toTypedArray()) { _, index ->
                 if (active && !closed) chosen(ScenarioCatalog.tasks[index].id)
-            }.setNegativeButton("취소", null).show()
+            }.setNegativeButton("취소", null).showReadable()
     }
     private fun ready(action: () -> Unit) {
         if (!active) return
@@ -470,12 +655,22 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
     private fun startTask(id: String, keepCourse: Boolean = false) = ready {
         if (!keepCourse) { courseTasks = emptyList(); courseIndex = 0 }
         val task = ScenarioCatalog.find(id) ?: return@ready
-        scenario = ScenarioSession(task, UUID.randomUUID().toString()); review = null; saved = false; explanation = null; difficulty = null; statusMessage = ""
+        scenario = ScenarioSession(task, UUID.randomUUID().toString(),trafficVariants[id] ?: 0); review = null; saved = false; explanation = null; difficulty = null; statusMessage = ""
         page = Page.SCENARIO; store.clearCheckpoint(); lastCueRevision = -1; render()
     }
     private fun scenarioPage() {
         val session = scenario ?: return
         val snapshot = session.snapshot()
+        val variants=TrafficScenarios.titles(snapshot.task.id)
+        if(variants.isNotEmpty()) {
+            val variantsRow=practiceRow(this)
+            variants.forEachIndexed { index,title ->
+                val button=practiceButton("상황 ${index+1} · $title","workflow_variant_$index",snapshot.paused,primary=session.variant==index) {
+                    if(session.snapshot().paused && session.variant!=index) { trafficVariants[snapshot.task.id]=index; startTask(snapshot.task.id,courseTasks.isNotEmpty()) }
+                }
+                variantButtons.add(button); variantsRow.addView(button,practiceWeight())
+            }
+        }
         val actions = practiceRow(this)
         resumeButton = practiceButton("시작·이어서 연습", "workflow_resume", primary = true) {
             if (!canPractice()) { onPrepare(); return@practiceButton }
@@ -500,6 +695,14 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
         }
         stats = practiceText("", 20).also { it.contentDescription = "workflow_stats"; coaching.addView(it, full().apply { topMargin = dp(12) }) }
         coaching.addView(practiceText("화면 속 가상 연습 수치예요.", 18), full())
+        if(snapshot.traffic!=null) {
+            val trafficCard=practiceCard(); body.addView(trafficCard,full())
+            trafficDetails=practiceText("",21).also { it.contentDescription="workflow_traffic_state"; trafficCard.addView(it,full()) }
+            trafficCard.addView(practiceText("그림과 과제 판정은 같은 가상 객체를 사용해요. 표시 수치는 실제 진입·안전 기준이 아니에요.",18),full())
+            trafficCard.addView(practiceButton("주변 확인과 기다림 요령 복습","workflow_traffic_guide") {
+                pause("교육 복습"); stopVoice(); guide=DrivingGuideSession(DrivingGuideCatalog.guides.first { it.id=="shoulder" }); page=Page.GUIDES; render()
+            },full())
+        }
 
         val signals = PreparationColumns(context, breakpoint = 1_100)
         body.addView(signals, full())
@@ -568,9 +771,16 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
             snapshot.waiting,lead,headway)
         guidance?.text = snapshot.instruction
         surface?.update(snapshot)
+        snapshot.traffic?.let { traffic ->
+            trafficDetails?.text=context.getString(R.string.road_traffic_state,traffic.title,
+                context.getString(if(traffic.entryAvailable) R.string.road_traffic_clear else R.string.road_traffic_blocked),
+                traffic.actors.joinToString("\n") { actor -> context.getString(R.string.road_traffic_actor,actor.label,
+                    context.getString(if(actor.relativeM<0) R.string.road_traffic_behind else R.string.road_traffic_ahead),kotlin.math.abs(actor.relativeM)) })
+        }
         val allowed = active && !snapshot.paused && snapshot.status == EventStatus.ACTIVE && canPractice()
+        variantButtons.forEach { it.isEnabled=active && snapshot.paused && snapshot.status==EventStatus.ACTIVE }
         if (snapshot.paused) scenarioSteering?.let { if (it.progress != 100) it.progress = 100 }
-        scenarioInputs.forEach { it.isEnabled = allowed; it.alpha = if (allowed) 1f else .45f }
+        scenarioInputs.forEach { it.isEnabled = allowed; it.alpha = 1f }
         signalButtons.forEach { (signal, button) -> practiceSelection(button, snapshot.signal == signal) }
         mirrorButton?.let { practiceSelection(it, snapshot.mirrorChecked) }
         pauseButton?.visibility = if (snapshot.paused) GONE else VISIBLE
@@ -589,6 +799,13 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
         summary.addView(practiceText("${snapshot.task.title} · ${statusLabel(snapshot.status.name)}", 26, true), full())
         summary.addView(practiceText(snapshot.instruction, 21), full())
         summary.addView(practiceText(String.format(Locale.KOREA, "가상 이동 %.1fm", snapshot.distance), 19), full())
+        snapshot.traffic?.let { traffic ->
+            summary.addView(practiceText("연습 상황: ${traffic.title}\n${traffic.explanation}",21),full())
+            val variants=practiceRow(summary)
+            TrafficScenarios.titles(snapshot.task.id).forEachIndexed { index,title -> variants.addView(practiceButton("상황 ${index+1} 다시 연습: $title","workflow_review_variant_$index") {
+                trafficVariants[snapshot.task.id]=index; startTask(snapshot.task.id)
+            },practiceWeight()) }
+        }
         val columns = PreparationColumns(context, breakpoint = 1_100); body.addView(columns, full())
         val feeling = practiceCard(); columns.addView(feeling)
         feeling.addView(practiceText("이번 연습은 어땠나요?", 24, true), full())
@@ -632,25 +849,37 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
         }, full().apply { topMargin = dp(12) })
     }
     private fun historyPage() {
-        addView(text("이 기기의 가상 연습 기록", 26, true), full())
+        val body = practiceBody()
+        val summary = practiceCard(PreparationStyle.softAccent); body.addView(summary, full())
+        summary.addView(practiceText("이 기기에 남긴 연습", 26, true), full())
         val records = store.records()
-        if (records.isEmpty()) addView(text("저장한 가상 과제가 없어요. 기록에 동의하지 않아도 연습할 수 있어요."), full())
+        summary.addView(practiceText(if (records.isEmpty()) "아직 저장한 가상 과제가 없어요. 기록에 동의하지 않아도 연습할 수 있어요." else "최근 ${records.size}개의 연습을 돌아보고, 추천 과제를 다시 연습해 보세요.", 22), full())
+        if(store.doubleParkingLearned()) summary.addView(practiceButton("✓ 이중 주차 세 상황 학습 · 다시 연습","workflow_history_double_parking") {
+            ready { doubleParking.restart(); doubleParkingSaved=false; page=Page.DOUBLE_PARKING; render() }
+        },full())
         records.forEachIndexed { i, record ->
             val task = ScenarioCatalog.find(record.optString("task")) ?: return@forEachIndexed
-            addView(text("${task.title} · ${statusLabel(record.optString("status"))}\n연습 내용: ${record.optString("facts")}\n직접 확인할 점: ${record.optString("unknown")}\n내 소감: ${if (record.isNull("explanation")) "남긴 소감이 없어요" else record.optString("explanation")}"), full())
-            addView(button("추천 과제 다시 연습", "workflow_history_$i") { startTask(record.optString("next", task.nextTask)) }, full(56))
-            addView(text("내가 선택한 어려움: ${ScenarioCatalog.find(record.optString("difficulty"))?.title ?: "미선택"}"), full())
+            val item = practiceCard(); body.addView(item, full().apply { topMargin = dp(8) })
+            item.addView(practiceText(task.title, 25, true), full())
+            item.addView(practiceText(statusLabel(record.optString("status")), 20, true), full())
+            if(record.has("trafficTitle")) item.addView(practiceText("연습한 상황: ${record.optString("trafficTitle")}",21,true),full())
+            if(record.has("trafficVariant")) item.addView(practiceButton("같은 상황 다시 연습","workflow_history_variant_$i") {
+                trafficVariants[task.id]=record.optInt("trafficVariant",0).coerceIn(0,1); startTask(task.id)
+            },full())
+            item.addView(practiceText("연습 내용: ${record.optString("facts")}\n\n직접 확인할 점: ${record.optString("unknown")}", 22), full())
+            item.addView(practiceText("내 소감: ${if (record.isNull("explanation")) "남긴 소감이 없어요" else record.optString("explanation")}\n내가 선택한 어려움: ${ScenarioCatalog.find(record.optString("difficulty"))?.title ?: "미선택"}", 20), full())
+            item.addView(practiceButton("추천 과제 다시 연습", "workflow_history_$i") { startTask(record.optString("next", task.nextTask)) }, full())
         }
-        addView(button("이 과제의 기록·중단 지점 삭제", "workflow_delete") {
+        addView(practiceButton("이 과제의 기록·중단 지점 삭제", "workflow_delete") {
             dialog?.dismiss()
             dialog = AlertDialog.Builder(context).setTitle("가상 과제 기록을 삭제할까요?")
                 .setMessage("이 기능의 가상 과제 기록·중단 지점·가상 설명서 학습 기록만 삭제해요. 기존 프로필·주행·주차·음성 연수 기록은 유지해요.")
-                .setNegativeButton("취소", null).setPositiveButton("삭제") { _, _ -> if (active) { store.delete(); render() } }.show()
-        }, full(60))
+                .setNegativeButton("취소", null).setPositiveButton("삭제") { _, _ -> if (active) { store.delete(); render() } }.showReadable()
+        }, full())
     }
     private fun practiceHeader() {
         val header = practiceRow(this)
-        val title = when (page) { Page.COURSES -> "가상 코스"; Page.SCENARIO -> scenario?.snapshot()?.task?.title ?: "주행 연습"; Page.REVIEW -> "주행 연습 돌아보기"; else -> "주행 연습" }
+        val title = when (page) { Page.CONNECTED -> "차량 상태 · 위치와 내비"; Page.WEATHER_PRACTICE -> "날씨별 대응 교육"; Page.HISTORY -> "가상 연습 기록"; Page.WEATHER -> "현재 위치 날씨"; Page.MANUAL -> "차량 기능 익히기"; Page.GUIDES -> "상황별 교육"; Page.DOUBLE_PARKING -> "이중 주차 · 배치와 통행"; Page.COURSES -> "가상 코스"; Page.SCENARIO -> scenario?.snapshot()?.task?.title ?: "주행 연습"; Page.REVIEW -> "주행 연습 돌아보기"; else -> "주행 연습" }
         header.addView(practiceText(title, 30, true), practiceWeight())
         header.addView(practiceButton(if (arbiter.muted) "안내 재개" else "안내 음소거", "workflow_mute") {
             if (page == Page.SCENARIO) pause("음성 설정 변경")

@@ -172,7 +172,7 @@ class ParkingLessonView(
 
     private fun label(value: String, size: Int, color: Int, bold: Boolean = false) = TextView(context).apply {
         text = value
-        textSize = size.toFloat()
+        textSize = size.coerceAtLeast(18).toFloat()
         setTextColor(color)
         if (bold) setTypeface(typeface, Typeface.BOLD)
         setLineSpacing(dp(3).toFloat(), 1.08f)
