@@ -43,18 +43,25 @@ class LiveWeatherView(context: Context, private val permission: () -> Unit, priv
     private val expire = Runnable { if (state.active && !closed) render() }
     init {
         state.consent(preferences.consent); announcement.enabled = preferences.autoRead
+        if (state.consent) {
+            WeatherMemoryCache.getFresh()?.let { state.restore(it, System.currentTimeMillis()) }
+        }
         orientation = VERTICAL; render()
     }
     fun setActive(value: Boolean) {
         if (closed || value == state.active) return
         state.activate(value)
         if (!value) cancelWork()
+        else if (state.consent && state.reading == null) {
+            WeatherMemoryCache.getFresh()?.let { state.restore(it, System.currentTimeMillis()) }
+        }
         render()
     }
     fun permissionResult() { if (state.active) render() } // A grant never silently transmits location.
     fun showReading(reading: LiveWeatherReading) {
         if (closed || !preferences.consent) return
         cancelWork()
+        WeatherMemoryCache.latest = reading
         state.restore(reading, System.currentTimeMillis())
         locationNotice = if (reading.place.name == WeatherPlaces.DEFAULT.name)
             "현재 위치 미확인 · 기본 지역인 ${reading.place.name} 기준으로 조회했어요." else null
@@ -85,7 +92,10 @@ class LiveWeatherView(context: Context, private val permission: () -> Unit, priv
             val result = runCatching { request.read(point) }
             main.post {
                 if (!closed && state.accepts(token)) {
-                    result.fold({ state.accept(token, it, System.currentTimeMillis()) },
+                    result.fold({
+                        state.accept(token, it, System.currentTimeMillis())
+                        WeatherMemoryCache.latest = it
+                    },
                         { state.fail(token, "날씨 조회 실패 · 인터넷 연결을 확인하고 다시 조회해 주세요.") })
                     announcement.request(state.fresh(System.currentTimeMillis()), System.currentTimeMillis(),
                         state.active, state.consent, autoSpeak)
@@ -131,7 +141,7 @@ class LiveWeatherView(context: Context, private val permission: () -> Unit, priv
         settings.addView(label("날씨 안내 설정", 25, true), full())
         switchRow(settings, "지역 정보 전송 동의", "현재 위치를 이용해 날씨를 조회해요.", "weather_live_consent", state.consent) { enabled ->
             stopSpeech(); state.consent(enabled); preferences.consent = enabled
-            if (!enabled) { cancelWork(); locationNotice = null }
+            if (!enabled) { cancelWork(); locationNotice = null; WeatherMemoryCache.clear() }
             render()
         }
         switchRow(settings, "앱 실행 시 자동 조회", "앱을 새로 열면 날씨를 한 번 확인해요.", "weather_startup_auto", preferences.startup) { preferences.startup = it }

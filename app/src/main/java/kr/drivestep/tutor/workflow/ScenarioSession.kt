@@ -81,13 +81,17 @@ class ScenarioSession(val task: ScenarioTask, val attemptId: String = "simulatio
         val step = min(dt, .2)
         elapsed += step
         speed = (speed + (gas * 2.4 - brake * 5.0 - .35) * step).coerceIn(0.0, 60.0 / 3.6)
+        val traffic = traffic()
+        if(traffic!=null && !traffic.entryAvailable) mirror=false
+        val expectedSignal = if (task.id in setOf("D06", "D14")) TrainingSignal.RIGHT else TrainingSignal.LEFT
+        val turnReady = mirror && signal == expectedSignal
+        if (task.id in setOf("D06", "D07", "D08") && turnReady && (task.id == "D08" || phase >= 1) && abs(steering) >= .15 && brake <= .1 && speed < 3.0) {
+            speed = 3.0
+        }
         distance += speed * step
         lateral += steering * speed * step * .22
         rotation += steering * speed * step * 5
         if (brake > .5 && speed < .1) waiting += step
-        val traffic = traffic()
-        if(traffic!=null && !traffic.entryAvailable) mirror=false
-        val turnReady = mirror && signal == if (task.id in setOf("D06", "D14")) TrainingSignal.RIGHT else TrainingSignal.LEFT
         var complete = false
         when (task.id) {
             "D01" -> { if (abs(lateral) > .8) tell("가상 차로 중앙을 다시 맞춰 봐요.") else complete = distance >= 60 && speed * 3.6 in 5.0..35.0 }
@@ -122,10 +126,35 @@ class ScenarioSession(val task: ScenarioTask, val attemptId: String = "simulatio
                 complete = phase == 2 && distance >= 60
             }
             "D06", "D07" -> {
-                if (phase == 0 && turnReady && waiting >= 2) { phase = 1; tell("가상 대기 순서를 확인했어요. 방향을 유지하며 조향해 봐요.") }
-                complete = phase == 1 && turnReady && (if (task.id == "D06") rotation >= 60 else rotation <= -60) && abs(steering) < .15
+                if (phase == 0 && waiting >= 2 && !turnReady) {
+                    val dirLabel = if (task.id == "D06") "[오른쪽 →]" else "[← 왼쪽]"
+                    tell(
+                        when {
+                            signal != expectedSignal && !mirror -> "2초 정차 대기를 확인했어요. $dirLabel 방향지시등과 [미러·사각지대 확인 학습]을 눌러 주세요."
+                            signal != expectedSignal -> "2초 정차 대기와 주변 확인을 마쳤어요. $dirLabel 방향지시등을 켜 주세요."
+                            else -> "2초 정차 대기와 방향지시를 마쳤어요. [미러·사각지대 확인 학습] 버튼을 눌러 주세요."
+                        }
+                    )
+                }
+                if (phase == 0 && turnReady && waiting >= 2) {
+                    phase = 1
+                    brake = 0.0
+                    tell(if (task.id == "D06") "2초 정차 대기를 확인했어요. 핸들을 오른쪽으로 돌리면 차량이 오른쪽으로 이동해요." else "2초 정차 대기를 확인했어요. 핸들을 왼쪽으로 돌리면 차량이 왼쪽으로 이동해요.")
+                }
+                val movedEnough = if (task.id == "D06") (rotation >= 60 || lateral >= 1.2) else (rotation <= -60 || lateral <= -1.2)
+                if (phase == 1 && turnReady && movedEnough) {
+                    phase = 2
+                    tell("목표 방향 이동을 확인했어요. 이제 [핸들 중앙] 버튼을 눌러 핸들을 정면으로 복원하면 완료돼요.")
+                }
+                complete = phase == 2 && turnReady && abs(steering) < .15
             }
-            "D08" -> complete = turnReady && rotation <= -150 && abs(steering) < .15
+            "D08" -> {
+                if (phase == 0 && turnReady && rotation <= -150) {
+                    phase = 1
+                    tell("충분히 이동했어요. 이제 [핸들 중앙] 버튼을 눌러 핸들을 정면으로 복원하면 완료돼요.")
+                }
+                complete = phase == 1 && turnReady && abs(steering) < .15
+            }
             "D09" -> complete = turnReady && lateral <= -3.0 && abs(steering) < .15
             "D10", "D13" -> {
                 val scene=requireNotNull(traffic)

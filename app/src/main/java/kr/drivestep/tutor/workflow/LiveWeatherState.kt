@@ -45,6 +45,13 @@ data class LiveWeatherReading(val place: WeatherPlace, val temperatureC: Double,
     }
 }
 
+/** In-memory cache across workflow and startup cards during the app session. Coordinates/weather are never persisted to disk. */
+object WeatherMemoryCache {
+    @Volatile var latest: LiveWeatherReading? = null
+    fun getFresh(now: Long = System.currentTimeMillis()): LiveWeatherReading? = latest?.takeIf { it.validAt(now) }
+    fun clear() { latest = null }
+}
+
 /** Consent and lifecycle changes invalidate both HTTP and location callbacks. */
 class LiveWeatherState {
     var consent = false; private set
@@ -54,7 +61,15 @@ class LiveWeatherState {
     var reading: LiveWeatherReading? = null; private set
     var message = "현재 날씨 미확인 · 현재 위치 날씨를 조회해 주세요."; private set
     fun activate(value: Boolean) { active = value; if (!value) cancel() }
-    fun consent(value: Boolean) { consent = value; if (!value) { cancel(); reading = null; message = "날씨 조회 동의를 껐어요." } }
+    fun consent(value: Boolean) {
+        consent = value
+        if (!value) {
+            cancel()
+            reading = null
+            WeatherMemoryCache.clear()
+            message = "날씨 조회 동의를 껐어요."
+        }
+    }
     fun begin(): Long? {
         if (!active || !consent) return null
         generation++; loading = true; reading = null; message = "날씨 정보 조회 중…"
@@ -64,8 +79,14 @@ class LiveWeatherState {
     fun accept(token: Long, value: LiveWeatherReading, now: Long) {
         if (!accepts(token)) return
         loading = false
-        if (value.validAt(now)) { reading = value; message = "Open-Meteo 현재 예보 · 현장 센서 관측이 아니에요." }
-        else { reading = null; message = "날씨 시각·값을 확인할 수 없어요. 다시 조회해 주세요." }
+        if (value.validAt(now)) {
+            reading = value
+            WeatherMemoryCache.latest = value
+            message = "Open-Meteo 현재 예보 · 현장 센서 관측이 아니에요."
+        } else {
+            reading = null
+            message = "날씨 시각·값을 확인할 수 없어요. 다시 조회해 주세요."
+        }
     }
     fun fail(token: Long, reason: String) {
         if (!accepts(token)) return

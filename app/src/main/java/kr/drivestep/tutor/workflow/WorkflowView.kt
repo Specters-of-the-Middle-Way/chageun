@@ -145,7 +145,8 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
     fun openHome() { pause("기능 선택"); page = Page.HOME; render() }
     fun openWeather(reading: LiveWeatherReading? = null) {
         pause("날씨 확인"); page = Page.WEATHER
-        reading?.let(liveWeather::showReading)
+        val target = reading ?: WeatherMemoryCache.getFresh()
+        target?.let(liveWeather::showReading)
         render()
     }
     fun goBack(): Boolean {
@@ -235,7 +236,7 @@ class WorkflowView(context: Context, private val onExit: () -> Unit, private val
             active && !closed) { destination ->
             if (active && !closed) when (destination) {
                 WorkflowHomeAction.PREPARE -> { stopVoice(); onPrepare() }
-                WorkflowHomeAction.WEATHER -> { page = Page.WEATHER; render() }
+                WorkflowHomeAction.WEATHER -> openWeather()
                 WorkflowHomeAction.VEHICLE -> { page = Page.CONNECTED; render() }
                 WorkflowHomeAction.MANUAL -> { page = Page.MANUAL; render() }
                 WorkflowHomeAction.GUIDES -> { page = Page.GUIDES; render() }

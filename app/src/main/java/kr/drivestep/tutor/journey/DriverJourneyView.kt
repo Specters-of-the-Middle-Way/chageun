@@ -71,7 +71,7 @@ class DriverJourneyView(
     private val vehicleToast = PreparationToast(this)
     private var readiness: ReadinessSnapshot? = null
     private var setupSpeechLabel: TextView? = null
-    private var setupSpeechStatus = "음성으로 듣기를 누르면 현재 단계의 안내를 읽어요."
+    private var setupSpeechStatus = ""
     private val setupSpeech = TutorSpeechController(context, onTranscript = {}, onStatus = {
         setupSpeechStatus = SpeechStatusText.forDisplay(if (it.contains("대화 시작")) "음성 안내를 껐어요. 화면에서 설명을 확인할 수 있어요." else it.replace("음성 입력과 안내", "음성 안내"))
         setupSpeechLabel?.let { label -> label.text = setupSpeechStatus; label.visibility = if (setupSpeechStatus.isBlank()) GONE else VISIBLE }
@@ -105,6 +105,10 @@ class DriverJourneyView(
         active = value
         setupSpeech.setActive(value)
         if (!value) { dialog?.dismiss(); dialog = null; vehicleToast.cancel() }
+        else if (state.page == JourneyStep.SETUP && !setupSpeech.isSpeaking) {
+            val step = setupSteps[state.setupIndex]
+            setupSpeech.speak(step.first + ". " + step.second)
+        }
         updateEnabled()
     }
 
@@ -134,7 +138,7 @@ class DriverJourneyView(
     fun goBack(): Boolean {
         when (state.page) {
             JourneyStep.PROFILE, JourneyStep.REVISIT -> return false
-            JourneyStep.SETUP -> state.enterProfile()
+            JourneyStep.SETUP -> if (state.setupIndex > 0) state.enterSetup(state.setupIndex - 1) else state.enterProfile()
             JourneyStep.PREFLIGHT -> state.enterSetup()
             JourneyStep.PRACTICE -> state.enterPreflight()
             JourneyStep.EDUCATION, JourneyStep.REVIEW -> if (state.canPractice) state.enterPractice() else state.enterPreflight()
@@ -146,8 +150,9 @@ class DriverJourneyView(
     private fun render() {
         val nextSpeechContext = "${state.page}:${state.setupIndex}"
         val previousScroll = if (speechContext == nextSpeechContext) pageScroll?.scrollY ?: 0 else 0
+        val isNewSpeechStep = speechContext != nextSpeechContext
         pageScroll = null
-        if (speechContext != nextSpeechContext) { setupSpeech.stop(); speechContext = nextSpeechContext }
+        if (isNewSpeechStep) { setupSpeech.stop(); speechContext = nextSpeechContext }
         setupSpeechLabel = null; vehicleToast.cancel()
         removeAllViews(); enabledControls.clear()
         val side = LinearLayout(context).apply {
@@ -194,6 +199,7 @@ class DriverJourneyView(
         }
         addView(body, LayoutParams(0, LayoutParams.MATCH_PARENT, 1f))
         content = body
+        val autoSpeakSetup = isNewSpeechStep && active && state.page == JourneyStep.SETUP
         when (state.page) {
             JourneyStep.PROFILE -> profilePage(body)
             JourneyStep.REVISIT -> revisitPage(body)
@@ -202,6 +208,10 @@ class DriverJourneyView(
             JourneyStep.PRACTICE -> practicePage(body)
             JourneyStep.EDUCATION -> educationPage(body)
             JourneyStep.REVIEW -> reviewPage(body)
+        }
+        if (autoSpeakSetup) {
+            val step = setupSteps[state.setupIndex]
+            setupSpeech.speak(step.first + ". " + step.second)
         }
         if (lastPage != state.page) {
             Log.i("DriverJourney", "page=${state.page} setup=${state.setupCompletedCount}/9 preflight=${state.preflightCompletedCount}/7 records=$recordEnabled vehicle=$vehicleDataEnabled")
@@ -339,7 +349,7 @@ class DriverJourneyView(
             info.addView(preset, full(-2))
             preset.addView(label("체격 참고 구간 ${band.minRecommended}~${band.maxRecommended}\n50은 중립 시작값이에요.", 18, grey))
             preset.addView(button("체격 참고 시작값 적용", "journey_apply_recommended_preset") {
-                state.applyRecommendedPreset(); persist(); render()
+                state.applyRecommendedPreset(axis); persist(); render()
             })
         } else info.addView(label(if (index in 5..7) "뒤와 옆의 시야를 직접 확인해요. 그림은 실제 미러 영상이나 각도 측정 결과가 아니에요."
             else "차량의 조절 장치와 사용설명서를 확인해요. 올바른 착용·조절 상태는 직접 살펴주세요.", 19, grey), full(-2))
@@ -358,13 +368,18 @@ class DriverJourneyView(
         val actions = PreparationColumns(context, 1f, 2f, 760)
         parent.addView(actions, full(-2).apply { topMargin = dp(18) })
         actions.addView(button("설명 다시 확인", "journey_setup_skip_help") {
-            state.leaveSetupUnresolved(); refreshChecks(); persist()
+            if (!state.setupChecks()[index]) { state.leaveSetupUnresolved(); refreshChecks(); persist() }
             showMessage(step.first, step.second + "\n\n확인하지 못한 항목은 완료로 바꾸지 않아요. 불편한 부분을 다시 조절한 뒤 확인하거나 정차 교육을 선택하세요.")
         })
         actions.addView(button("조절 및 확인 완료", "journey_setup_confirm", selected = true) {
             if (index == 8 && readiness?.belt?.quality == InputValidity.VALID && readiness?.belt?.value == false) {
                 showMessage("안전벨트가 채워지지 않았어요", "안전벨트를 채워 주세요. 벨트가 꼬이지 않았는지, 몸에 잘 맞는지도 확인해 주세요.")
-            } else { state.confirmSetupStep(); persist(); render() }
+            } else {
+                state.confirmSetupStep(); persist(); render()
+                if (index == 8 && state.page == JourneyStep.SETUP && !state.setupComplete) {
+                    showMessage("확인하지 않은 항목이 남아 있어요", "왼쪽 확인 순서에서 완료(✓) 표시가 없는 이전 단계를 직접 선택해 확인을 마쳐 주세요.")
+                }
+            }
         })
     }
 

@@ -147,35 +147,16 @@ class JourneyState(
         val next = calibration.withValue(axis, value)
         if (next == calibration) return
         calibration = next
-        val ownStep = when (axis) {
-            CalibrationAxis.FORE_AFT -> 0
-            CalibrationAxis.HEIGHT -> 1
-            CalibrationAxis.BACKREST -> 2
-            CalibrationAxis.STEERING -> 4
-        }
-        setup[ownStep] = false
-        // A changed eye/arm position invalidates all previously checked mirror views.
-        for (i in 5..7) setup[i] = false
-        preflight.fill(false)
     }
 
-    fun applyRecommendedPreset() {
-        val next = profile.recommendedCalibration()
-        if (next == calibration) return
-        val changedAxes = CalibrationAxis.entries.filter { calibration.value(it) != next.value(it) }
-        calibration = next
-        changedAxes.forEach { axis ->
-            val ownStep = when (axis) {
-                CalibrationAxis.FORE_AFT -> 0
-                CalibrationAxis.HEIGHT -> 1
-                CalibrationAxis.BACKREST -> 2
-                CalibrationAxis.STEERING -> 4
-            }
-            setup[ownStep] = false
+    fun applyRecommendedPreset(axis: CalibrationAxis? = null) {
+        val next = if (axis != null) {
+            calibration.withValue(axis, profile.guideBand(axis).recommendedCenter)
+        } else {
+            profile.recommendedCalibration()
         }
-        // Applying a new posture starting preset invalidates all mirror confirmations.
-        for (i in 5..7) setup[i] = false
-        preflight.fill(false)
+        if (next == calibration) return
+        calibration = next
     }
 
     fun enterProfile() { page = JourneyStep.PROFILE }
@@ -195,8 +176,11 @@ class JourneyState(
     fun confirmSetupStep() {
         if (page != JourneyStep.SETUP || !profileConfirmed) return
         setup[setupIndex] = true
-        val next = setup.indexOfFirst { !it }
-        if (next < 0) page = JourneyStep.PREFLIGHT else setupIndex = next
+        if (setupIndex < SETUP_COUNT - 1) {
+            setupIndex += 1
+        } else if (setupComplete) {
+            page = JourneyStep.PREFLIGHT
+        }
     }
     fun leaveSetupUnresolved() {
         if (page != JourneyStep.SETUP) return

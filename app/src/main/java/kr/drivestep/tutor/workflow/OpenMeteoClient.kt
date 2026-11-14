@@ -12,6 +12,19 @@ class OpenMeteoClient {
     fun cancel() { cancelled = true; connection?.disconnect() }
     fun read(place: WeatherPlace): LiveWeatherReading {
         require(place.valid)
+        var lastException: Exception? = null
+        for (attempt in 0..1) {
+            if (cancelled) break
+            try {
+                return executeRead(place)
+            } catch (e: Exception) {
+                lastException = e
+                if (cancelled) break
+            }
+        }
+        throw lastException ?: IllegalStateException("Weather request cancelled")
+    }
+    private fun executeRead(place: WeatherPlace): LiveWeatherReading {
         check(!cancelled)
         val point = place.approximate()
         val query = String.format(Locale.US, "latitude=%.2f&longitude=%.2f", point.latitude, point.longitude)
@@ -22,7 +35,9 @@ class OpenMeteoClient {
             check(!cancelled)
             request.connectTimeout = 8_000; request.readTimeout = 8_000
             request.instanceFollowRedirects = false
-            check(request.responseCode == 200) { "Weather request failed" }
+            request.setRequestProperty("User-Agent", USER_AGENT)
+            request.setRequestProperty("Accept", "application/json")
+            check(request.responseCode == 200) { "Weather request failed: ${request.responseCode}" }
             val body = request.inputStream.bufferedReader(Charsets.UTF_8).use { reader ->
                 val buffer = CharArray(32_769)
                 var count = 0
@@ -39,6 +54,7 @@ class OpenMeteoClient {
         } finally { request.disconnect(); connection = null }
     }
     companion object {
+        const val USER_AGENT = "DriveStepTutor/1.0 (kr.drivestep.tutor; Android Automotive OS)"
         fun parse(body: String, place: WeatherPlace): LiveWeatherReading {
             val json = JSONObject(body)
             val units = json.getJSONObject("current_units")

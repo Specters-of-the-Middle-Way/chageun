@@ -117,4 +117,22 @@ class ScenarioSessionTest {
         s.steer(-1.0);s.pedals(1.0,0.0);until(s){it.rotation < -70};s.steer(0.0);hold(s,1.0)
         assertEquals(EventStatus.ACTIVE,s.snapshot().status)
     }
+
+    @Test fun d06WaitReleasesBrakeAndSteeringMovesRightWithoutHoldingGas() {
+        val s = session("D06")
+        s.signal(TrainingSignal.RIGHT)
+        s.checkMirror()
+        s.waitForGap()
+        until(s) { it.phase == 1 }
+        assertTrue(s.snapshot().waiting >= 2.0)
+
+        s.steer(0.8)
+        until(s) { it.phase == 2 }
+        assertTrue(s.snapshot().lateral > 0.0)
+        assertTrue(s.snapshot().instruction.contains("핸들 중앙"))
+
+        s.steer(0.0)
+        until(s) { it.status == EventStatus.COMPLETED }
+        assertEquals(EventStatus.COMPLETED, s.snapshot().status)
+    }
 }

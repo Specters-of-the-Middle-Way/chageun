@@ -36,6 +36,7 @@ class WeatherLocationSource(context: Context) {
             val fused = FusedLocation(app)
             if (!fused.isSupported()) { finish(null, "현재 위치 서비스를 사용할 수 없어요."); return }
             service = fused; fused.initialize()
+            var candidatePlace: WeatherPlace? = null
             val callback = object : FusedLocationListener {
                 override fun onChanged(location: LocationData?) {
                     main.post {
@@ -43,19 +44,23 @@ class WeatherLocationSource(context: Context) {
                             val observed = locationObservation(location?.let {
                                 LocationFix(GeoPoint(it.latitude, it.longitude), it.timestampMillis, it.confidence)
                             }, SystemClock.elapsedRealtime(), System.currentTimeMillis())
-                            // Ignore stale last-known fixes while waiting for a fresh update.
-                            observed.value?.takeIf { observed.quality == InputValidity.VALID }?.let {
-                                finish(WeatherPlace("현재 위치 주변", it.point.latitude, it.point.longitude).approximate(), null)
+                            observed.value?.let {
+                                val place = WeatherPlace("현재 위치 주변", it.point.latitude, it.point.longitude).approximate()
+                                if (observed.quality == InputValidity.VALID) {
+                                    finish(place, null)
+                                } else {
+                                    candidatePlace = place
+                                }
                             }
                         }
                     }
                 }
                 override fun onError(exception: Exception) {
-                    main.post { finish(null, "위치를 읽을 수 없어요. 위치 권한을 확인해 주세요.") }
+                    main.post { finish(candidatePlace, "위치를 읽을 수 없어요. 위치 권한을 확인해 주세요.") }
                 }
             }
             listener = callback
-            timeout = Runnable { finish(null, "최신 위치를 받지 못했어요. 다시 조회해 주세요.") }
+            timeout = Runnable { finish(candidatePlace, "최신 위치를 받지 못했어요. 다시 조회해 주세요.") }
                 .also { main.postDelayed(it, timeoutMillis.coerceIn(500, 10_000)) }
             fused.registerFusedLocationCallback(callback); fused.getLastKnownLocation(callback)
         } catch (_: Exception) { finish(null, "현재 위치를 조회하지 못했어요.") }

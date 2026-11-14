@@ -17,7 +17,7 @@ class ScenarioSurfaceView(context: Context) : View(context) {
     fun update(value: ScenarioSnapshot) {
         snapshot = value
         contentDescription = java.lang.String.format(java.util.Locale.KOREA,
-            "가상 주행 그림 · 이동 %.1fm · 차로 위치 %.1fm · 회전 %.1f도", value.distance,value.lateral,value.rotation)
+            "가상 주행 그림 · 이동 %.1fm · 차로 위치 %.1fm", value.distance, value.lateral)
         invalidate()
     }
     override fun onDraw(canvas: Canvas) {
@@ -38,15 +38,12 @@ class ScenarioSurfaceView(context: Context) : View(context) {
         }
         val laneWidth = (roadRight - roadLeft) / 3
         val carX = width / 2f + (s.lateral.coerceIn(-4.0, 4.0) / 3.6 * laneWidth).toFloat()
-        val carSave = canvas.save()
-        if ((s.task.id == "D06" || s.task.id == "D07" || s.task.id == "D08")) canvas.rotate(s.rotation.toFloat(), carX, height * .75f)
         paint.color = PleosUi.TEXT
         rect.set(carX - laneWidth * .22f, height * .62f, carX + laneWidth * .22f, height * .88f)
         canvas.drawRoundRect(rect, dp(10f), dp(10f), paint)
         paint.color = PleosUi.SURFACE
         rect.set(carX - laneWidth * .15f, height * .64f, carX + laneWidth * .15f, height * .68f)
         canvas.drawRect(rect, paint)
-        canvas.restoreToCount(carSave)
         if (s.task.id == "D02") {
             paint.color = 0xffbd794d.toInt()
             val x = width / 2f

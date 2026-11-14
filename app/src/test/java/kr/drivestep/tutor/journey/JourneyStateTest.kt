@@ -107,22 +107,21 @@ class JourneyStateTest {
         assertEquals(0, state.preflightCompletedCount)
     }
 
-    @Test fun changingSeatPositionInvalidatesItsOwnCheckAndAllMirrors() {
+    @Test fun changingSeatPositionPreservesCompletedSetupAndPreflightChecks() {
         val state = prepared()
         state.setCalibration(CalibrationAxis.FORE_AFT, 62)
         assertEquals(62, state.calibration.foreAft)
-        assertFalse(state.setupChecks()[0])
-        for (i in 5..7) assertFalse(state.setupChecks()[i])
-        assertTrue(state.setupChecks()[8])
-        assertFalse(state.canPractice)
-        assertEquals(0, state.preflightCompletedCount)
+        assertTrue(state.setupChecks().all { it })
+        assertTrue(state.canPractice)
+        assertEquals(JourneyState.PREFLIGHT_COUNT, state.preflightCompletedCount)
     }
 
-    @Test fun changingSteeringInvalidatesMirrorChecks() {
+    @Test fun changingSteeringPreservesCompletedSetupChecks() {
         val state = prepared()
         state.setCalibration(CalibrationAxis.STEERING, 30)
-        assertFalse(state.setupChecks()[4])
-        for (i in 5..7) assertFalse(state.setupChecks()[i])
+        assertEquals(30, state.calibration.steering)
+        assertTrue(state.setupChecks().all { it })
+        assertTrue(state.canPractice)
     }
 
     @Test fun unchangedVirtualPositionDoesNotDestroyConfirmedChecks() {
@@ -230,26 +229,53 @@ class JourneyStateTest {
         }
     }
 
-    @Test fun applyingRecommendedPresetUpdatesCalibrationAndInvalidatesMirrorsWithoutAutoCompleting() {
-        val state = prepared()
+    @Test fun applyingRecommendedPresetUpdatesAxisWithoutOverwritingOrResettingChecks() {
+        val state = JourneyState()
         state.updateProfile(state.profile.copy(heightCm = 190, weightKg = 90))
         state.confirmProfile()
-        repeat(JourneyState.SETUP_COUNT) { state.confirmSetupStep() }
-        repeat(JourneyState.PREFLIGHT_COUNT) { state.setPreflight(it, true) }
-        assertTrue(state.canPractice)
+        state.setCalibration(CalibrationAxis.FORE_AFT, 77)
+        state.confirmSetupStep()
+        assertFalse(state.setupComplete)
+
+        state.applyRecommendedPreset(CalibrationAxis.STEERING)
+        assertEquals(77, state.calibration.foreAft)
+        assertEquals(state.profile.guideBand(CalibrationAxis.STEERING).recommendedCenter, state.calibration.steering)
+        assertTrue(state.setupChecks()[0])
+        assertEquals(1, state.setupCompletedCount)
 
         state.applyRecommendedPreset()
         assertEquals(state.profile.recommendedCalibration(), state.calibration)
-        assertFalse(state.setupChecks()[0])
-        assertFalse(state.setupChecks()[1])
-        assertFalse(state.setupChecks()[2])
-        assertFalse(state.setupChecks()[4])
-        assertFalse(state.setupChecks()[5])
-        assertFalse(state.setupChecks()[6])
-        assertFalse(state.setupChecks()[7])
-        assertTrue(state.setupChecks()[3])
-        assertTrue(state.setupChecks()[8])
-        assertEquals(0, state.preflightCompletedCount)
+        assertTrue(state.setupChecks()[0])
+        assertEquals(1, state.setupCompletedCount)
         assertFalse(state.canPractice)
+    }
+
+    @Test fun setupStepsProgressSequentiallyWithoutJumpingBackwardsOrSkipping() {
+        val state = JourneyState()
+        state.confirmProfile()
+        assertEquals(0, state.setupIndex)
+
+        state.enterSetup(1)
+        assertEquals(1, state.setupIndex)
+        state.confirmSetupStep()
+        assertEquals(2, state.setupIndex)
+        assertFalse(state.setupChecks()[0])
+        assertTrue(state.setupChecks()[1])
+
+        state.enterSetup(0)
+        state.confirmSetupStep()
+        assertEquals(1, state.setupIndex)
+
+        for (i in 0 until JourneyState.SETUP_COUNT) {
+            state.enterSetup(i)
+            assertEquals(i, state.setupIndex)
+            state.confirmSetupStep()
+            if (i < JourneyState.SETUP_COUNT - 1) {
+                assertEquals(JourneyStep.SETUP, state.page)
+                assertEquals(i + 1, state.setupIndex)
+            }
+        }
+        assertTrue(state.setupComplete)
+        assertEquals(JourneyStep.PREFLIGHT, state.page)
     }
 }
