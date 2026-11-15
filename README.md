@@ -2,6 +2,24 @@
 
 초보 운전자가 조작법을 듣고, 직접 연습하고, 피드백과 기록으로 복습하는 **Pleos / Android Automotive용 운전 코치 프로토타입**입니다. 앱 이름은 **차근(Chageun)**, GitHub 저장소 이름은 `chageun`, Gradle 프로젝트 이름은 `DriveStep`입니다.
 
+## 공모전 제출 APK — 2026-11-15
+
+- 팀명: **으라차차배영찬** · 앱 이름: **차근**.
+- APK 위치: [apk/으라차차배영찬_차근_release.apk](apk/으라차차배영찬_차근_release.apk) · [APK 바로 다운로드](https://raw.githubusercontent.com/Specters-of-the-Middle-Way/chageun/main/apk/%EC%9C%BC%EB%9D%BC%EC%B0%A8%EC%B0%A8%EB%B0%B0%EC%98%81%EC%B0%AC_%EC%B0%A8%EA%B7%BC_release.apk).
+- 파일 크기: `86,646,803 bytes` · SHA-256: `6919d040802d3867c2abffc76447891faeb325c74083a3f0a7af9484ab4fa5a2`.
+- 앱 소스 기준: `0a86634f28c4c6e78f31667e773e6fa7646b3d9e`, 버전 `0.10.0` / versionCode `10`, 패키지 `kr.drivestep.tutor`.
+- `assembleRelease`로 만든 실제 release 빌드이며 `debuggable=false`, `testOnly=false`다. 기존 개발용 인증서로 서명했다. 새 배포용 키를 생성하거나 인증서 종류를 배포 인증서로 바꿔 표시하지 않았다.
+- 검증 환경: **Windows x86_64 / Pleos Connect 2.1.0 / Android 14(API 34), 2560×1440·160dpi**, 현재 차량 사용자 10. 차량 상태는 P·속도 0으로 둔다. 일반 휴대폰용 앱이 아니다.
+- 실행: APK 설치 후 앱 목록에서 **차근**을 연다. 현재 위치 날씨에는 네트워크와 위치 권한을 사용하며, 위치를 받지 못하면 복정동 기준임을 표시한다. PC 마이크를 쓰려면 에뮬레이터의 호스트 마이크 전달을 켠다. 기록·차량 정보 연결은 선택 동의이며 기존 준비 확인 조건을 유지한다.
+- 이번 검사: release APK 서명·정렬·Manifest 검사, 업데이트 설치·실행, release 단위 검사 **395개 통과**. Lint 오류 0개, 단색 테마용 아이콘 관련 경고 2개. 이 결과를 모든 과제·음질의 재검증으로 해석하지 않는다.
+
+```powershell
+adb install -r "apk/으라차차배영찬_차근_release.apk"
+adb shell am start --user current -n kr.drivestep.tutor/.MainActivity
+```
+
+기존 설치본의 서명키가 다르면 업데이트 설치가 거부될 수 있다. 기존 데이터가 필요한 경우 앱을 삭제하지 말고 서명키를 먼저 확인한다. 공식 제출 안내는 소스 코드와 APK를 함께 제공하고 최종 커밋 번호를 접수 메일에 기재하도록 요구한다. 위 소스 기준 해시와 실제 제출 저장소의 최종 커밋은 구분한다. [공식 지원·제출 방법](https://appdevchallenge.auto-hmg.io/guide/submission).
+
 현재 버전은 **v0.10.0**입니다. **함께하는 연수**에서 짧은 음성 대화, 다음 회전 준비 안내, 차량 조작 기록, 복습과 다음 연습을 연결합니다. Pleos STT·TTS 3.3.1과 NaviHelper 3.0.5를 추가했으며, 실제 SDK 입력과 가상 시험 입력을 구분합니다. [실행 방법과 구현 범위](docs/INTERACTIVE_LESSON.md)를 먼저 확인하세요.
 
 Mac의 실제 마이크를 시험할 때는 실행 앱(Codex·Terminal·Android Studio 등)의 macOS 마이크 권한과 에뮬레이터의 호스트 마이크 입력을 확인하세요. 이번 Emulator 37.2.13에서는 `bash scripts/run-emulator.sh -allow-host-audio`로 완전히 재시작한 뒤 실제 발화를 확인했습니다. [마이크 설정과 듣기·답변 순서](docs/INTERACTIVE_LESSON.md#mac에서-실제-마이크로-시험하기)를 참고하세요.
